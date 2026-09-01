@@ -216,12 +216,11 @@ if st.session_state.active_tab == "📍 Registros":
                OR serie ILIKE :filtro 
                OR domicilio ILIKE :filtro 
                OR colonia ILIKE :filtro 
-            ORDER BY fid 
-            LIMIT 50
+            ORDER BY fid
         """
         df_vprs, error_db = obtener_datos(query, {"filtro": filtro})
     else:
-        query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VPRS" ORDER BY fid LIMIT 50'
+        query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VPRS" ORDER BY fid'
         df_vprs, error_db = obtener_datos(query)
     
     if error_db:
@@ -323,12 +322,29 @@ elif st.session_state.active_tab == "➕ Añadir":
 elif st.session_state.active_tab == "⚙️ Editar":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.2rem; font-weight: 700; margin-bottom: 15px;">🛠️ Modificar o Eliminar Válvula (Campos Completos)</h3>', unsafe_allow_html=True)
     
-    query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VPRS" ORDER BY fid LIMIT 100'
-    df_vprs, error_db = obtener_datos(query)
+    # Búsqueda o consulta general sin límite también en la pestaña de edición para que no filtre de más
+    busqueda_edit = st.text_input("🔍 Filtrar registros a editar (por ID, Serie, Domicilio o Colonia):", placeholder="Dejar en blanco para ver todos o buscar uno...")
+    
+    if busqueda_edit and busqueda_edit.strip() != "":
+        filtro_ed = f"%{busqueda_edit.strip()}%"
+        query_edit = f"""
+            SELECT {COLUMNAS_VPRS} 
+            FROM "Agua_potable"."VPRS" 
+            WHERE id ILIKE :filtro 
+               OR serie ILIKE :filtro 
+               OR domicilio ILIKE :filtro 
+               OR colonia ILIKE :filtro 
+            ORDER BY fid
+        """
+        df_vprs, error_db = obtener_datos(query_edit, {"filtro": filtro_ed})
+    else:
+        query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VPRS" ORDER BY fid'
+        df_vprs, error_db = obtener_datos(query)
     
     if error_db:
         st.error(f"Error: {error_db}")
     elif not df_vprs.empty:
+        st.markdown(f"<p style='color: #94A3B8; font-size: 0.85rem; margin-bottom: 10px;'>Mostrando {len(df_vprs)} registros para gestión.</p>", unsafe_allow_html=True)
         for idx, row in df_vprs.iterrows():
             with st.form(key=f"form_edit_{row['fid']}"):
                 st.markdown(f"<span style='color: #00E5FF; font-weight: bold;'>FID Registro: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span>", unsafe_allow_html=True)
