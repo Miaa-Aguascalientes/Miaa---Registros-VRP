@@ -1,4 +1,4 @@
-name: Despertar MIAA SCADA (Clicker)
+name: Despertar registros VRP (Clicker)
 
 on:
   schedule:
@@ -36,7 +36,7 @@ jobs:
             
             try {
               console.log('Navegando a la App MIAA...');
-              await page.goto('https://registro-de-usuarios-telegram.streamlit.app', { 
+              await page.goto('https://miaa-registros-vrp.streamlit.app', { 
                 waitUntil: 'networkidle', 
                 timeout: 60000 
               });
