@@ -126,11 +126,13 @@ st.write("""<style>
     }
 </style>""", unsafe_allow_html=True)
 
-# --- CABECERA ---
-col_title_1, col_title_2, col_title_3 = st.columns([1, 6, 1])
-with col_title_2:
+# --- CABECERA CON LOGOTIPO ---
+col_logo, col_title = st.columns([1, 5])
+with col_logo:
+    st.image("https://www.miaa.mx/assets/img/logo.png", width=140)
+with col_title:
     st.markdown("""
-        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 1rem;">
+        <div style="display: flex; align-items: center; height: 100%;">
             <h2 style="color: #00E5FF; margin: 0; font-size: 1.4rem; font-weight: 800;">Gestión Completa de Válvulas VPRS (PostgreSQL)</h2>
         </div>
     """, unsafe_allow_html=True)
