@@ -126,11 +126,11 @@ st.write("""<style>
     }
 </style>""", unsafe_allow_html=True)
 
-# --- CABECERA CON LOGOTIPO Y TÍTULO EN LÍNEA (FLEXBOX PARA EVITAR SALTO EN MÓVIL) ---
+# --- CABECERA CON LOGOTIPO MÁS GRANDE Y TÍTULO A LA DERECHA ---
 st.markdown("""
     <div style="display: flex; align-items: center; gap: 15px; width: 100%; margin-bottom: 5px;">
-        <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 90px; height: auto; flex-shrink: 0;" />
-        <h2 style="color: #00E5FF; margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.2;">Gestion VRP's</h2>
+        <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 125px; height: auto; flex-shrink: 0;" />
+        <h2 style="color: #00E5FF; margin: 0; font-size: 1.4rem; font-weight: 800; line-height: 1.2;">Gestion VRP's</h2>
     </div>
 """, unsafe_allow_html=True)
 
