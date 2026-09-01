@@ -5,7 +5,7 @@ import time as t
 from zoneinfo import ZoneInfo
 
 # Configuración de página
-st.set_page_config(layout="wide", page_title="Gestión Completa VPRS - MIAA", page_icon="https://www.miaa.mx/favicon.ico")
+st.set_page_config(layout="wide", page_title="Gestión VRP's - MIAA", page_icon="https://www.miaa.mx/favicon.ico")
 
 # --- ESTADO DE SESIÓN ---
 if 'registro_to_delete' not in st.session_state: st.session_state.registro_to_delete = None
@@ -133,7 +133,7 @@ with col_logo:
 with col_title:
     st.markdown("""
         <div style="display: flex; align-items: center; height: 100%;">
-            <h2 style="color: #00E5FF; margin: 0; font-size: 1.4rem; font-weight: 800;">Gestión Completa de Válvulas VPRS (PostgreSQL)</h2>
+            <h2 style="color: #00E5FF; margin: 0; font-size: 1.4rem; font-weight: 800;">Gestion VRP's</h2>
         </div>
     """, unsafe_allow_html=True)
 
