@@ -168,7 +168,6 @@ st.markdown("""
         <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 125px; height: auto; flex-shrink: 0;" />
         <div>
             <h2 style="color: #00E5FF; margin: 0; font-size: 1.4rem; font-weight: 800; line-height: 1.2;">Gestion VRP's</h2>
-            <p style="color: #94A3B8; margin: 0; font-size: 0.85rem;">Sistema integral de Aguascalientes</p>
         </div>
     </div>
 """, unsafe_allow_html=True)
