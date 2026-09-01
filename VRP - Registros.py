@@ -181,7 +181,8 @@ if st.session_state.active_tab == "📍 Registros":
                     <span style="color: #8D99AE; font-size: 0.85rem;">
                         Diámetro: {row['diametro']}mm | Marca: {row['marca_valv']} | Modelo: {row['model_valv']} | Trim: {row['marca_trim']} | Cota: {row['cota_terr']}<br>
                         Sector: {row['sector_hid']} | Estado: {row['estat_valv']} | Hora Cal: {row['hora_cal']} | Fecha: {row['fecha_ult_']}<br>
-                        Cal Ant (D/N): {row['cal_ant_d']} / {row['cal_ant_n']} | Cal Act (D/N): {row['cal_act_d']} / {row['cal_act_n']}<br>
+                        Cal Anterior Día: {row['cal_ant_d']} | Cal Anterior Noche: {row['cal_ant_n']}<br>
+                        Cal Actual Día: {row['cal_act_d']} | Cal Actual Noche: {row['cal_act_n']}<br>
                         Observaciones: {row['observ']}
                     </span>
                 </div>
@@ -213,10 +214,10 @@ elif st.session_state.active_tab == "➕ Añadir Válvula":
             val_estat = st.text_input("Estado Válvula (estat_valv)")
             val_hora = st.text_input("Hora Calibración (hora_cal)")
         with col4:
-            val_cal_ant_d = st.text_input("Cal Ant D (cal_ant_d)")
-            val_cal_ant_n = st.text_input("Cal Ant N (cal_ant_n)")
-            val_cal_act_d = st.text_input("Cal Act D (cal_act_d)")
-            val_cal_act_n = st.text_input("Cal Act N (cal_act_n)")
+            val_cal_ant_d = st.text_input("Cal Anterior Día (cal_ant_d)")
+            val_cal_ant_n = st.text_input("Cal Anterior Noche (cal_ant_n)")
+            val_cal_act_d = st.text_input("Cal Actual Día (cal_act_d)")
+            val_cal_act_n = st.text_input("Cal Actual Noche (cal_act_n)")
 
         col_extra1, col_extra2 = st.columns(2)
         with col_extra1:
@@ -287,10 +288,10 @@ elif st.session_state.active_tab == "⚙️ Editar / Eliminar":
                     e_estat = st.text_input("Estado Valv", value=str(row['estat_valv'] or ""), key=f"est_{row['fid']}")
                     e_hora = st.text_input("Hora Cal", value=str(row['hora_cal'] or ""), key=f"hora_{row['fid']}")
                 with e4:
-                    e_cal_ant_d = st.text_input("Cal Ant D", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")
-                    e_cal_ant_n = st.text_input("Cal Ant N", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")
-                    e_cal_act_d = st.text_input("Cal Act D", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")
-                    e_cal_act_n = st.text_input("Cal Act N", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
+                    e_cal_ant_d = st.text_input("Cal Anterior Día", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")
+                    e_cal_ant_n = st.text_input("Cal Anterior Noche", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")
+                    e_cal_act_d = st.text_input("Cal Actual Día", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")
+                    e_cal_act_n = st.text_input("Cal Actual Noche", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
 
                 e_f1, e_f2 = st.columns(2)
                 with e_f1:
