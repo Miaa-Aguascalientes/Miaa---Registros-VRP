@@ -15,7 +15,6 @@ zona_mx = ZoneInfo("America/Mexico_City")
 
 # --- CONEXIÓN A BASE DE DATOS POSTGRESQL ---
 def crear_nuevo_engine():
-    # Construcción de la URL de conexión para Postgres a partir de los secretos
     pg = st.secrets["postgres"]
     db_url = f"postgresql+psycopg2://{pg['user']}:{pg['password']}@{pg['host']}:{pg['port']}/{pg['database']}"
     return create_engine(
@@ -141,7 +140,17 @@ with col_title_2:
 
 # --- MENÚ DE NAVEGACIÓN ---
 opciones_menu = ["📍 Registros", "➕ Añadir Válvula", "⚙️ Editar / Eliminar"]
-seleccion_tab = st.radio("Navegación", options=opciones_menu, index=opciones_menu.index(st.session_state.active_tab), horizontal=True, label_visibility="collapsed")
+
+if 'active_tab' not in st.session_state or st.session_state.active_tab not in opciones_menu:
+    st.session_state.active_tab = opciones_menu[0]
+
+seleccion_tab = st.radio(
+    "Navegación", 
+    options=opciones_menu, 
+    index=opciones_menu.index(st.session_state.active_tab), 
+    horizontal=True, 
+    label_visibility="collapsed"
+)
 
 if seleccion_tab != st.session_state.active_tab:
     st.session_state.active_tab = seleccion_tab
@@ -268,7 +277,6 @@ elif st.session_state.active_tab == "⚙️ Editar / Eliminar":
                     except Exception as ex:
                         st.error(f"Error al actualizar: {ex}")
 
-            # Botón de borrado independiente basado en el campo único `fid` (serial)
             d_col1, d_col2 = st.columns([6, 2])
             with d_col2:
                 if st.button("🗑️ Eliminar", key=f"del_{row['fid']}", use_container_width=True):
