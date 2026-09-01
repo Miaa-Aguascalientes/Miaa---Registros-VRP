@@ -297,14 +297,14 @@ elif st.session_state.active_tab == "➕ Añadir":
             val_observ = st.text_input("Observaciones (observ)")
 
         st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.2);'>", unsafe_allow_html=True)
-        st.markdown("<p style='color: #00E5FF; font-weight: 600;'>📸 Capturar Fotografía de la Válvula:</p>", unsafe_allow_html=True)
-        foto_capturada = st.camera_input("Toma una foto de la instalación", label_visibility="collapsed")
+        st.markdown("<p style='color: #00E5FF; font-weight: 600;'>📸 Subir o Tomar Fotografía de la Válvula:</p>", unsafe_allow_html=True)
+        foto_subida = st.file_uploader("Selecciona o toma una fotografía", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
 
         btn_guardar = st.form_submit_button("💾 Guardar Registro Completo")
         if btn_guardar:
             if val_id:
                 try:
-                    foto_bytes = foto_capturada.getvalue() if foto_capturada is not None else None
+                    foto_bytes = foto_subida.getvalue() if foto_subida is not None else None
                     
                     sql_insert = """
                         INSERT INTO "Agua_potable"."VPRS" (
@@ -406,13 +406,13 @@ elif st.session_state.active_tab == "⚙️ Editar":
                     except:
                         pass
 
-                st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.85rem;'>📸 Reemplazar o tomar nueva fotografía (Opcional):</p>", unsafe_allow_html=True)
-                nueva_foto_capturada = st.camera_input("Tomar nueva foto", key=f"cam_edit_{row['fid']}", label_visibility="collapsed")
+                st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.85rem;'>📸 Reemplazar fotografía (Opcional):</p>", unsafe_allow_html=True)
+                nueva_foto_subida = st.file_uploader("Subir o tomar nueva foto", type=["jpg", "jpeg", "png"], key=f"up_edit_{row['fid']}", label_visibility="collapsed")
                 
                 btn_act = st.form_submit_button("💾 Actualizar Registro y Fotografía")
                 if btn_act:
                     try:
-                        foto_bytes_final = nueva_foto_capturada.getvalue() if nueva_foto_capturada is not None else row['fotos']
+                        foto_bytes_final = nueva_foto_subida.getvalue() if nueva_foto_subida is not None else row['fotos']
 
                         sql_update = """
                             UPDATE "Agua_potable"."VPRS" 
