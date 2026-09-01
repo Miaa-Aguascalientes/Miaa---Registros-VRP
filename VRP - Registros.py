@@ -21,28 +21,31 @@ def crear_nuevo_engine():
         db_url,
         pool_pre_ping=True, 
         pool_recycle=1800, 
-        pool_timeout=30,
-        connect_args={'connect_timeout': 30}
+        pool_timeout=60,
+        connect_args={'connect_timeout': 60}
     )
 
 if 'db_engine' not in st.session_state:
     st.session_state.db_engine = crear_nuevo_engine()
 
 def obtener_datos(query):
-    """Ejecuta consultas devolviendo el dataframe."""
-    try:
-        with st.session_state.db_engine.connect() as conn:
-            df = pd.read_sql(text(query) if isinstance(query, str) else query, conn)
-            return df, None
-    except Exception as e:
+    """Ejecuta consultas devolviendo el dataframe asegurando reconexión."""
+    for intento in range(2):
         try:
-            st.session_state.db_engine.dispose()
-            st.session_state.db_engine = crear_nuevo_engine()
             with st.session_state.db_engine.connect() as conn:
                 df = pd.read_sql(text(query) if isinstance(query, str) else query, conn)
                 return df, None
-        except Exception as e2:
-            return pd.DataFrame(), str(e2)
+        except Exception as e:
+            try:
+                st.session_state.db_engine.dispose()
+                st.session_state.db_engine = crear_nuevo_engine()
+                with st.session_state.db_engine.connect() as conn:
+                    df = pd.read_sql(text(query) if isinstance(query, str) else query, conn)
+                    return df, None
+            except Exception as e2:
+                if intento == 1:
+                    return pd.DataFrame(), str(e2)
+    return pd.DataFrame(), "Error de conexión persistente."
 
 def ejecutar_sql(query, params=None):
     """Ejecuta sentencias SQL de escritura/actualización en Postgres."""
@@ -51,78 +54,111 @@ def ejecutar_sql(query, params=None):
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
-# --- ESTILOS CSS ---
+# --- ESTILOS CSS UNIFICADOS (Paleta MIAA Home Dark) ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
     .block-container {
         padding-top: 0.2rem !important; 
-        padding-bottom: 2rem !important;
-        background: radial-gradient(circle at top center, #0F2042 0%, #070D1B 70%);
-        color: #FFFFFF;
-        max-width: 1300px;
+        padding-bottom: 2.5rem !important;
+        background: #080C14;
+        color: #F8FAFC;
+        max-width: 1350px;
     }
     body, [data-testid="stAppViewContainer"] {
-        background: radial-gradient(circle at top center, #0F2042 0%, #070D1B 70%);
-        color: #FFFFFF;
+        background: #080C14;
+        color: #F8FAFC;
     }
+    
+    /* Menú de navegación / Pestañas estilo tarjeta MIAA */
     div.row-widget.stRadio > div {
         display: flex;
         flex-direction: row;
         justify-content: center;
-        background: rgba(15, 32, 66, 0.8);
-        border: 1px solid rgba(0, 229, 255, 0.2);
-        border-radius: 12px;
-        padding: 5px;
-        gap: 10px;
+        background: #0D1424;
+        border: 1px solid rgba(0, 229, 255, 0.12);
+        border-radius: 14px;
+        padding: 6px;
+        gap: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
     div.row-widget.stRadio > div > label {
-        background: linear-gradient(135deg, #1A2A56 0%, #162247 100%);
-        border: 1px solid rgba(0, 229, 255, 0.3) !important;
-        border-radius: 8px !important;
-        padding: 8px 18px !important;
+        background: #111A30;
+        border: 1px solid rgba(0, 229, 255, 0.15) !important;
+        border-radius: 10px !important;
+        padding: 10px 20px !important;
         flex: 1;
         text-align: center;
         cursor: pointer;
+        transition: all 0.2s ease-in-out;
+    }
+    div.row-widget.stRadio > div > label:hover {
+        border-color: rgba(0, 229, 255, 0.4) !important;
+        background: #16223D;
     }
     div.row-widget.stRadio input[type="radio"] { display: none !important; }
     div.row-widget.stRadio div[role="radiogroup"] > label > div:first-child { display: none !important; }
     div.row-widget.stRadio div[role="radiogroup"] label span,
     div.row-widget.stRadio div[role="radiogroup"] label p {
-        color: #00E5FF !important;
+        color: #94A3B8 !important;
         font-weight: 600 !important;
+        font-size: 0.95rem;
     }
     div.row-widget.stRadio > div > label[data-checked="true"] {
-        background: linear-gradient(135deg, #0077B6, #00E5FF) !important;
+        background: linear-gradient(135deg, #0A2540 0%, #0077B6 100%) !important;
         border-color: #00E5FF !important;
+        box-shadow: 0 0 12px rgba(0, 229, 255, 0.25);
     }
-    div.row-widget.stRadio > div > label[data-checked="true"] span {
-        color: #070D1B !important;
+    div.row-widget.stRadio > div > label[data-checked="true"] span,
+    div.row-widget.stRadio > div > label[data-checked="true"] p {
+        color: #00E5FF !important;
         font-weight: 700 !important;
     }
+
+    /* Etiquetas de formularios */
     .stTextInput label, .stSelectbox label, .stNumberInput label, [data-testid="stWidgetLabel"] p {
-        color: #FFFFFF !important;
+        color: #E2E8F0 !important;
         font-weight: 600 !important;
+        font-size: 0.9rem !important;
     }
+
+    /* Tarjetas de registros estilo MIAA */
     .user-card {
-        background: linear-gradient(90deg, #1A2A56 0%, #162247 100%);
-        border: 1px solid rgba(0, 229, 255, 0.15);
+        background: #0D1424;
+        border: 1px solid rgba(0, 229, 255, 0.12);
         border-left: 4px solid #00E5FF;
-        border-radius: 10px;
-        padding: 16px 20px;
-        margin-bottom: 12px;
+        border-radius: 12px;
+        padding: 18px 22px;
+        margin-bottom: 14px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
+
+    /* Botones principales */
     .stButton>button {
-        background: linear-gradient(135deg, #0077B6, #00E5FF);
-        color: #070D1B;
+        background: linear-gradient(135deg, #0077B6 0%, #00E5FF 100%);
+        color: #080C14;
         border: none;
-        border-radius: 8px;
+        border-radius: 9px;
         font-weight: 700;
+        padding: 0.5rem 1rem;
         width: 100%;
+        box-shadow: 0 4px 12px rgba(0, 229, 255, 0.2);
+        transition: all 0.2s;
     }
-    div[data-baseweb="input"] input {
-        background-color: #070D1B !important;
-        color: #FFFFFF !important;
-        border-color: rgba(0, 229, 255, 0.3) !important;
+    .stButton>button:hover {
+        opacity: 0.95;
+        box-shadow: 0 4px 18px rgba(0, 229, 255, 0.4);
+    }
+
+    /* Campos de entrada de texto/números */
+    div[data-baseweb="input"] input, div[data-baseweb="base-input"] input {
+        background-color: #080C14 !important;
+        color: #F8FAFC !important;
+        border-color: rgba(0, 229, 255, 0.25) !important;
+        border-radius: 8px !important;
+    }
+    div[data-baseweb="input"] input:focus {
+        border-color: #00E5FF !important;
+        box-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
     }
 </style>""", unsafe_allow_html=True)
 
@@ -130,7 +166,10 @@ st.write("""<style>
 st.markdown("""
     <div style="display: flex; align-items: center; gap: 15px; width: 100%; margin-bottom: 5px;">
         <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 125px; height: auto; flex-shrink: 0;" />
-        <h2 style="color: #00E5FF; margin: 0; font-size: 1.4rem; font-weight: 800; line-height: 1.2;">Gestion VRP's</h2>
+        <div>
+            <h2 style="color: #00E5FF; margin: 0; font-size: 1.4rem; font-weight: 800; line-height: 1.2;">Gestion VRP's</h2>
+            <p style="color: #94A3B8; margin: 0; font-size: 0.85rem;">Sistema integral de Aguascalientes</p>
+        </div>
     </div>
 """, unsafe_allow_html=True)
 
@@ -152,7 +191,7 @@ if seleccion_tab != st.session_state.active_tab:
     st.session_state.active_tab = seleccion_tab
     st.rerun()
 
-st.markdown("<hr style='border: 0.5px solid rgba(0,229,255,0.3); margin: 15px 0;'>", unsafe_allow_html=True)
+st.markdown("<hr style='border: 0.5px solid rgba(0,229,255,0.15); margin: 15px 0;'>", unsafe_allow_html=True)
 
 COLUMNAS_VPRS = """
     fid, id_0, id, serie, diametro, marca_valv, model_valv, marca_trim, domicilio, colonia, 
@@ -164,7 +203,7 @@ COLUMNAS_VPRS = """
 # SECCIÓN 1: VER REGISTROS (VPRS)
 # ==========================================
 if st.session_state.active_tab == "📍 Registros":
-    st.markdown('<h3 style="color: #00E5FF; font-size: 1.2rem;">📂 Catálogo Completo de Válvulas VPRS</h3>', unsafe_allow_html=True)
+    st.markdown('<h3 style="color: #00E5FF; font-size: 1.2rem; font-weight: 700; margin-bottom: 15px;">📂 Catálogo Completo de Válvulas VPRS</h3>', unsafe_allow_html=True)
     
     query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VPRS" ORDER BY fid LIMIT 50'
     df_vprs, error_db = obtener_datos(query)
@@ -173,7 +212,6 @@ if st.session_state.active_tab == "📍 Registros":
         st.error(f"❌ Error al consultar PostgreSQL: {error_db}")
     elif not df_vprs.empty:
         for _, row in df_vprs.iterrows():
-            # Manejo de valores vacíos, nulos o 'nan' para el campo serie
             serie_val = row['serie']
             if pd.isna(serie_val) or str(serie_val).strip().lower() in ["nan", "none", ""]:
                 serie_texto = ""
@@ -182,9 +220,9 @@ if st.session_state.active_tab == "📍 Registros":
 
             st.markdown(f"""
                 <div class="user-card">
-                    <span style="font-size: 1.1rem; font-weight: bold; color: #FFFFFF;">ID: {row['id']}{serie_texto}</span><br>
+                    <span style="font-size: 1.1rem; font-weight: bold; color: #F8FAFC;">ID: {row['id']}{serie_texto}</span><br>
                     <span style="color: #00E5FF; font-size: 0.9rem;">📍 {row['domicilio'] or 'Sin domicilio'}, Col. {row['colonia'] or 'Sin colonia'}</span><br>
-                    <span style="color: #8D99AE; font-size: 0.85rem;">
+                    <span style="color: #94A3B8; font-size: 0.85rem; line-height: 1.5;">
                         Diámetro: {row['diametro']}mm | Marca: {row['marca_valv']} | Modelo: {row['model_valv']} | Trim: {row['marca_trim']} | Cota: {row['cota_terr']}<br>
                         Sector: {row['sector_hid']} | Estado: {row['estat_valv']} | Hora Cal: {row['hora_cal']} | Fecha: {row['fecha_ult_']}<br>
                         Cal Anterior Día: {row['cal_ant_d']} | Cal Anterior Noche: {row['cal_ant_n']}<br>
@@ -200,7 +238,7 @@ if st.session_state.active_tab == "📍 Registros":
 # SECCIÓN 2: AÑADIR NUEVA VÁLVULA
 # ==========================================
 elif st.session_state.active_tab == "➕ Añadir Válvula":
-    st.markdown('<h3 style="color: #00E5FF; font-size: 1.2rem;">✨ Registrar nueva VPRS (Todos los campos)</h3>', unsafe_allow_html=True)
+    st.markdown('<h3 style="color: #00E5FF; font-size: 1.2rem; font-weight: 700; margin-bottom: 15px;">✨ Registrar nueva VPRS (Todos los campos)</h3>', unsafe_allow_html=True)
     
     with st.form("form_nueva_vprs"):
         col1, col2, col3, col4 = st.columns(4)
@@ -266,7 +304,7 @@ elif st.session_state.active_tab == "➕ Añadir Válvula":
 # SECCIÓN 3: EDITAR Y ELIMINAR
 # ==========================================
 elif st.session_state.active_tab == "⚙️ Editar / Eliminar":
-    st.markdown('<h3 style="color: #00E5FF; font-size: 1.2rem;">🛠️ Modificar o Eliminar Válvula (Campos Completos)</h3>', unsafe_allow_html=True)
+    st.markdown('<h3 style="color: #00E5FF; font-size: 1.2rem; font-weight: 700; margin-bottom: 15px;">🛠️ Modificar o Eliminar Válvula (Campos Completos)</h3>', unsafe_allow_html=True)
     
     query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VPRS" ORDER BY fid LIMIT 100'
     df_vprs, error_db = obtener_datos(query)
@@ -276,7 +314,7 @@ elif st.session_state.active_tab == "⚙️ Editar / Eliminar":
     elif not df_vprs.empty:
         for idx, row in df_vprs.iterrows():
             with st.form(key=f"form_edit_{row['fid']}"):
-                st.markdown(f"**FID Registro: {row['fid']}** | ID: {row['id']}")
+                st.markdown(f"<span style='color: #00E5FF; font-weight: bold;'>FID Registro: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span>", unsafe_allow_html=True)
                 
                 e1, e2, e3, e4 = st.columns(4)
                 with e1:
@@ -367,7 +405,7 @@ elif st.session_state.active_tab == "⚙️ Editar / Eliminar":
 
 # --- PIE DE PÁGINA ---
 st.markdown("""
-    <div style="text-align: center; color: #8D99AE; font-size: 0.85rem; margin-top: 3rem; border-top: 1px solid rgba(0, 229, 255, 0.1); padding-top: 1.5rem;">
+    <div style="text-align: center; color: #94A3B8; font-size: 0.85rem; margin-top: 3rem; border-top: 1px solid rgba(0, 229, 255, 0.12); padding-top: 1.5rem;">
         © 2026 MIAA &bull; Sistema de Gestión PostGIS
     </div>
 """, unsafe_allow_html=True)
