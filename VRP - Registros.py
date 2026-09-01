@@ -154,8 +154,9 @@ if seleccion_tab != st.session_state.active_tab:
 
 st.markdown("<hr style='border: 0.5px solid rgba(0,229,255,0.3); margin: 15px 0;'>", unsafe_allow_html=True)
 
+# Se añade 'serie' a la lista de columnas consultadas
 COLUMNAS_VPRS = """
-    fid, id_0, id, diametro, marca_valv, model_valv, marca_trim, domicilio, colonia, 
+    fid, id_0, id, serie, diametro, marca_valv, model_valv, marca_trim, domicilio, colonia, 
     cota_terr, sector_hid, cal_ant_d, cal_ant_n, fecha_ult_, cal_act_d, cal_act_n, 
     hora_cal, estat_valv, observ
 """
@@ -175,7 +176,7 @@ if st.session_state.active_tab == "📍 Registros":
         for _, row in df_vprs.iterrows():
             st.markdown(f"""
                 <div class="user-card">
-                    <span style="font-size: 1.1rem; font-weight: bold; color: #FFFFFF;">ID: {row['id']} | ID_0: {row['id_0']} (FID: {row['fid']})</span><br>
+                    <span style="font-size: 1.1rem; font-weight: bold; color: #FFFFFF;">ID: {row['id']} | Serie: {row['serie'] or 'S/N'}</span><br>
                     <span style="color: #00E5FF; font-size: 0.9rem;">📍 {row['domicilio'] or 'Sin domicilio'}, Col. {row['colonia'] or 'Sin colonia'}</span><br>
                     <span style="color: #8D99AE; font-size: 0.85rem;">
                         Diámetro: {row['diametro']}mm | Marca: {row['marca_valv']} | Modelo: {row['model_valv']} | Trim: {row['marca_trim']} | Cota: {row['cota_terr']}<br>
@@ -200,19 +201,20 @@ elif st.session_state.active_tab == "➕ Añadir Válvula":
         with col1:
             val_id_0 = st.number_input("ID_0 (Int)", min_value=0, value=0)
             val_id = st.text_input("ID (Texto)")
+            val_serie = st.text_input("Serie")
             val_diametro = st.number_input("Diámetro (mm)", min_value=0, value=50)
-            val_cota = st.number_input("Cota Territorio", value=0.0)
         with col2:
+            val_cota = st.number_input("Cota Territorio", value=0.0)
             val_marca = st.text_input("Marca Válvula (marca_valv)")
             val_modelo = st.text_input("Modelo Válvula (model_valv)")
             val_trim = st.text_input("Marca Trim (marca_trim)")
-            val_sector = st.text_input("Sector Hidráulico")
         with col3:
+            val_sector = st.text_input("Sector Hidráulico")
             val_domicilio = st.text_input("Domicilio")
             val_colonia = st.text_input("Colonia")
             val_estat = st.text_input("Estado Válvula (estat_valv)")
-            val_hora = st.text_input("Hora Calibración (hora_cal)")
         with col4:
+            val_hora = st.text_input("Hora Calibración (hora_cal)")
             val_cal_ant_d = st.text_input("Cal Anterior Día (cal_ant_d)")
             val_cal_ant_n = st.text_input("Cal Anterior Noche (cal_ant_n)")
             val_cal_act_d = st.text_input("Cal Actual Día (cal_act_d)")
@@ -230,17 +232,17 @@ elif st.session_state.active_tab == "➕ Añadir Válvula":
                 try:
                     sql_insert = """
                         INSERT INTO "Agua_potable"."VPRS" (
-                            id_0, id, diametro, marca_valv, model_valv, marca_trim, domicilio, colonia, 
+                            id_0, id, serie, diametro, marca_valv, model_valv, marca_trim, domicilio, colonia, 
                             cota_terr, sector_hid, cal_ant_d, cal_ant_n, fecha_ult_, cal_act_d, cal_act_n, 
                             hora_cal, estat_valv, observ
                         ) VALUES (
-                            :id_0, :id, :diametro, :marca_valv, :model_valv, :marca_trim, :domicilio, :colonia, 
+                            :id_0, :id, :serie, :diametro, :marca_valv, :model_valv, :marca_trim, :domicilio, :colonia, 
                             :cota_terr, :sector_hid, :cal_ant_d, :cal_ant_n, :fecha_ult_, :cal_act_d, :cal_act_n, 
                             :hora_cal, :estat_valv, :observ
                         )
                     """
                     ejecutar_sql(sql_insert, {
-                        "id_0": val_id_0, "id": val_id, "diametro": val_diametro, "marca_valv": val_marca,
+                        "id_0": val_id_0, "id": val_id, "serie": val_serie, "diametro": val_diametro, "marca_valv": val_marca,
                         "model_valv": val_modelo, "marca_trim": val_trim, "domicilio": val_domicilio, "colonia": val_colonia,
                         "cota_terr": val_cota, "sector_hid": val_sector, "cal_ant_d": val_cal_ant_d, "cal_ant_n": val_cal_ant_n,
                         "fecha_ult_": val_fecha, "cal_act_d": val_cal_act_d, "cal_act_n": val_cal_act_n, "hora_cal": val_hora,
@@ -274,19 +276,20 @@ elif st.session_state.active_tab == "⚙️ Editar / Eliminar":
                 with e1:
                     e_id_0 = st.number_input("ID_0", value=int(row['id_0'] or 0), key=f"id0_{row['fid']}")
                     e_id = st.text_input("ID", value=str(row['id'] or ""), key=f"id_{row['fid']}")
+                    e_serie = st.text_input("Serie", value=str(row['serie'] or ""), key=f"serie_{row['fid']}")
                     e_diametro = st.number_input("Diámetro", value=int(row['diametro'] or 0), key=f"diam_{row['fid']}")
-                    e_cota = st.number_input("Cota Terr", value=float(row['cota_terr'] or 0.0), key=f"cota_{row['fid']}")
                 with e2:
+                    e_cota = st.number_input("Cota Terr", value=float(row['cota_terr'] or 0.0), key=f"cota_{row['fid']}")
                     e_marca = st.text_input("Marca Valv", value=str(row['marca_valv'] or ""), key=f"mar_{row['fid']}")
                     e_modelo = st.text_input("Modelo Valv", value=str(row['model_valv'] or ""), key=f"mod_{row['fid']}")
                     e_trim = st.text_input("Marca Trim", value=str(row['marca_trim'] or ""), key=f"trim_{row['fid']}")
-                    e_sector = st.text_input("Sector Hid", value=str(row['sector_hid'] or ""), key=f"sec_{row['fid']}")
                 with e3:
+                    e_sector = st.text_input("Sector Hid", value=str(row['sector_hid'] or ""), key=f"sec_{row['fid']}")
                     e_domicilio = st.text_input("Domicilio", value=str(row['domicilio'] or ""), key=f"dom_{row['fid']}")
                     e_colonia = st.text_input("Colonia", value=str(row['colonia'] or ""), key=f"col_{row['fid']}")
                     e_estat = st.text_input("Estado Valv", value=str(row['estat_valv'] or ""), key=f"est_{row['fid']}")
-                    e_hora = st.text_input("Hora Cal", value=str(row['hora_cal'] or ""), key=f"hora_{row['fid']}")
                 with e4:
+                    e_hora = st.text_input("Hora Cal", value=str(row['hora_cal'] or ""), key=f"hora_{row['fid']}")
                     e_cal_ant_d = st.text_input("Cal Anterior Día", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")
                     e_cal_ant_n = st.text_input("Cal Anterior Noche", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")
                     e_cal_act_d = st.text_input("Cal Actual Día", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")
@@ -303,7 +306,7 @@ elif st.session_state.active_tab == "⚙️ Editar / Eliminar":
                     try:
                         sql_update = """
                             UPDATE "Agua_potable"."VPRS" 
-                            SET id_0 = :id_0, id = :id, diametro = :diametro, marca_valv = :marca_valv, 
+                            SET id_0 = :id_0, id = :id, serie = :serie, diametro = :diametro, marca_valv = :marca_valv, 
                                 model_valv = :model_valv, marca_trim = :marca_trim, domicilio = :domicilio, 
                                 colonia = :colonia, cota_terr = :cota_terr, sector_hid = :sector_hid, 
                                 cal_ant_d = :cal_ant_d, cal_ant_n = :cal_ant_n, fecha_ult_ = :fecha_ult_, 
@@ -312,7 +315,7 @@ elif st.session_state.active_tab == "⚙️ Editar / Eliminar":
                             WHERE fid = :fid
                         """
                         ejecutar_sql(sql_update, {
-                            "id_0": e_id_0, "id": e_id, "diametro": e_diametro, "marca_valv": e_marca,
+                            "id_0": e_id_0, "id": e_id, "serie": e_serie, "diametro": e_diametro, "marca_valv": e_marca,
                             "model_valv": e_modelo, "marca_trim": e_trim, "domicilio": e_domicilio, "colonia": e_colonia,
                             "cota_terr": e_cota, "sector_hid": e_sector, "cal_ant_d": e_cal_ant_d, "cal_ant_n": e_cal_ant_n,
                             "fecha_ult_": e_fecha, "cal_act_d": e_cal_act_d, "cal_act_n": e_cal_act_n, "hora_cal": e_hora,
