@@ -220,13 +220,17 @@ if st.session_state.active_tab == "📍 Registros":
         """
         df_vprs, error_db = obtener_datos(query, {"filtro": filtro})
     else:
-        query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VPRS" ORDER BY fid'
+        query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VPRS" ORDER BY fid LIMIT 10'
         df_vprs, error_db = obtener_datos(query)
     
     if error_db:
         st.error(f"❌ Error al consultar PostgreSQL: {error_db}")
     elif not df_vprs.empty:
-        st.markdown(f"<p style='color: #94A3B8; font-size: 0.85rem; margin-bottom: 10px;'>Se encontraron {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
+        if not busqueda or busqueda.strip() == "":
+            st.markdown(f"<p style='color: #94A3B8; font-size: 0.85rem; margin-bottom: 10px;'>Mostrando los primeros 10 registros. Usa el buscador superior para encontrar más.</p>", unsafe_allow_html=True)
+        else:
+            st.markdown(f"<p style='color: #94A3B8; font-size: 0.85rem; margin-bottom: 10px;'>Se encontraron {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
+            
         for _, row in df_vprs.iterrows():
             serie_val = row['serie']
             if pd.isna(serie_val) or str(serie_val).strip().lower() in ["nan", "none", ""]:
@@ -311,7 +315,6 @@ elif st.session_state.active_tab == "➕ Añadir":
         if btn_guardar:
             if val_id:
                 try:
-                    # Prioriza la foto de la cámara si fue tomada, de lo contrario toma la subida por archivo
                     foto_bytes = None
                     if foto_camara is not None:
                         foto_bytes = foto_camara.getvalue()
@@ -350,7 +353,7 @@ elif st.session_state.active_tab == "➕ Añadir":
 elif st.session_state.active_tab == "⚙️ Editar":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.2rem; font-weight: 700; margin-bottom: 15px;">🛠️ Modificar o Eliminar Válvula (Incluye Actualización de Foto)</h3>', unsafe_allow_html=True)
     
-    busqueda_edit = st.text_input("🔍 Filtrar registros a editar (por ID, Serie, Domicilio o Colonia):", placeholder="Dejar en blanco para ver todos o buscar uno...")
+    busqueda_edit = st.text_input("🔍 Filtrar registros a editar (por ID, Serie, Domicilio o Colonia):", placeholder="Dejar en blanco para ver los primeros 10 o buscar uno específico...")
     
     if busqueda_edit and busqueda_edit.strip() != "":
         filtro_ed = f"%{busqueda_edit.strip()}%"
@@ -365,13 +368,17 @@ elif st.session_state.active_tab == "⚙️ Editar":
         """
         df_vprs, error_db = obtener_datos(query_edit, {"filtro": filtro_ed})
     else:
-        query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VPRS" ORDER BY fid'
+        query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VPRS" ORDER BY fid LIMIT 10'
         df_vprs, error_db = obtener_datos(query)
     
     if error_db:
         st.error(f"Error: {error_db}")
     elif not df_vprs.empty:
-        st.markdown(f"<p style='color: #94A3B8; font-size: 0.85rem; margin-bottom: 10px;'>Mostrando {len(df_vprs)} registros para gestión.</p>", unsafe_allow_html=True)
+        if not busqueda_edit or busqueda_edit.strip() == "":
+            st.markdown(f"<p style='color: #94A3B8; font-size: 0.85rem; margin-bottom: 10px;'>Mostrando los primeros 10 registros. Usa el buscador superior para encontrar más.</p>", unsafe_allow_html=True)
+        else:
+            st.markdown(f"<p style='color: #94A3B8; font-size: 0.85rem; margin-bottom: 10px;'>Mostrando {len(df_vprs)} registros para gestión.</p>", unsafe_allow_html=True)
+            
         for idx, row in df_vprs.iterrows():
             with st.form(key=f"form_edit_{row['fid']}"):
                 st.markdown(f"<span style='color: #00E5FF; font-weight: bold;'>FID Registro: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span>", unsafe_allow_html=True)
