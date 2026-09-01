@@ -126,16 +126,13 @@ st.write("""<style>
     }
 </style>""", unsafe_allow_html=True)
 
-# --- CABECERA CON LOGOTIPO OFICIAL ---
-col_logo, col_title = st.columns([0.8, 6.2])
-with col_logo:
-    st.image("https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg", width=95)
-with col_title:
-    st.markdown("""
-        <div style="display: flex; align-items: center; height: 100%;">
-            <h2 style="color: #00E5FF; margin: 0; font-size: 1.4rem; font-weight: 800;">Gestion VRP's</h2>
-        </div>
-    """, unsafe_allow_html=True)
+# --- CABECERA CON LOGOTIPO Y TÍTULO EN LÍNEA (FLEXBOX PARA EVITAR SALTO EN MÓVIL) ---
+st.markdown("""
+    <div style="display: flex; align-items: center; gap: 15px; width: 100%; margin-bottom: 5px;">
+        <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 90px; height: auto; flex-shrink: 0;" />
+        <h2 style="color: #00E5FF; margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.2;">Gestion VRP's</h2>
+    </div>
+""", unsafe_allow_html=True)
 
 # --- MENÚ DE NAVEGACIÓN ---
 opciones_menu = ["📍 Registros", "➕ Añadir Válvula", "⚙️ Editar / Eliminar"]
