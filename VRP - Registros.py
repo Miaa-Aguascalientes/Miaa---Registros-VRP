@@ -196,7 +196,7 @@ st.markdown("<hr style='border: 0.5px solid rgba(0,229,255,0.15); margin: 15px 0
 COLUMNAS_VPRS = """
     fid, id_0, id, serie, diametro, marca_valv, model_valv, marca_trim, domicilio, colonia, 
     cota_terr, sector_hid, cal_ant_d, cal_ant_n, fecha_ult_, cal_act_d, cal_act_n, 
-    hora_cal, estat_valv, observ, foto
+    hora_cal, estat_valv, observ, fotos
 """
 
 # ==========================================
@@ -205,7 +205,6 @@ COLUMNAS_VPRS = """
 if st.session_state.active_tab == "📍 Registros":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.2rem; font-weight: 700; margin-bottom: 15px;">📂 Catálogo de Válvulas VPRS</h3>', unsafe_allow_html=True)
     
-    # Campo de búsqueda interactivo
     busqueda = st.text_input("🔍 Buscar válvula (por ID, Serie, Domicilio o Colonia):", placeholder="Ej. VF01, Centro, etc.")
     
     if busqueda and busqueda.strip() != "":
@@ -235,36 +234,29 @@ if st.session_state.active_tab == "📍 Registros":
             else:
                 serie_texto = f" | Serie: {serie_val}"
 
-            # Contenedor visual para tarjeta y foto opcional
-            col_info, col_img = [st.container(), st.container()]
+            st.markdown(f"""
+                <div class="user-card">
+                    <span style="font-size: 1.1rem; font-weight: bold; color: #F8FAFC;">ID: {row['id']}{serie_texto}</span><br>
+                    <span style="color: #00E5FF; font-size: 0.9rem;">📍 {row['domicilio'] or 'Sin domicilio'}, Col. {row['colonia'] or 'Sin colonia'}</span><br>
+                    <span style="color: #94A3B8; font-size: 0.85rem; line-height: 1.5;">
+                        Diámetro: {row['diametro']}mm | Marca: {row['marca_valv']} | Modelo: {row['model_valv']} | Trim: {row['marca_trim']} | Cota: {row['cota_terr']}<br>
+                        Sector: {row['sector_hid']} | Estado: {row['estat_valv']} | Hora Cal: {row['hora_cal']} | Fecha: {row['fecha_ult_']}<br>
+                        Cal Anterior Día: {row['cal_ant_d']} | Cal Anterior Noche: {row['cal_ant_n']}<br>
+                        Cal Actual Día: {row['cal_act_d']} | Cal Actual Noche: {row['cal_act_n']}<br>
+                        Observaciones: {row['observ']}
+                    </span>
+                </div>
+            """, unsafe_allow_html=True)
             
-            with st.container():
-                st.markdown(f"""
-                    <div class="user-card">
-                        <span style="font-size: 1.1rem; font-weight: bold; color: #F8FAFC;">ID: {row['id']}{serie_texto}</span><br>
-                        <span style="color: #00E5FF; font-size: 0.9rem;">📍 {row['domicilio'] or 'Sin domicilio'}, Col. {row['colonia'] or 'Sin colonia'}</span><br>
-                        <span style="color: #94A3B8; font-size: 0.85rem; line-height: 1.5;">
-                            Diámetro: {row['diametro']}mm | Marca: {row['marca_valv']} | Modelo: {row['model_valv']} | Trim: {row['marca_trim']} | Cota: {row['cota_terr']}<br>
-                            Sector: {row['sector_hid']} | Estado: {row['estat_valv']} | Hora Cal: {row['hora_cal']} | Fecha: {row['fecha_ult_']}<br>
-                            Cal Anterior Día: {row['cal_ant_d']} | Cal Anterior Noche: {row['cal_ant_n']}<br>
-                            Cal Actual Día: {row['cal_act_d']} | Cal Actual Noche: {row['cal_act_n']}<br>
-                            Observaciones: {row['observ']}
-                        </span>
-                    </div>
-                """, unsafe_allow_html=True)
-                
-                # Mostrar fotografía si existe en el registro
-                foto_data = row['foto']
-                if foto_data is not None and len(foto_data) > 0:
-                    try:
-                        if isinstance(foto_data, bytes):
-                            st.image(foto_data, caption=f"Fotografía de Válvula - ID: {row['id']}", width=300)
-                        elif isinstance(foto_data, str) and len(foto_data) > 10:
-                            # Por si viene como Base64 en texto
-                            img_bytes = base64.b64decode(foto_data)
-                            st.image(img_bytes, caption=f"Fotografía de Válvula - ID: {row['id']}", width=300)
-                    except Exception as img_err:
-                        st.warning(f"No se pudo renderizar la fotografía para el registro {row['id']}.")
+            foto_data = row['fotos']
+            if foto_data is not None and len(foto_data) > 0:
+                try:
+                    if isinstance(foto_data, bytes):
+                        st.image(foto_data, caption=f"Fotografía de Válvula - ID: {row['id']}", width=300)
+                    elif isinstance(foto_data, str) and len(foto_data) > 10:
+                        st.image(base64.b64decode(foto_data), caption=f"Fotografía de Válvula - ID: {row['id']}", width=300)
+                except Exception:
+                    st.warning(f"No se pudo renderizar la fotografía para el registro {row['id']}.")
     else:
         st.info("No se encontraron registros que coincidan con la búsqueda.")
 
@@ -318,11 +310,11 @@ elif st.session_state.active_tab == "➕ Añadir":
                         INSERT INTO "Agua_potable"."VPRS" (
                             id_0, id, serie, diametro, marca_valv, model_valv, marca_trim, domicilio, colonia, 
                             cota_terr, sector_hid, cal_ant_d, cal_ant_n, fecha_ult_, cal_act_d, cal_act_n, 
-                            hora_cal, estat_valv, observ, foto
+                            hora_cal, estat_valv, observ, fotos
                         ) VALUES (
                             :id_0, :id, :serie, :diametro, :marca_valv, :model_valv, :marca_trim, :domicilio, :colonia, 
                             :cota_terr, :sector_hid, :cal_ant_d, :cal_ant_n, :fecha_ult_, :cal_act_d, :cal_act_n, 
-                            :hora_cal, :estat_valv, :observ, :foto
+                            :hora_cal, :estat_valv, :observ, :fotos
                         )
                     """
                     ejecutar_sql(sql_insert, {
@@ -330,7 +322,7 @@ elif st.session_state.active_tab == "➕ Añadir":
                         "model_valv": val_modelo, "marca_trim": val_trim, "domicilio": val_domicilio, "colonia": val_colonia,
                         "cota_terr": val_cota, "sector_hid": val_sector, "cal_ant_d": val_cal_ant_d, "cal_ant_n": val_cal_ant_n,
                         "fecha_ult_": val_fecha, "cal_act_d": val_cal_act_d, "cal_act_n": val_cal_act_n, "hora_cal": val_hora,
-                        "estat_valv": val_estat, "observ": val_observ, "foto": foto_bytes
+                        "estat_valv": val_estat, "observ": val_observ, "fotos": foto_bytes
                     })
                     st.success("¡Válvula VPRS registrada exitosamente con su fotografía!")
                     t.sleep(1)
@@ -404,8 +396,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 
                 st.markdown("<br>", unsafe_allow_html=True)
                 
-                # Mostrar foto actual si existe en edición
-                foto_actual = row['foto']
+                foto_actual = row['fotos']
                 if foto_actual is not None and len(foto_actual) > 0:
                     try:
                         if isinstance(foto_actual, bytes):
@@ -421,8 +412,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 btn_act = st.form_submit_button("💾 Actualizar Registro y Fotografía")
                 if btn_act:
                     try:
-                        # Si se tomó una foto nueva, se actualiza; de lo contrario se conserva la anterior consultándola de nuevo o manteniendo la misma variable
-                        foto_bytes_final = nueva_foto_capturada.getvalue() if nueva_foto_capturada is not None else row['foto']
+                        foto_bytes_final = nueva_foto_capturada.getvalue() if nueva_foto_capturada is not None else row['fotos']
 
                         sql_update = """
                             UPDATE "Agua_potable"."VPRS" 
@@ -431,7 +421,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                                 colonia = :colonia, cota_terr = :cota_terr, sector_hid = :sector_hid, 
                                 cal_ant_d = :cal_ant_d, cal_ant_n = :cal_ant_n, fecha_ult_ = :fecha_ult_, 
                                 cal_act_d = :cal_act_d, cal_act_n = :cal_act_n, hora_cal = :hora_cal, 
-                                estat_valv = :estat_valv, observ = :observ, foto = :foto 
+                                estat_valv = :estat_valv, observ = :observ, fotos = :fotos 
                             WHERE fid = :fid
                         """
                         ejecutar_sql(sql_update, {
@@ -439,7 +429,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                             "model_valv": e_modelo, "marca_trim": e_trim, "domicilio": e_domicilio, "colonia": e_colonia,
                             "cota_terr": e_cota, "sector_hid": e_sector, "cal_ant_d": e_cal_ant_d, "cal_ant_n": e_cal_ant_n,
                             "fecha_ult_": e_fecha, "cal_act_d": e_cal_act_d, "cal_act_n": e_cal_act_n, "hora_cal": e_hora,
-                            "estat_valv": e_estat, "observ": e_observ, "foto": foto_bytes_final, "fid": row['fid']
+                            "estat_valv": e_estat, "observ": e_observ, "fotos": foto_bytes_final, "fid": row['fid']
                         })
                         st.success("¡Registro actualizado con éxito!")
                         t.sleep(0.8)
