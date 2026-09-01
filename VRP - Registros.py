@@ -126,10 +126,10 @@ st.write("""<style>
     }
 </style>""", unsafe_allow_html=True)
 
-# --- CABECERA CON LOGOTIPO ---
+# --- CABECERA CON LOGOTIPO OFICIAL ---
 col_logo, col_title = st.columns([1, 5])
 with col_logo:
-    st.image("https://www.miaa.mx/assets/img/logo.png", width=140)
+    st.image("https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg", width=140)
 with col_title:
     st.markdown("""
         <div style="display: flex; align-items: center; height: 100%;">
