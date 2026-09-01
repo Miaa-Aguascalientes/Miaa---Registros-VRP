@@ -173,7 +173,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- MENÚ DE NAVEGACIÓN ---
-opciones_menu = ["📍 Registros", "➕ Añadir Válvula", "⚙️ Editar / Eliminar"]
+opciones_menu = ["📍 Registros", "➕ Añadir", "⚙️ Editar"]
 
 if 'active_tab' not in st.session_state or st.session_state.active_tab not in opciones_menu:
     st.session_state.active_tab = opciones_menu[0]
@@ -236,7 +236,7 @@ if st.session_state.active_tab == "📍 Registros":
 # ==========================================
 # SECCIÓN 2: AÑADIR NUEVA VÁLVULA
 # ==========================================
-elif st.session_state.active_tab == "➕ Añadir Válvula":
+elif st.session_state.active_tab == "➕ Añadir":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.2rem; font-weight: 700; margin-bottom: 15px;">✨ Registrar nueva VPRS (Todos los campos)</h3>', unsafe_allow_html=True)
     
     with st.form("form_nueva_vprs"):
@@ -302,7 +302,7 @@ elif st.session_state.active_tab == "➕ Añadir Válvula":
 # ==========================================
 # SECCIÓN 3: EDITAR Y ELIMINAR
 # ==========================================
-elif st.session_state.active_tab == "⚙️ Editar / Eliminar":
+elif st.session_state.active_tab == "⚙️ Editar":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.2rem; font-weight: 700; margin-bottom: 15px;">🛠️ Modificar o Eliminar Válvula (Campos Completos)</h3>', unsafe_allow_html=True)
     
     query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VPRS" ORDER BY fid LIMIT 100'
