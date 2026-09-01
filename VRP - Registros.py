@@ -5,7 +5,7 @@ import time as t
 from zoneinfo import ZoneInfo
 
 # Configuración de página
-st.set_page_config(layout="wide", page_title="Gestión VRP's - MIAA", page_icon="https://www.miaa.mx/favicon.ico")
+st.set_page_config(layout="wide", page_title="Gestion VRP's - MIAA", page_icon="https://www.miaa.mx/favicon.ico")
 
 # --- ESTADO DE SESIÓN ---
 if 'registro_to_delete' not in st.session_state: st.session_state.registro_to_delete = None
@@ -127,9 +127,9 @@ st.write("""<style>
 </style>""", unsafe_allow_html=True)
 
 # --- CABECERA CON LOGOTIPO OFICIAL ---
-col_logo, col_title = st.columns([1, 5])
+col_logo, col_title = st.columns([0.8, 6.2])
 with col_logo:
-    st.image("https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg", width=140)
+    st.image("https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg", width=95)
 with col_title:
     st.markdown("""
         <div style="display: flex; align-items: center; height: 100%;">
