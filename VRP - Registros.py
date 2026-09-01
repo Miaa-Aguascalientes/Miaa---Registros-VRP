@@ -307,9 +307,15 @@ elif st.session_state.active_tab == "➕ Añadir":
         with col_foto1:
             st.markdown("<p style='font-size: 0.85rem; color: #94A3B8;'>1. Subir archivo desde dispositivo:</p>", unsafe_allow_html=True)
             foto_subida = st.file_uploader("Subir imagen", type=["jpg", "jpeg", "png"], key="subir_nuevo", label_visibility="collapsed")
+            
         with col_foto2:
-            st.markdown("<p style='font-size: 0.85rem; color: #94A3B8;'>2. Tomar foto directamente con la cámara:</p>", unsafe_allow_html=True)
-            foto_camara = st.camera_input("Tomar foto", key="camara_nuevo", label_visibility="collapsed")
+            st.markdown("<p style='font-size: 0.85rem; color: #94A3B8;'>2. Usar cámara web/móvil:</p>", unsafe_allow_html=True)
+            # Interruptor para decidir si se activa o no la cámara
+            activar_camara_nuevo = st.checkbox("🟢 Activar cámara para tomar foto", key="chk_cam_nuevo")
+            
+            foto_camara = None
+            if activar_camara_nuevo:
+                foto_camara = st.camera_input("Capturar con cámara", key="camara_nuevo", label_visibility="collapsed")
 
         btn_guardar = st.form_submit_button("💾 Guardar Registro Completo")
         if btn_guardar:
@@ -431,9 +437,15 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 with ef_col1:
                     st.markdown("<p style='font-size: 0.8rem; color: #94A3B8;'>Subir archivo:</p>", unsafe_allow_html=True)
                     nueva_foto_subida = st.file_uploader("Subir foto", type=["jpg", "jpeg", "png"], key=f"up_edit_{row['fid']}", label_visibility="collapsed")
+                    
                 with ef_col2:
-                    st.markdown("<p style='font-size: 0.8rem; color: #94A3B8;'>O tomar con cámara:</p>", unsafe_allow_html=True)
-                    nueva_foto_camara = st.camera_input("Tomar foto", key=f"cam_edit_{row['fid']}", label_visibility="collapsed")
+                    st.markdown("<p style='font-size: 0.8rem; color: #94A3B8;'>O usar cámara:</p>", unsafe_allow_html=True)
+                    # Interruptor dinámico por cada registro en la sección de edición
+                    activar_camara_edit = st.checkbox("🟢 Activar cámara", key=f"chk_cam_edit_{row['fid']}")
+                    
+                    nueva_foto_camara = None
+                    if activar_camara_edit:
+                        nueva_foto_camara = st.camera_input("Tomar foto", key=f"cam_edit_{row['fid']}", label_visibility="collapsed")
                 
                 btn_act = st.form_submit_button("💾 Actualizar Registro y Fotografía")
                 if btn_act:
