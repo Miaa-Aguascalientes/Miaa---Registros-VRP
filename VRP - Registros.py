@@ -28,19 +28,19 @@ def crear_nuevo_engine():
 if 'db_engine' not in st.session_state:
     st.session_state.db_engine = crear_nuevo_engine()
 
-def obtener_datos(query):
+def obtener_datos(query, params=None):
     """Ejecuta consultas devolviendo el dataframe asegurando reconexión."""
     for intento in range(2):
         try:
             with st.session_state.db_engine.connect() as conn:
-                df = pd.read_sql(text(query) if isinstance(query, str) else query, conn)
+                df = pd.read_sql(text(query) if isinstance(query, str) else query, conn, params=params or {})
                 return df, None
         except Exception as e:
             try:
                 st.session_state.db_engine.dispose()
                 st.session_state.db_engine = crear_nuevo_engine()
                 with st.session_state.db_engine.connect() as conn:
-                    df = pd.read_sql(text(query) if isinstance(query, str) else query, conn)
+                    df = pd.read_sql(text(query) if isinstance(query, str) else query, conn, params=params or {})
                     return df, None
             except Exception as e2:
                 if intento == 1:
@@ -199,17 +199,35 @@ COLUMNAS_VPRS = """
 """
 
 # ==========================================
-# SECCIÓN 1: VER REGISTROS (VPRS)
+# SECCIÓN 1: VER REGISTROS (VPRS) CON BUSCADOR
 # ==========================================
 if st.session_state.active_tab == "📍 Registros":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.2rem; font-weight: 700; margin-bottom: 15px;">📂 Catálogo de Válvulas VPRS</h3>', unsafe_allow_html=True)
     
-    query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VPRS" ORDER BY fid LIMIT 50'
-    df_vprs, error_db = obtener_datos(query)
+    # Campo de búsqueda interactivo
+    busqueda = st.text_input("🔍 Buscar válvula (por ID, Serie, Domicilio o Colonia):", placeholder="Ej. VF01, Centro, etc.")
+    
+    if busqueda and busqueda.strip() != "":
+        filtro = f"%{busqueda.strip()}%"
+        query = f"""
+            SELECT {COLUMNAS_VPRS} 
+            FROM "Agua_potable"."VPRS" 
+            WHERE id ILIKE :filtro 
+               OR serie ILIKE :filtro 
+               OR domicilio ILIKE :filtro 
+               OR colonia ILIKE :filtro 
+            ORDER BY fid 
+            LIMIT 50
+        """
+        df_vprs, error_db = obtener_datos(query, {"filtro": filtro})
+    else:
+        query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VPRS" ORDER BY fid LIMIT 50'
+        df_vprs, error_db = obtener_datos(query)
     
     if error_db:
         st.error(f"❌ Error al consultar PostgreSQL: {error_db}")
     elif not df_vprs.empty:
+        st.markdown(f"<p style='color: #94A3B8; font-size: 0.85rem; margin-bottom: 10px;'>Se encontraron {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
         for _, row in df_vprs.iterrows():
             serie_val = row['serie']
             if pd.isna(serie_val) or str(serie_val).strip().lower() in ["nan", "none", ""]:
@@ -231,7 +249,7 @@ if st.session_state.active_tab == "📍 Registros":
                 </div>
             """, unsafe_allow_html=True)
     else:
-        st.info("No se encontraron registros en la tabla VPRS.")
+        st.info("No se encontraron registros que coincidan con la búsqueda.")
 
 # ==========================================
 # SECCIÓN 2: AÑADIR NUEVA VÁLVULA
