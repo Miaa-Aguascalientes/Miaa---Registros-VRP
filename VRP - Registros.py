@@ -55,7 +55,7 @@ def ejecutar_sql(query, params=None):
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
-# --- ESTILOS CSS (AJUSTE AUTOMÁTICO DE ANCHO AL CONTENIDO) ---
+# --- ESTILOS CSS (CAMPOS AJUSTADOS AL CONTENIDO Y SIN DESBORDE) ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
     .block-container {
@@ -74,12 +74,12 @@ st.write("""<style>
         overflow-x: hidden;
     }
     
-    /* BLOQUEO ESTRICTO DE 2 COLUMNAS SIN DESBORDE HORIZONTAL */
+    /* BLOQUEO DE 2 COLUMNAS SIN DESBORDE HORIZONTAL */
     [data-testid="stHorizontalBlock"] {
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
-        gap: 4px !important;
+        gap: 8px !important;
         width: 100% !important;
         box-sizing: border-box !important;
     }
@@ -93,15 +93,14 @@ st.write("""<style>
         padding: 0 2px !important;
     }
 
-    /* FORZAR QUE CUALQUIER INPUT O CONTENEDOR INTERNO RESPETE EL ANCHO DE LA COLUMNA */
+    /* AJUSTAR LOS INPUTS PARA QUE NO SE EXTIENDAN DE MÁS Y MANTENGAN EL DISEÑO COMPACTO */
     div.stTextInput, div.stNumberInput, div.stSelectbox {
         width: 100% !important;
-        max-width: 100% !important;
+        max-width: 260px !important;
         box-sizing: border-box !important;
     }
     div[data-baseweb="input"], div[data-baseweb="base-input"], div[data-baseweb="spinbutton"] {
         width: 100% !important;
-        max-width: 100% !important;
         box-sizing: border-box !important;
     }
 
@@ -154,21 +153,18 @@ st.write("""<style>
     .stTextInput label, .stSelectbox label, .stNumberInput label, [data-testid="stWidgetLabel"] p {
         color: #E2E8F0 !important;
         font-weight: 600 !important;
-        font-size: 0.58rem !important;
+        font-size: 0.7rem !important;
     }
 
-    /* Tarjetas de registros ajustadas exactamente al contenido */
+    /* Tarjetas de registros ajustadas */
     .user-card {
-        display: inline-block;
-        width: auto;
-        min-width: 100%;
-        max-width: 100%;
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
         border-left: 4px solid #00E5FF;
         border-radius: 12px;
         padding: 14px 18px;
         margin-bottom: 12px;
+        max-width: 100%;
         box-sizing: border-box;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         word-break: break-word;
@@ -183,6 +179,7 @@ st.write("""<style>
         font-weight: 700;
         padding: 0.5rem 1rem;
         width: 100%;
+        max-width: 260px;
         box-shadow: 0 4px 12px rgba(0, 229, 255, 0.2);
         transition: all 0.2s;
     }
@@ -191,14 +188,14 @@ st.write("""<style>
         box-shadow: 0 4px 18px rgba(0, 229, 255, 0.4);
     }
 
-    /* Campos de entrada compactos y adaptativos */
+    /* Campos de entrada compactos */
     div[data-baseweb="input"] input, div[data-baseweb="base-input"] input {
         background-color: #080C14 !important;
         color: #F8FAFC !important;
         border-color: rgba(0, 229, 255, 0.25) !important;
         border-radius: 6px !important;
-        font-size: 0.62rem !important;
-        padding: 3px 4px !important;
+        font-size: 0.75rem !important;
+        padding: 6px 8px !important;
         box-sizing: border-box !important;
     }
     div[data-baseweb="input"] input:focus {
@@ -538,7 +535,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
     if st.session_state.registro_to_delete is not None:
         target_fid = st.session_state.registro_to_delete
-        st.warning(f"⚠️ Estás a pungent de eliminar el registro FID: {target_fid}")
+        st.warning(f"⚠️ Estás a punto de eliminar el registro FID: {target_fid}")
         confirm = st.text_input("Escribe 'delete' para confirmar:", key="del_confirm_input")
         
         c1, c2 = st.columns(2)
