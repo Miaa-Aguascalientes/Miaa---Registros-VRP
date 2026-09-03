@@ -70,10 +70,17 @@ st.write("""<style>
         color: #F8FAFC;
     }
     
-    /* Forzar diseño de 3 columnas incluso en dispositivos móviles */
+    /* --- FORZAR 3 COLUMNAS LADO A LADO EN CELULARES Y ESCRITORIO --- */
+    [data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 10px !important;
+    }
     [data-testid="column"] {
-        flex: 1 1 calc(33.333% - 1rem) !important;
-        min-width: calc(33.333% - 1rem) !important;
+        flex: 1 1 33.333% !important;
+        min-width: 0 !important;
+        width: 33.333% !important;
     }
     
     /* Menú de navegación / Pestañas estilo tarjeta MIAA */
@@ -121,11 +128,11 @@ st.write("""<style>
         font-weight: 700 !important;
     }
 
-    /* Etiquetas de formularios */
+    /* Etiquetas de formularios (Tamaño más compacto para celular) */
     .stTextInput label, .stSelectbox label, .stNumberInput label, [data-testid="stWidgetLabel"] p {
         color: #E2E8F0 !important;
         font-weight: 600 !important;
-        font-size: 0.9rem !important;
+        font-size: 0.75rem !important;
     }
 
     /* Tarjetas de registros estilo MIAA */
@@ -162,6 +169,7 @@ st.write("""<style>
         color: #F8FAFC !important;
         border-color: rgba(0, 229, 255, 0.25) !important;
         border-radius: 8px !important;
+        font-size: 0.8rem !important;
     }
     div[data-baseweb="input"] input:focus {
         border-color: #00E5FF !important;
