@@ -205,6 +205,14 @@ st.write("""<style>
         max-width: 100% !important;
     }
 
+    /* Ocultar texto descriptivo y de tamaño (200MB, JPG, PNG) en stFileUploader */
+    [data-testid="stFileUploader"] small, 
+    [data-testid="stFileUploader"] section div span, 
+    [data-testid="fileUploaderDropzone"] div:has(> small),
+    [data-testid="stFileUploader"] section div div {
+        display: none !important;
+    }
+
     /* Corrección crítica para dispositivos móviles: Forzar visibilidad y clickabilidad en stFileUploader */
     [data-testid="stFileUploader"] {
         width: 100% !important;
@@ -214,6 +222,7 @@ st.write("""<style>
         background-color: #0D1424 !important;
         border: 1px dashed rgba(0, 229, 255, 0.4) !important;
         border-radius: 6px !important;
+        min-height: 44px !important;
     }
     [data-testid="stFileUploader"] section input[type="file"] {
         display: block !important;
@@ -592,7 +601,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 st.session_state.registro_to_delete = row['fid']
                 st.rerun()
                 
-            st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.1);'>", unsafe_allow_html=True)
+            st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.1);'>", unsafe_app_html=True)
 
     if st.session_state.registro_to_delete is not None:
         target_fid = st.session_state.registro_to_delete
@@ -615,6 +624,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                     st.error("Debes escribir 'delete'.")
         with c2:
             if st.button("Cancelar", use_container_width=True):
+                st.session_state.registro_to_data = None
                 st.session_state.registro_to_delete = None
                 st.rerun()
 
