@@ -53,7 +53,7 @@ def ejecutar_sql(query, params=None):
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
-# --- ESTILOS CSS FORZADOS A 2 COLUMNAS ESTRICTAS EN MÓVIL ---
+# --- ESTILOS CSS PARA 2 COLUMNAS ESTRICTAS (INPUTS Y TARJETAS) ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
     .block-container {
@@ -70,7 +70,7 @@ st.write("""<style>
         overflow-x: hidden;
     }
     
-    /* FORZAR 2 COLUMNAS EXACTAS EN CUALQUIER BLOQUE HORIZONTAL DE FORMULARIO */
+    /* FORZAR 2 COLUMNAS EXACTAS EN Cualquier BLOQUE HORIZONTAL */
     [data-testid="stHorizontalBlock"] {
         display: flex !important;
         flex-direction: row !important;
@@ -88,7 +88,7 @@ st.write("""<style>
         padding: 0 !important;
     }
 
-    /* INPUTS ADAPTADOS AL 100% DE SU CONTENEDOR DE COLUMNA */
+    /* INPUTS ADAPTADOS AL 100% DE SU CONTENEDOR */
     div.stTextInput, div.stNumberInput, div.stSelectbox {
         width: 100% !important;
         max-width: 100% !important;
@@ -97,6 +97,28 @@ st.write("""<style>
     div[data-baseweb="input"], div[data-baseweb="base-input"], div[data-baseweb="spinbutton"] {
         width: 100% !important;
         box-sizing: border-box !important;
+    }
+
+    /* CONTENEDOR DE TARJETAS EN DOS COLUMNAS AUTOMÁTICAS */
+    .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Tarjetas de registros adaptadas */
+    .user-card {
+        background: #0D1424;
+        border: 1px solid rgba(0, 229, 255, 0.12);
+        border-left: 4px solid #00E5FF;
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        word-break: break-word;
+        box-sizing: border-box;
+        height: 100%;
     }
 
     /* Menú de navegación / Pestañas estilo tarjeta MIAA */
@@ -148,18 +170,6 @@ st.write("""<style>
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
-    }
-
-    /* Tarjetas de registros */
-    .user-card {
-        background: #0D1424;
-        border: 1px solid rgba(0, 229, 255, 0.12);
-        border-left: 4px solid #00E5FF;
-        border-radius: 12px;
-        padding: 14px 16px;
-        margin-bottom: 14px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        word-break: break-word;
     }
 
     /* Botones principales */
@@ -224,7 +234,7 @@ COLUMNAS_VPRS = """
 """
 
 # ==========================================
-# SECCIÓN 1: VER REGISTROS (VPRS) CON BUSCADOR
+# SECCIÓN 1: VER REGISTROS (VPRS) EN 2 COLUMNAS
 # ==========================================
 if st.session_state.active_tab == "📍 Registros":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">📂 Catálogo de Válvulas VPRS</h3>', unsafe_allow_html=True)
@@ -255,41 +265,74 @@ if st.session_state.active_tab == "📍 Registros":
         else:
             st.markdown(f"<p style='color: #94A3B8; font-size: 0.8rem; margin-bottom: 8px;'>Se encontraron {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
             
-        for _, row in df_vprs.iterrows():
-            serie_val = row['serie']
-            if pd.isna(serie_val) or str(serie_val).strip().lower() in ["nan", "none", ""]:
-                serie_texto = ""
-            else:
-                serie_texto = f" | Serie: {serie_val}"
-
-            st.markdown(f"""
-                <div class="user-card">
-                    <span style="font-size: 1rem; font-weight: bold; color: #F8FAFC;">ID: {row['id']}{serie_texto}</span><br>
-                    <span style="color: #00E5FF; font-size: 0.85rem;">📍 {row['domicilio'] or 'Sin domicilio'}, Col. {row['colonia'] or 'Sin colonia'}</span><br>
-                    <span style="color: #94A3B8; font-size: 0.8rem; line-height: 1.4;">
-                        Diámetro: {row['diametro']}mm | Marca: {row['marca_valv']} | Modelo: {row['model_valv']} | Trim: {row['marca_trim']} | Cota: {row['cota_terr']}<br>
-                        Sector: {row['sector_hid']} | Estado: {row['estat_valv']} | Hora Cal: {row['hora_cal']} | Fecha: {row['fecha_ult_']}<br>
-                        Cal Anterior Día: {row['cal_ant_d']} | Cal Anterior Noche: {row['cal_ant_n']}<br>
-                        Cal Actual Día: {row['cal_act_d']} | Cal Actual Noche: {row['cal_act_n']}<br>
-                        Observaciones: {row['observ']}
-                    </span>
-                </div>
-            """, unsafe_allow_html=True)
+        # Renderizado en rejilla de 2 columnas usando st.columns por pares
+        for i in range(0, len(df_vprs), 2):
+            col_a, col_b = st.columns(2)
             
-            foto_data = row['fotos']
-            if foto_data is not None and len(foto_data) > 0:
-                try:
-                    if isinstance(foto_data, bytes):
-                        st.image(foto_data, caption=f"Fotografía - ID: {row['id']}", width=250)
-                    elif isinstance(foto_data, str) and len(foto_data) > 10:
-                        st.image(base64.b64decode(foto_data), caption=f"Fotografía - ID: {row['id']}", width=250)
-                except Exception:
-                    st.warning("No se pudo renderizar la fotografía.")
+            with col_a:
+                row1 = df_vprs.iloc[i]
+                serie_val1 = row1['serie']
+                serie_texto1 = "" if (pd.isna(serie_val1) or str(serie_val1).strip().lower() in ["nan", "none", ""]) else f" | Serie: {serie_val1}"
+
+                st.markdown(f"""
+                    <div class="user-card">
+                        <span style="font-size: 0.9rem; font-weight: bold; color: #F8FAFC;">ID: {row1['id']}{serie_texto1}</span><br>
+                        <span style="color: #00E5FF; font-size: 0.75rem;">📍 {row1['domicilio'] or 'Sin domicilio'}, Col. {row1['colonia'] or 'Sin colonia'}</span><br>
+                        <span style="color: #94A3B8; font-size: 0.7rem; line-height: 1.3;">
+                            Diámetro: {row1['diametro']}mm | Marca: {row1['marca_valv']} | Modelo: {row1['model_valv']} | Trim: {row1['marca_trim']} | Cota: {row1['cota_terr']}<br>
+                            Sector: {row1['sector_hid']} | Estado: {row1['estat_valv']} | Hora Cal: {row1['hora_cal']} | Fecha: {row1['fecha_ult_']}<br>
+                            Cal Ant Día: {row1['cal_ant_d']} | Cal Ant Noche: {row1['cal_ant_n']}<br>
+                            Cal Act Día: {row1['cal_act_d']} | Cal Act Noche: {row1['cal_act_n']}<br>
+                            Obs: {row1['observ']}
+                        </span>
+                    </div>
+                """, unsafe_allow_html=True)
+                
+                foto_data1 = row1['fotos']
+                if foto_data1 is not None and len(foto_data1) > 0:
+                    try:
+                        if isinstance(foto_data1, bytes):
+                            st.image(foto_data1, caption=f"ID: {row1['id']}", width=150)
+                        elif isinstance(foto_data1, str) and len(foto_data1) > 10:
+                            st.image(base64.b64decode(foto_data1), caption=f"ID: {row1['id']}", width=150)
+                    except:
+                        pass
+
+            if i + 1 < len(df_vprs):
+                with col_b:
+                    row2 = df_vprs.iloc[i + 1]
+                    serie_val2 = row2['serie']
+                    serie_texto2 = "" if (pd.isna(serie_val2) or str(serie_val2).strip().lower() in ["nan", "none", ""]) else f" | Serie: {serie_val2}"
+
+                    st.markdown(f"""
+                        <div class="user-card">
+                            <span style="font-size: 0.9rem; font-weight: bold; color: #F8FAFC;">ID: {row2['id']}{serie_texto2}</span><br>
+                            <span style="color: #00E5FF; font-size: 0.75rem;">📍 {row2['domicilio'] or 'Sin domicilio'}, Col. {row2['colonia'] or 'Sin colonia'}</span><br>
+                            <span style="color: #94A3B8; font-size: 0.7rem; line-height: 1.3;">
+                                Diámetro: {row2['diametro']}mm | Marca: {row2['marca_valv']} | Modelo: {row2['model_valv']} | Trim: {row2['marca_trim']} | Cota: {row2['cota_terr']}<br>
+                                Sector: {row2['sector_hid']} | Estado: {row2['estat_valv']} | Hora Cal: {row2['hora_cal']} | Fecha: {row2['fecha_ult_']}<br>
+                                Cal Ant Día: {row2['cal_ant_d']} | Cal Ant Noche: {row2['cal_ant_n']}<br>
+                                Cal Act Día: {row2['cal_act_d']} | Cal Act Noche: {row2['cal_act_n']}<br>
+                                Obs: {row2['observ']}
+                            </span>
+                        </div>
+                    """, unsafe_allow_html=True)
+                    
+                    foto_data2 = row2['fotos']
+                    if foto_data2 is not None and len(foto_data2) > 0:
+                        try:
+                            if isinstance(foto_data2, bytes):
+                                st.image(foto_data2, caption=f"ID: {row2['id']}", width=150)
+                            elif isinstance(foto_data2, str) and len(foto_data2) > 10:
+                                st.image(base64.b64decode(foto_data2), caption=f"ID: {row2['id']}", width=150)
+                        except:
+                            pass
+            st.markdown("<div style='margin-bottom: 8px;'></div>", unsafe_allow_html=True)
     else:
         st.info("No se encontraron registros.")
 
 # ==========================================
-# SECCIÓN 2: AÑADIR NUEVA VÁLVULA (ESTRICTAMENTE 2 COLUMNAS)
+# SECCIÓN 2: AÑADIR NUEVA VÁLVULA
 # ==========================================
 elif st.session_state.active_tab == "➕ Añadir":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">✨ Registrar nueva VPRS</h3>', unsafe_allow_html=True)
@@ -382,7 +425,7 @@ elif st.session_state.active_tab == "➕ Añadir":
             st.warning("El campo ID es obligatorio.")
 
 # ==========================================
-# SECCIÓN 3: EDITAR Y ELIMINAR (ESTRICTAMENTE 2 COLUMNAS)
+# SECCIÓN 3: EDITAR Y ELIMINAR
 # ==========================================
 elif st.session_state.active_tab == "⚙️ Editar":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">🛠️ Modificar o Eliminar Válvula</h3>', unsafe_allow_html=True)
