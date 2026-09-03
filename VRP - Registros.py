@@ -53,14 +53,14 @@ def ejecutar_sql(query, params=None):
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
-# --- ESTILOS CSS CON CONTENEDOR AMPLIADO PARA ELIMINAR ESPACIO LATERAL ---
+# --- ESTILOS CSS CON CONTENEDOR EXPANDIDO A 100% DE ANCHO ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
     .block-container {
-        padding-top: 0.2rem !important; 
+        padding-top: 0.1rem !important; 
         padding-bottom: 2.5rem !important;
-        padding-left: 0.5rem !important;
-        padding-right: 0.5rem !important;
+        padding-left: 0.1rem !important;
+        padding-right: 0.1rem !important;
         background: #080C14;
         color: #F8FAFC;
         max-width: 100% !important;
@@ -72,21 +72,21 @@ st.write("""<style>
         overflow-x: hidden;
     }
     
-    /* REJILLA DE 2 COLUMNAS AMPLIADAS AL MÁXIMO */
+    /* REJILLA DE 2 COLUMNAS AMPLIADAS AL MÁXIMO DE PANTALLA */
     .miaa-grid-container {
         display: grid;
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 6px !important;
+        gap: 4px !important;
         width: 100% !important;
         box-sizing: border-box !important;
-        margin-bottom: 8px !important;
+        margin-bottom: 6px !important;
     }
 
-    /* Anular restricciones responsivas de Streamlit en bloques horizontales */
+    /* Anular restricciones de Streamlit en bloques horizontales */
     [data-testid="stHorizontalBlock"] {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 6px !important;
+        gap: 4px !important;
         width: 100% !important;
     }
     [data-testid="column"] {
@@ -97,13 +97,13 @@ st.write("""<style>
         padding: 0 !important;
     }
 
-    /* Tarjetas de registros */
+    /* Tarjetas de registros de ancho completo */
     .user-card {
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
         border-left: 4px solid #00E5FF;
-        border-radius: 10px;
-        padding: 10px;
+        border-radius: 8px;
+        padding: 8px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         word-break: break-word;
         box-sizing: border-box;
@@ -118,16 +118,16 @@ st.write("""<style>
         justify-content: center;
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
-        border-radius: 14px;
-        padding: 6px;
-        gap: 6px;
+        border-radius: 12px;
+        padding: 4px;
+        gap: 4px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
     div.row-widget.stRadio > div > label {
         background: #111A30;
         border: 1px solid rgba(0, 229, 255, 0.15) !important;
-        border-radius: 10px !important;
-        padding: 8px 4px !important;
+        border-radius: 8px !important;
+        padding: 8px 2px !important;
         flex: 1;
         text-align: center;
         cursor: pointer;
@@ -152,7 +152,7 @@ st.write("""<style>
         font-weight: 700 !important;
     }
 
-    /* Etiquetas compactas para evitar desbordes móviles */
+    /* Etiquetas de los inputs */
     .stTextInput label, .stSelectbox label, .stNumberInput label, [data-testid="stWidgetLabel"] p {
         color: #E2E8F0 !important;
         font-weight: 600 !important;
@@ -167,7 +167,7 @@ st.write("""<style>
         background: linear-gradient(135deg, #0077B6 0%, #00E5FF 100%);
         color: #080C14;
         border: none;
-        border-radius: 9px;
+        border-radius: 8px;
         font-weight: 700;
         padding: 0.5rem 1rem;
         width: 100%;
@@ -177,7 +177,7 @@ st.write("""<style>
         opacity: 0.95;
     }
 
-    /* Campos de entrada compactos */
+    /* Campos de entrada compactos y expandidos */
     div[data-baseweb="input"] input, div[data-baseweb="base-input"] input {
         background-color: #080C14 !important;
         color: #F8FAFC !important;
@@ -189,10 +189,10 @@ st.write("""<style>
 
 # --- CABECERA ---
 st.markdown("""
-    <div style="display: flex; align-items: center; gap: 12px; width: 100%; margin-bottom: 5px;">
-        <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 100px; height: auto; flex-shrink: 0;" />
+    <div style="display: flex; align-items: center; gap: 10px; width: 100%; margin-bottom: 5px;">
+        <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 90px; height: auto; flex-shrink: 0;" />
         <div>
-            <h2 style="color: #00E5FF; margin: 0; font-size: 1.2rem; font-weight: 800; line-height: 1.2;">Gestion VRP's</h2>
+            <h2 style="color: #00E5FF; margin: 0; font-size: 1.15rem; font-weight: 800; line-height: 1.2;">Gestion VRP's</h2>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -215,7 +215,7 @@ if seleccion_tab != st.session_state.active_tab:
     st.session_state.active_tab = seleccion_tab
     st.rerun()
 
-st.markdown("<hr style='border: 0.5px solid rgba(0,229,255,0.15); margin: 12px 0;'>", unsafe_allow_html=True)
+st.markdown("<hr style='border: 0.5px solid rgba(0,229,255,0.15); margin: 10px 0;'>", unsafe_allow_html=True)
 
 COLUMNAS_VPRS = """
     fid, id_0, id, serie, diametro, marca_valv, model_valv, marca_trim, domicilio, colonia, 
@@ -224,10 +224,10 @@ COLUMNAS_VPRS = """
 """
 
 # ==========================================
-# SECCIÓN 1: VER REGISTROS (VPRS) EN 2 COLUMNAS CSS GRID
+# SECCIÓN 1: VER REGISTROS (VPRS)
 # ==========================================
 if st.session_state.active_tab == "📍 Registros":
-    st.markdown('<h3 style="color: #00E5FF; font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">📂 Catálogo de Válvulas VPRS</h3>', unsafe_allow_html=True)
+    st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 10px;">📂 Catálogo de Válvulas VPRS</h3>', unsafe_allow_html=True)
     
     busqueda = st.text_input("🔍 Buscar válvula (ID, Serie, Domicilio, Col.):", placeholder="Ej. VF01, Centro...")
     
@@ -251,9 +251,9 @@ if st.session_state.active_tab == "📍 Registros":
         st.error(f"❌ Error al consultar PostgreSQL: {error_db}")
     elif not df_vprs.empty:
         if not busqueda or busqueda.strip() == "":
-            st.markdown(f"<p style='color: #94A3B8; font-size: 0.8rem; margin-bottom: 8px;'>Mostrando primeros 10 registros.</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 6px;'>Mostrando primeros 10 registros.</p>", unsafe_allow_html=True)
         else:
-            st.markdown(f"<p style='color: #94A3B8; font-size: 0.8rem; margin-bottom: 8px;'>Se encontraron {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 6px;'>Se encontraron {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
             
         for i in range(0, len(df_vprs), 2):
             row1 = df_vprs.iloc[i]
@@ -262,9 +262,9 @@ if st.session_state.active_tab == "📍 Registros":
             
             card1_html = f"""
                 <div class="user-card">
-                    <span style="font-size: 0.85rem; font-weight: bold; color: #F8FAFC;">ID: {row1['id']}{serie_texto1}</span><br>
-                    <span style="color: #00E5FF; font-size: 0.75rem;">📍 {row1['domicilio'] or 'Sin domicilio'}, Col. {row1['colonia'] or 'Sin colonia'}</span><br>
-                    <span style="color: #94A3B8; font-size: 0.68rem; line-height: 1.3;">
+                    <span style="font-size: 0.82rem; font-weight: bold; color: #F8FAFC;">ID: {row1['id']}{serie_texto1}</span><br>
+                    <span style="color: #00E5FF; font-size: 0.72rem;">📍 {row1['domicilio'] or 'Sin domicilio'}, Col. {row1['colonia'] or 'Sin colonia'}</span><br>
+                    <span style="color: #94A3B8; font-size: 0.65rem; line-height: 1.3;">
                         Diámetro: {row1['diametro']}mm | Marca: {row1['marca_valv']} | Modelo: {row1['model_valv']} | Trim: {row1['marca_trim']} | Cota: {row1['cota_terr']}<br>
                         Sector: {row1['sector_hid']} | Estado: {row1['estat_valv']} | Hora Cal: {row1['hora_cal']} | Fecha: {row1['fecha_ult_']}<br>
                         Cal Ant Día: {row1['cal_ant_d']} | Cal Ant Noche: {row1['cal_ant_n']}<br>
@@ -282,9 +282,9 @@ if st.session_state.active_tab == "📍 Registros":
                 
                 card2_html = f"""
                     <div class="user-card">
-                        <span style="font-size: 0.85rem; font-weight: bold; color: #F8FAFC;">ID: {row2['id']}{serie_texto2}</span><br>
-                        <span style="color: #00E5FF; font-size: 0.75rem;">📍 {row2['domicilio'] or 'Sin domicilio'}, Col. {row2['colonia'] or 'Sin colonia'}</span><br>
-                        <span style="color: #94A3B8; font-size: 0.68rem; line-height: 1.3;">
+                        <span style="font-size: 0.82rem; font-weight: bold; color: #F8FAFC;">ID: {row2['id']}{serie_texto2}</span><br>
+                        <span style="color: #00E5FF; font-size: 0.72rem;">📍 {row2['domicilio'] or 'Sin domicilio'}, Col. {row2['colonia'] or 'Sin colonia'}</span><br>
+                        <span style="color: #94A3B8; font-size: 0.65rem; line-height: 1.3;">
                             Diámetro: {row2['diametro']}mm | Marca: {row2['marca_valv']} | Modelo: {row2['model_valv']} | Trim: {row2['marca_trim']} | Cota: {row2['cota_terr']}<br>
                             Sector: {row2['sector_hid']} | Estado: {row2['estat_valv']} | Hora Cal: {row2['hora_cal']} | Fecha: {row2['fecha_ult_']}<br>
                             Cal Ant Día: {row2['cal_ant_d']} | Cal Ant Noche: {row2['cal_ant_n']}<br>
@@ -323,7 +323,7 @@ if st.session_state.active_tab == "📍 Registros":
                                 st.image(base64.b64decode(foto_data2), caption=f"ID: {df_vprs.iloc[i + 1]['id']}", width=140)
                         except:
                             pass
-            st.markdown("<div style='margin-bottom: 6px;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='margin-bottom: 4px;'></div>", unsafe_allow_html=True)
     else:
         st.info("No se encontraron registros.")
 
@@ -331,7 +331,7 @@ if st.session_state.active_tab == "📍 Registros":
 # SECCIÓN 2: AÑADIR NUEVA VÁLVULA
 # ==========================================
 elif st.session_state.active_tab == "➕ Añadir":
-    st.markdown('<h3 style="color: #00E5FF; font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">✨ Registrar nueva VPRS</h3>', unsafe_allow_html=True)
+    st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 10px;">✨ Registrar nueva VPRS</h3>', unsafe_allow_html=True)
     
     r1c1, r1c2 = st.columns(2)
     with r1c1: val_id_0 = st.number_input("ID_0 (Int)", min_value=0, value=0, key="add_id_0")
@@ -372,14 +372,14 @@ elif st.session_state.active_tab == "➕ Añadir":
     val_observ = st.text_input("Observaciones", key="add_obs")
 
     st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.2);'>", unsafe_allow_html=True)
-    st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.85rem;'>📸 Fotografía:</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.8rem;'>📸 Fotografía:</p>", unsafe_allow_html=True)
     
     col_foto1, col_foto2 = st.columns(2)
     with col_foto1:
-        st.markdown("<p style='font-size: 0.8rem; color: #94A3B8;'>Subir archivo:</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size: 0.78rem; color: #94A3B8;'>Subir archivo:</p>", unsafe_allow_html=True)
         foto_subida = st.file_uploader("Subir imagen", type=["jpg", "jpeg", "png"], key="subir_nuevo", label_visibility="collapsed")
     with col_foto2:
-        st.markdown("<p style='font-size: 0.8rem; color: #94A3B8;'>Usar cámara:</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size: 0.78rem; color: #94A3B8;'>Usar cámara:</p>", unsafe_allow_html=True)
         activar_camara_nuevo = st.checkbox("🟢 Activar cámara", key="chk_cam_nuevo")
         foto_camara = None
         if activar_camara_nuevo:
@@ -424,7 +424,7 @@ elif st.session_state.active_tab == "➕ Añadir":
 # SECCIÓN 3: EDITAR Y ELIMINAR
 # ==========================================
 elif st.session_state.active_tab == "⚙️ Editar":
-    st.markdown('<h3 style="color: #00E5FF; font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">🛠️ Modificar o Eliminar Válvula</h3>', unsafe_allow_html=True)
+    st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 10px;">🛠️ Modificar o Eliminar Válvula</h3>', unsafe_allow_html=True)
     
     busqueda_edit = st.text_input("🔍 Filtrar registros a editar:", placeholder="Dejar en blanco para ver 10...")
     
@@ -448,9 +448,9 @@ elif st.session_state.active_tab == "⚙️ Editar":
         st.error(f"Error: {error_db}")
     elif not df_vprs.empty:
         if not busqueda_edit or busqueda_edit.strip() == "":
-            st.markdown(f"<p style='color: #94A3B8; font-size: 0.8rem; margin-bottom: 8px;'>Mostrando primeros 10 registros.</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 6px;'>Mostrando primeros 10 registros.</p>", unsafe_allow_html=True)
         else:
-            st.markdown(f"<p style='color: #94A3B8; font-size: 0.8rem; margin-bottom: 8px;'>Se encontraron {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 6px;'>Se encontraron {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
             
         for idx, row in df_vprs.iterrows():
             st.markdown(f"<span style='color: #00E5FF; font-weight: bold;'>FID Registro: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span>", unsafe_allow_html=True)
@@ -506,7 +506,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 except:
                     pass
 
-            st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.8rem;'>📸 Actualizar foto:</p>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem;'>📸 Actualizar foto:</p>", unsafe_allow_html=True)
             
             ef_col1, ef_col2 = st.columns(2)
             with ef_col1:
@@ -581,7 +581,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
 # --- PIE DE PÁGINA ---
 st.markdown("""
-    <div style="text-align: center; color: #94A3B8; font-size: 0.8rem; margin-top: 2.5rem; border-top: 1px solid rgba(0, 229, 255, 0.12); padding-top: 1rem;">
+    <div style="text-align: center; color: #94A3B8; font-size: 0.78rem; margin-top: 2rem; border-top: 1px solid rgba(0, 229, 255, 0.12); padding-top: 0.8rem;">
         © 2026 MIAA &bull; Sistema de Gestión PostGIS
     </div>
 """, unsafe_allow_html=True)
