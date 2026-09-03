@@ -54,6 +54,20 @@ def ejecutar_sql(query, params=None):
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
+def procesar_bytes_foto(foto_data):
+    if foto_data is None:
+        return None
+    if isinstance(foto_data, memoryview):
+        return bytes(foto_data)
+    if isinstance(foto_data, bytes):
+        return foto_data
+    if isinstance(foto_data, str) and len(foto_data) > 10:
+        try:
+            return base64.b64decode(foto_data)
+        except:
+            return None
+    return None
+
 # --- ESTILOS CSS CON ANCHO TOTAL AL 100% EN CUADROS Y CONTENEDORES ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
@@ -319,7 +333,7 @@ if st.session_state.active_tab == "📍 Registros":
             """
             st.markdown(card_html, unsafe_allow_html=True)
             
-            # Contenedor desplegable para el detalle con título simplificado solicitado
+            # Contenedor desplegable para el detalle con título simplificado
             with st.expander("🔍 Ver detalles completos"):
                 detalle_html = f"""
                     <span style="color: #94A3B8; font-size: 0.68rem; line-height: 1.4;">
@@ -332,15 +346,11 @@ if st.session_state.active_tab == "📍 Registros":
                 """
                 st.markdown(detalle_html, unsafe_allow_html=True)
                 
-                foto_data = row['fotos']
-                if foto_data is not None and len(foto_data) > 0:
-                    try:
-                        if isinstance(foto_data, bytes):
-                            st.image(foto_data, caption=f"ID: {row['id']}", width=250)
-                        elif isinstance(foto_data, str) and len(foto_data) > 10:
-                            st.image(base64.b64decode(foto_data), caption=f"ID: {row['id']}", width=250)
-                    except:
-                        pass
+                # Visualización de la foto almacenada en el campo fotos
+                img_bytes = procesar_bytes_foto(row['fotos'])
+                if img_bytes is not None and len(img_bytes) > 0:
+                    st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 6px; margin-bottom: 2px;'>📸 Fotografía registrada:</p>", unsafe_allow_html=True)
+                    st.image(img_bytes, caption=f"ID: {row['id']}", width=280)
                         
             st.markdown("<div style='margin-bottom: 8px;'></div>", unsafe_allow_html=True)
     else:
@@ -352,7 +362,6 @@ if st.session_state.active_tab == "📍 Registros":
 elif st.session_state.active_tab == "➕ Añadir":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">✨ Registrar nueva VPRS</h3>', unsafe_allow_html=True)
     
-    # Calcular automáticamente el siguiente ID_0 basado en el valor máximo existente en la base de datos
     df_max_id0, err_max = obtener_datos('SELECT MAX(id_0) as max_id FROM "Agua_potable"."VPRS"')
     siguiente_id_0 = 1
     if not err_max and not df_max_id0.empty and df_max_id0['max_id'].iloc[0] is not None:
@@ -363,7 +372,6 @@ elif st.session_state.active_tab == "➕ Añadir":
 
     r1c1, r1c2 = st.columns(2)
     with r1c1: 
-        # ID_0 asignado automáticamente y bloqueado visualmente para que el usuario no pueda editarlo directamente
         st.text_input("ID_0 (Automático)", value=str(siguiente_id_0), disabled=True, key="add_id_0_bloq")
         val_id_0 = siguiente_id_0
     with r1c2: val_id = st.text_input("ID (VRP)", key="add_id")
@@ -492,17 +500,14 @@ elif st.session_state.active_tab == "⚙️ Editar":
         for idx, row in df_vprs.iterrows():
             st.markdown(f"<div style='padding: 0 2px;'><span style='color: #00E5FF; font-weight: bold;'>FID Registro: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span></div>", unsafe_allow_html=True)
             
-            # --- VISUALIZACIÓN DE FOTO ALMACENADA EN LA SECCIÓN DE EDITAR ---
-            foto_actual = row['fotos']
-            if foto_actual is not None and len(foto_actual) > 0:
-                try:
-                    st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 6px; margin-bottom: 2px;'>📸 Fotografía almacenada:</p>", unsafe_allow_html=True)
-                    if isinstance(foto_actual, bytes):
-                        st.image(foto_actual, caption=f"ID: {row['id']}", width=250)
-                    elif isinstance(foto_actual, str) and len(foto_actual) > 10:
-                        st.image(base64.b64decode(foto_actual), caption=f"ID: {row['id']}", width=250)
-                except:
-                    pass
+            # --- VISUALIZACIÓN Y GESTIÓN DE LA FOTO ALMACENADA ---
+            foto_actual_bytes = procesar_bytes_foto(row['fotos'])
+            eliminar_foto = False
+            
+            if foto_actual_bytes is not None and len(foto_actual_bytes) > 0:
+                st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 6px; margin-bottom: 2px;'>📸 Fotografía almacenada actual:</p>", unsafe_allow_html=True)
+                st.image(foto_actual_bytes, caption=f"ID: {row['id']}", width=280)
+                eliminar_foto = st.checkbox("🗑️ Eliminar esta fotografía actual", key=f"del_foto_{row['fid']}")
 
             e_r1c1, e_r1c2 = st.columns(2)
             with e_r1c1: 
@@ -547,7 +552,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
             
             st.markdown("<br>", unsafe_allow_html=True)
 
-            st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem; padding: 0 2px;'>📸 Actualizar foto:</p>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem; padding: 0 2px;'>📸 Reemplazar o capturar nueva foto:</p>", unsafe_allow_html=True)
             
             st.markdown("<p style='font-size: 0.78rem; color: #94A3B8; margin-top: 10px; margin-bottom: 2px;'>Usar cámara:</p>", unsafe_allow_html=True)
             cam_key_edit = f"cam_open_edit_{row['fid']}"
@@ -571,9 +576,12 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             if actualizar_click:
                 try:
-                    foto_bytes_final = row['fotos']
-                    if nueva_foto_camara is not None:
-                        foto_bytes_final = nueva_foto_camara.getvalue()
+                    if eliminar_foto:
+                        foto_bytes_final = None
+                    else:
+                        foto_bytes_final = foto_actual_bytes
+                        if nueva_foto_camara is not None:
+                            foto_bytes_final = nueva_foto_camara.getvalue()
 
                     sql_update = """
                         UPDATE "Agua_potable"."VPRS" 
