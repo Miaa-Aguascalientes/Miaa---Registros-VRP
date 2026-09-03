@@ -53,15 +53,17 @@ def ejecutar_sql(query, params=None):
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
-# --- ESTILOS CSS CON GRID ESTRICTO DE 2 COLUMNAS PARA TODO ---
+# --- ESTILOS CSS CON CONTENEDOR AMPLIADO PARA ELIMINAR ESPACIO LATERAL ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
     .block-container {
         padding-top: 0.2rem !important; 
         padding-bottom: 2.5rem !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
         background: #080C14;
         color: #F8FAFC;
-        max-width: 1350px;
+        max-width: 100% !important;
         overflow-x: hidden;
     }
     body, [data-testid="stAppViewContainer"] {
@@ -70,21 +72,21 @@ st.write("""<style>
         overflow-x: hidden;
     }
     
-    /* REJILLA DE 2 COLUMNAS EXACTAS PARA TARJETAS E INPUTS */
+    /* REJILLA DE 2 COLUMNAS AMPLIADAS AL MÁXIMO */
     .miaa-grid-container {
         display: grid;
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 8px !important;
+        gap: 6px !important;
         width: 100% !important;
         box-sizing: border-box !important;
         margin-bottom: 8px !important;
     }
 
-    /* Anular cualquier comportamiento responsivo de Streamlit en bloques horizontales */
+    /* Anular restricciones responsivas de Streamlit en bloques horizontales */
     [data-testid="stHorizontalBlock"] {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 8px !important;
+        gap: 6px !important;
         width: 100% !important;
     }
     [data-testid="column"] {
@@ -92,6 +94,7 @@ st.write("""<style>
         flex: unset !important;
         min-width: unset !important;
         max-width: 100% !important;
+        padding: 0 !important;
     }
 
     /* Tarjetas de registros */
