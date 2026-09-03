@@ -53,7 +53,7 @@ def ejecutar_sql(query, params=None):
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
-# --- ESTILOS CSS CON ANCHO MÁXIMO AMPLIADO AL 100% REAL ---
+# --- ESTILOS CSS CON ANCHO TOTAL AL 100% EN CUADROS Y CONTENEDORES ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
     .block-container {
@@ -97,11 +97,11 @@ st.write("""<style>
         flex: unset !important;
         min-width: unset !important;
         max-width: 100% !important;
-        padding: 0 !important;
+        padding: 0 2px !important;
         margin: 0 !important;
     }
 
-    /* Tarjetas de registros con ancho total absoluto y bordes ajustados */
+    /* Tarjetas de registros con ancho total absoluto */
     .user-card {
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
@@ -181,17 +181,23 @@ st.write("""<style>
         opacity: 0.95;
     }
 
-    /* Campos de entrada optimizados al 100% de ancho sin márgenes internos */
-    div[data-baseweb="input"], div[data-baseweb="base-input"], div[data-baseweb="select"] {
+    /* FORZAR ANCHO TOTAL EN TODOS LOS CONTENEDORES DE ENTRADA Y TEXTO */
+    .stTextInput, .stNumberInput, .stSelectbox, .stDateInput, .stTextArea {
         width: 100% !important;
+        max-width: 100% !important;
     }
-    div[data-baseweb="input"] input, div[data-baseweb="base-input"] input {
+    div[data-baseweb="input"], div[data-baseweb="base-input"], div[data-baseweb="select"], div[data-baseweb="textarea"] {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    div[data-baseweb="input"] input, div[data-baseweb="base-input"] input, div[data-baseweb="textarea"] textarea {
         background-color: #080C14 !important;
         color: #F8FAFC !important;
         border-color: rgba(0, 229, 255, 0.25) !important;
         border-radius: 4px !important;
         font-size: 0.8rem !important;
         width: 100% !important;
+        max-width: 100% !important;
     }
 </style>""", unsafe_allow_html=True)
 
