@@ -30,7 +30,6 @@ if 'db_engine' not in st.session_state:
     st.session_state.db_engine = crear_nuevo_engine()
 
 def obtener_datos(query, params=None):
-    """Ejecuta consultas devolviendo el dataframe asegurando reconexión."""
     for intento in range(2):
         try:
             with st.session_state.db_engine.connect() as conn:
@@ -49,13 +48,12 @@ def obtener_datos(query, params=None):
     return pd.DataFrame(), "Error de conexión persistente."
 
 def ejecutar_sql(query, params=None):
-    """Ejecuta sentencias SQL de escritura/actualización en Postgres."""
     with st.session_state.db_engine.connect() as conn:
         with conn.begin():
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
-# --- ESTILOS CSS (CAMPOS AJUSTADOS AL CONTENIDO Y SIN DESBORDE) ---
+# --- ESTILOS CSS RESPONSIVOS (ADAPTABLE A CELULAR Y ESCRITORIO) ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
     .block-container {
@@ -74,34 +72,52 @@ st.write("""<style>
         overflow-x: hidden;
     }
     
-    /* BLOQUEO DE 2 COLUMNAS SIN DESBORDE HORIZONTAL */
+    /* CONTENEDOR DE COLUMNAS FLEXIBLE */
     [data-testid="stHorizontalBlock"] {
         display: flex !important;
         flex-direction: row !important;
-        flex-wrap: nowrap !important;
+        flex-wrap: wrap !important;
         gap: 8px !important;
         width: 100% !important;
         box-sizing: border-box !important;
     }
     [data-testid="column"] {
-        width: 50% !important;
-        flex: 1 1 50% !important;
+        width: 100% !important;
+        flex: 1 1 100% !important;
         min-width: 0 !important;
-        max-width: 50% !important;
+        max-width: 100% !important;
         box-sizing: border-box !important;
         overflow: hidden !important;
         padding: 0 2px !important;
     }
 
-    /* AJUSTAR LOS INPUTS PARA QUE NO SE EXTIENDAN DE MÁS Y MANTENGAN EL DISEÑO COMPACTO */
+    /* EN COMPUTADORAS / TABLETS GRANDES (MÁS DE 768px), MANTENER 2 COLUMNAS */
+    @media (min-width: 768px) {
+        [data-testid="stHorizontalBlock"] {
+            flex-wrap: nowrap !important;
+        }
+        [data-testid="column"] {
+            width: 50% !important;
+            flex: 1 1 50% !important;
+            max-width: 50% !important;
+        }
+    }
+
+    /* AJUSTE DE INPUTS PARA OCUPAR TODO EL ANCHO DISPONIBLE EN MÓVIL */
     div.stTextInput, div.stNumberInput, div.stSelectbox {
         width: 100% !important;
-        max-width: 260px !important;
+        max-width: 100% !important;
         box-sizing: border-box !important;
     }
     div[data-baseweb="input"], div[data-baseweb="base-input"], div[data-baseweb="spinbutton"] {
         width: 100% !important;
         box-sizing: border-box !important;
+    }
+
+    @media (min-width: 768px) {
+        div.stTextInput, div.stNumberInput, div.stSelectbox {
+            max-width: 260px !important;
+        }
     }
 
     /* Menú de navegación / Pestañas estilo tarjeta MIAA */
@@ -113,22 +129,18 @@ st.write("""<style>
         border: 1px solid rgba(0, 229, 255, 0.12);
         border-radius: 14px;
         padding: 6px;
-        gap: 12px;
+        gap: 6px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
     div.row-widget.stRadio > div > label {
         background: #111A30;
         border: 1px solid rgba(0, 229, 255, 0.15) !important;
         border-radius: 10px !important;
-        padding: 10px 20px !important;
+        padding: 8px 10px !important;
         flex: 1;
         text-align: center;
         cursor: pointer;
         transition: all 0.2s ease-in-out;
-    }
-    div.row-widget.stRadio > div > label:hover {
-        border-color: rgba(0, 229, 255, 0.4) !important;
-        background: #16223D;
     }
     div.row-widget.stRadio input[type="radio"] { display: none !important; }
     div.row-widget.stRadio div[role="radiogroup"] > label > div:first-child { display: none !important; }
@@ -136,7 +148,7 @@ st.write("""<style>
     div.row-widget.stRadio div[role="radiogroup"] label p {
         color: #94A3B8 !important;
         font-weight: 600 !important;
-        font-size: 0.95rem;
+        font-size: 0.85rem;
     }
     div.row-widget.stRadio > div > label[data-checked="true"] {
         background: linear-gradient(135deg, #0A2540 0%, #0077B6 100%) !important;
@@ -153,7 +165,7 @@ st.write("""<style>
     .stTextInput label, .stSelectbox label, .stNumberInput label, [data-testid="stWidgetLabel"] p {
         color: #E2E8F0 !important;
         font-weight: 600 !important;
-        font-size: 0.7rem !important;
+        font-size: 0.75rem !important;
     }
 
     /* Tarjetas de registros ajustadas */
@@ -179,9 +191,13 @@ st.write("""<style>
         font-weight: 700;
         padding: 0.5rem 1rem;
         width: 100%;
-        max-width: 260px;
         box-shadow: 0 4px 12px rgba(0, 229, 255, 0.2);
         transition: all 0.2s;
+    }
+    @media (min-width: 768px) {
+        .stButton>button {
+            max-width: 260px;
+        }
     }
     .stButton>button:hover {
         opacity: 0.95;
@@ -194,8 +210,8 @@ st.write("""<style>
         color: #F8FAFC !important;
         border-color: rgba(0, 229, 255, 0.25) !important;
         border-radius: 6px !important;
-        font-size: 0.75rem !important;
-        padding: 6px 8px !important;
+        font-size: 0.85rem !important;
+        padding: 8px 10px !important;
         box-sizing: border-box !important;
     }
     div[data-baseweb="input"] input:focus {
@@ -207,9 +223,9 @@ st.write("""<style>
 # --- CABECERA ---
 st.markdown("""
     <div style="display: flex; align-items: center; gap: 15px; width: 100%; margin-bottom: 5px;">
-        <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 110px; height: auto; flex-shrink: 0;" />
+        <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 100px; height: auto; flex-shrink: 0;" />
         <div>
-            <h2 style="color: #00E5FF; margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.2;">Gestion VRP's</h2>
+            <h2 style="color: #00E5FF; margin: 0; font-size: 1.2rem; font-weight: 800; line-height: 1.2;">Gestion VRP's</h2>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -306,7 +322,7 @@ if st.session_state.active_tab == "📍 Registros":
         st.info("No se encontraron registros.")
 
 # ==========================================
-# SECCIÓN 2: AÑADIR NUEVA VÁLVULA (2 COLUMNAS ESTRICTAS)
+# SECCIÓN 2: AÑADIR NUEVA VÁLVULA
 # ==========================================
 elif st.session_state.active_tab == "➕ Añadir":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.1rem; font-weight: 700; margin-bottom: 15px;">✨ Registrar nueva VPRS</h3>', unsafe_allow_html=True)
@@ -399,7 +415,7 @@ elif st.session_state.active_tab == "➕ Añadir":
             st.warning("El campo ID es obligatorio.")
 
 # ==========================================
-# SECCIÓN 3: EDITAR Y ELIMINAR (2 COLUMNAS ESTRICTAS)
+# SECCIÓN 3: EDITAR Y ELIMINAR
 # ==========================================
 elif st.session_state.active_tab == "⚙️ Editar":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.1rem; font-weight: 700; margin-bottom: 15px;">🛠️ Modificar o Eliminar Válvula</h3>', unsafe_allow_html=True)
