@@ -319,11 +319,11 @@ if st.session_state.active_tab == "📍 Registros":
             """
             st.markdown(card_html, unsafe_allow_html=True)
             
-            # Contenedor desplegable para el detalle a partir del Diámetro en adelante
+            # Contenedor desplegable para el detalle a partir del Diámetro en adelante (modificado a pulgadas)
             with st.expander("🔍 Ver detalles completos (Diámetro, Calibración, Obs...)"):
                 detalle_html = f"""
                     <span style="color: #94A3B8; font-size: 0.68rem; line-height: 1.4;">
-                        Diámetro: {row['diametro']}mm | Marca: {row['marca_valv']} | Modelo: {row['model_valv']} | Trim: {row['marca_trim']} | Cota: {row['cota_terr']}<br>
+                        Diámetro: {row['diametro']} pulgadas | Marca: {row['marca_valv']} | Modelo: {row['model_valv']} | Trim: {row['marca_trim']} | Cota: {row['cota_terr']}<br>
                         Sector: {row['sector_hid']} | Estado: {row['estat_valv']} | Hora Cal: {row['hora_cal']} | Fecha: {row['fecha_ult_']}<br>
                         Cal Ant Día: {row['cal_ant_d']} | Cal Ant Noche: {row['cal_ant_n']}<br>
                         Cal Act Día: {row['cal_act_d']} | Cal Act Noche: {row['cal_act_n']}<br>
@@ -370,7 +370,7 @@ elif st.session_state.active_tab == "➕ Añadir":
 
     r2c1, r2c2 = st.columns(2)
     with r2c1: val_serie = st.text_input("Serie", key="add_serie")
-    with r2c2: val_diametro = st.number_input("Diámetro (mm)", min_value=0, value=0, key="add_diam")
+    with r2c2: val_diametro = st.number_input("Diámetro", min_value=0, value=0, key="add_diam")
 
     r3c1, r3c2 = st.columns(2)
     with r3c1: val_cota = st.number_input("Cota Territorio", value=0.0, key="add_cota")
