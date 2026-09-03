@@ -35,7 +35,7 @@ def obtener_datos(query, params=None):
             with st.session_state.db_engine.connect() as conn:
                 df = pd.read_sql(text(query) if isinstance(query, str) else query, conn, params=params or {})
                 return df, None
-        except Exception as e:
+        except Exception:
             try:
                 st.session_state.db_engine.dispose()
                 st.session_state.db_engine = crear_nuevo_engine()
@@ -53,14 +53,14 @@ def ejecutar_sql(query, params=None):
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
-# --- ESTILOS CSS RESPONSIVOS PARA MÓVIL Y PC ---
+# --- ESTILOS CSS FORZADOS A 2 COLUMNAS (MÓVIL Y PC) ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
     .block-container {
-        padding-top: 0.2rem !important; 
-        padding-bottom: 2.5rem !important;
-        padding-left: 0.3rem !important;
-        padding-right: 0.3rem !important;
+        padding-top: 0.1rem !important; 
+        padding-bottom: 2rem !important;
+        padding-left: 0.1rem !important;
+        padding-right: 0.1rem !important;
         background: #080C14;
         color: #F8FAFC;
         max-width: 1350px;
@@ -72,25 +72,25 @@ st.write("""<style>
         overflow-x: hidden;
     }
     
-    /* CONTENEDOR FLEXIBLE ADAPTABLE SIN RECORTES */
+    /* FORZAR DISTRIBUCIÓN ESTRICTA DE 2 COLUMNAS EN CUALQUIER PANTALLA */
     [data-testid="stHorizontalBlock"] {
         display: flex !important;
         flex-direction: row !important;
-        flex-wrap: wrap !important;
-        gap: 4px !important;
+        flex-wrap: nowrap !important;
+        gap: 6px !important;
         width: 100% !important;
         box-sizing: border-box !important;
     }
     [data-testid="column"] {
-        flex: 1 1 47% !important;
-        min-width: 135px !important;
+        flex: 1 1 50% !important;
+        min-width: 0 !important;
         max-width: 50% !important;
         box-sizing: border-box !important;
         overflow: hidden !important;
-        padding: 0 1px !important;
+        padding: 0 2px !important;
     }
 
-    /* INPUTS AL 100% DE SU CONTENEDOR */
+    /* INPUTS AL 100% DE SU MITAD */
     div.stTextInput, div.stNumberInput, div.stSelectbox {
         width: 100% !important;
         max-width: 100% !important;
@@ -146,7 +146,7 @@ st.write("""<style>
     .stTextInput label, .stSelectbox label, .stNumberInput label, [data-testid="stWidgetLabel"] p {
         color: #E2E8F0 !important;
         font-weight: 600 !important;
-        font-size: 0.65rem !important;
+        font-size: 0.6rem !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
@@ -187,8 +187,8 @@ st.write("""<style>
         color: #F8FAFC !important;
         border-color: rgba(0, 229, 255, 0.25) !important;
         border-radius: 5px !important;
-        font-size: 0.75rem !important;
-        padding: 5px 6px !important;
+        font-size: 0.7rem !important;
+        padding: 4px 5px !important;
         box-sizing: border-box !important;
     }
 </style>""", unsafe_allow_html=True)
