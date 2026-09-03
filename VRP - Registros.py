@@ -207,12 +207,11 @@ st.write("""<style>
         padding-right: 12px !important;
     }
     
-    /* Ampliar contenedores internos de los inputs de texto para asegurar una mayor anchura visual */
     .stTextInput > div, .stNumberInput > div, .stSelectbox > div, .stDateInput > div {
         width: 100% !important;
     }
 
-    /* Ocultar texto descriptivo y de tamaño (200MB, JPG, PNG) en stFileUploader */
+    /* Ocultar texto descriptivo y de tamaño en stFileUploader */
     [data-testid="stFileUploader"] small, 
     [data-testid="stFileUploader"] section div span, 
     [data-testid="fileUploaderDropzone"] div:has(> small),
@@ -220,7 +219,6 @@ st.write("""<style>
         display: none !important;
     }
 
-    /* Corrección crítica para dispositivos móviles: Forzar visibilidad y clickabilidad en stFileUploader */
     [data-testid="stFileUploader"] {
         width: 100% !important;
     }
@@ -396,7 +394,6 @@ elif st.session_state.active_tab == "➕ Añadir":
     with col_foto2:
         st.markdown("<p style='font-size: 0.78rem; color: #94A3B8;'>Usar cámara:</p>", unsafe_allow_html=True)
         
-        # Activador moderno de cámara interactivo (Añadir)
         cam_key_nuevo = "cam_open_nuevo"
         if cam_key_nuevo not in st.session_state:
             st.session_state[cam_key_nuevo] = False
@@ -539,7 +536,6 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem; padding: 0 2px;'>📸 Actualizar foto:</p>", unsafe_allow_html=True)
             
-            # Subida de archivo (izquierda) y Activador moderno interactivo de cámara (derecha)
             ef_col1, ef_col2 = st.columns(2)
             with ef_col1:
                 nueva_foto_subida = st.file_uploader("Subir foto", type=["jpg", "jpeg", "png"], key=f"up_edit_{row['fid']}", label_visibility="collapsed", accept_multiple_files=False)
@@ -557,10 +553,8 @@ elif st.session_state.active_tab == "⚙️ Editar":
                         st.session_state[cam_key_edit] = False
                         st.rerun()
 
-            # Botón Actualizar Registro con ancho total
             actualizar_click = st.button("💾 Actualizar Registro", key=f"btn_act_{row['fid']}", use_container_width=True)
 
-            # Zona de la cámara debajo del botón Actualizar Registro (con contenedor visual moderno)
             nueva_foto_camara = None
             if st.session_state.get(f"cam_open_edit_{row['fid']}", False):
                 st.markdown(f"""
@@ -603,12 +597,11 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             st.markdown("<br>", unsafe_allow_html=True)
             
-            # Botón de eliminar a mero abajo con ancho total
             if st.button("🗑️ Eliminar", key=f"del_{row['fid']}", use_container_width=True):
                 st.session_state.registro_to_delete = row['fid']
                 st.rerun()
                 
-            st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.1);'>")
+            st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.1);'>", unsafe_allow_html=True)
 
     if st.session_state.registro_to_delete is not None:
         target_fid = st.session_state.registro_to_delete
