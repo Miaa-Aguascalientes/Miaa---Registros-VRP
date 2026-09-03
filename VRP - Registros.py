@@ -243,30 +243,34 @@ if st.session_state.active_tab == "📍 Registros":
         st.info("No se encontraron registros.")
 
 # ==========================================
-# SECCIÓN 2: AÑADIR NUEVA VÁLVULA
+# SECCIÓN 2: AÑADIR NUEVA VÁLVULA (EN DOS COLUMNAS)
 # ==========================================
 elif st.session_state.active_tab == "➕ Añadir":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px;">✨ Registrar nueva VPRS</h3>', unsafe_allow_html=True)
     
-    val_id_0 = st.number_input("ID_0 (Int)", min_value=0, value=0)
-    val_id = st.text_input("ID (Texto)")
-    val_serie = st.text_input("Serie")
-    val_diametro = st.number_input("Diámetro (mm)", min_value=0, value=50)
-    val_cota = st.number_input("Cota Territorio", value=0.0)
-    val_marca = st.text_input("Marca Válvula")
-    val_modelo = st.text_input("Modelo Válvula")
-    val_trim = st.text_input("Marca Trim")
-    val_sector = st.text_input("Sector Hidráulico")
-    val_domicilio = st.text_input("Domicilio")
-    val_colonia = st.text_input("Colonia")
-    val_estat = st.text_input("Estado Válvula")
-    val_hora = st.text_input("Hora Calibración")
-    val_cal_ant_d = st.text_input("Cal Anterior Día")
-    val_cal_ant_n = st.text_input("Cal Anterior Noche")
-    val_cal_act_d = st.text_input("Cal Actual Día")
-    val_cal_act_n = st.text_input("Cal Actual Noche")
-    val_fecha = st.text_input("Fecha Última")
-    val_observ = st.text_input("Observaciones")
+    col1, col2 = st.columns(2)
+    with col1:
+        val_id_0 = st.number_input("ID_0 (Int)", min_value=0, value=0)
+        val_id = st.text_input("ID (Texto)")
+        val_serie = st.text_input("Serie")
+        val_diametro = st.number_input("Diámetro (mm)", min_value=0, value=50)
+        val_cota = st.number_input("Cota Territorio", value=0.0)
+        val_marca = st.text_input("Marca Válvula")
+        val_modelo = st.text_input("Modelo Válvula")
+        val_trim = st.text_input("Marca Trim")
+        val_sector = st.text_input("Sector Hidráulico")
+        val_domicilio = st.text_input("Domicilio")
+    
+    with col2:
+        val_colonia = st.text_input("Colonia")
+        val_estat = st.text_input("Estado Válvula")
+        val_hora = st.text_input("Hora Calibración")
+        val_cal_ant_d = st.text_input("Cal Anterior Día")
+        val_cal_ant_n = st.text_input("Cal Anterior Noche")
+        val_cal_act_d = st.text_input("Cal Actual Día")
+        val_cal_act_n = st.text_input("Cal Actual Noche")
+        val_fecha = st.text_input("Fecha Última")
+        val_observ = st.text_input("Observaciones")
 
     st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.2);'>", unsafe_allow_html=True)
     st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.8rem;'>📸 Fotografía:</p>", unsafe_allow_html=True)
@@ -313,7 +317,7 @@ elif st.session_state.active_tab == "➕ Añadir":
             st.warning("El campo ID es obligatorio.")
 
 # ==========================================
-# SECCIÓN 3: EDITAR Y ELIMINAR
+# SECCIÓN 3: EDITAR Y ELIMINAR (EN DOS COLUMNAS)
 # ==========================================
 elif st.session_state.active_tab == "⚙️ Editar":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px;">🛠️ Modificar o Eliminar Válvula</h3>', unsafe_allow_html=True)
@@ -347,27 +351,30 @@ elif st.session_state.active_tab == "⚙️ Editar":
         for idx, row in df_vprs.iterrows():
             st.markdown(f"<span style='color: #00E5FF; font-weight: bold;'>FID Registro: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span>", unsafe_allow_html=True)
             
-            e_id_0 = st.number_input("ID_0", value=int(row['id_0'] or 0), key=f"id0_{row['fid']}")
-            e_id = st.text_input("ID", value=str(row['id'] or ""), key=f"id_{row['fid']}")
+            ec1, ec2 = st.columns(2)
+            with ec1:
+                e_id_0 = st.number_input("ID_0", value=int(row['id_0'] or 0), key=f"id0_{row['fid']}")
+                e_id = st.text_input("ID", value=str(row['id'] or ""), key=f"id_{row['fid']}")
+                e_serie_val = "" if (pd.isna(row['serie']) or str(row['serie']).strip().lower() in ["nan", "none"]) else str(row['serie'])
+                e_serie = st.text_input("Serie", value=e_serie_val, key=f"serie_{row['fid']}")
+                e_diametro = st.number_input("Diámetro", value=int(row['diametro'] or 0), key=f"diam_{row['fid']}")
+                e_cota = st.number_input("Cota Terr", value=float(row['cota_terr'] or 0.0), key=f"cota_{row['fid']}")
+                e_marca = st.text_input("Marca Valv", value=str(row['marca_valv'] or ""), key=f"mar_{row['fid']}")
+                e_modelo = st.text_input("Modelo Valv", value=str(row['model_valv'] or ""), key=f"mod_{row['fid']}")
+                e_trim = st.text_input("Marca Trim", value=str(row['marca_trim'] or ""), key=f"trim_{row['fid']}")
+                e_sector = st.text_input("Sector Hid", value=str(row['sector_hid'] or ""), key=f"sec_{row['fid']}")
             
-            e_serie_val = "" if (pd.isna(row['serie']) or str(row['serie']).strip().lower() in ["nan", "none"]) else str(row['serie'])
-            e_serie = st.text_input("Serie", value=e_serie_val, key=f"serie_{row['fid']}")
-            e_diametro = st.number_input("Diámetro", value=int(row['diametro'] or 0), key=f"diam_{row['fid']}")
-            e_cota = st.number_input("Cota Terr", value=float(row['cota_terr'] or 0.0), key=f"cota_{row['fid']}")
-            e_marca = st.text_input("Marca Valv", value=str(row['marca_valv'] or ""), key=f"mar_{row['fid']}")
-            e_modelo = st.text_input("Modelo Valv", value=str(row['model_valv'] or ""), key=f"mod_{row['fid']}")
-            e_trim = st.text_input("Marca Trim", value=str(row['marca_trim'] or ""), key=f"trim_{row['fid']}")
-            e_sector = st.text_input("Sector Hid", value=str(row['sector_hid'] or ""), key=f"sec_{row['fid']}")
-            e_domicilio = st.text_input("Domicilio", value=str(row['domicilio'] or ""), key=f"dom_{row['fid']}")
-            e_colonia = st.text_input("Colonia", value=str(row['colonia'] or ""), key=f"col_{row['fid']}")
-            e_estat = st.text_input("Estado Valv", value=str(row['estat_valv'] or ""), key=f"est_{row['fid']}")
-            e_hora = st.text_input("Hora Cal", value=str(row['hora_cal'] or ""), key=f"hora_{row['fid']}")
-            e_cal_ant_d = st.text_input("Cal Anterior Día", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")
-            e_cal_ant_n = st.text_input("Cal Anterior Noche", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")
-            e_cal_act_d = st.text_input("Cal Actual Día", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")
-            e_cal_act_n = st.text_input("Cal Actual Noche", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
-            e_fecha = st.text_input("Fecha Ult", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
-            e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
+            with ec2:
+                e_domicilio = st.text_input("Domicilio", value=str(row['domicilio'] or ""), key=f"dom_{row['fid']}")
+                e_colonia = st.text_input("Colonia", value=str(row['colonia'] or ""), key=f"col_{row['fid']}")
+                e_estat = st.text_input("Estado Valv", value=str(row['estat_valv'] or ""), key=f"est_{row['fid']}")
+                e_hora = st.text_input("Hora Cal", value=str(row['hora_cal'] or ""), key=f"hora_{row['fid']}")
+                e_cal_ant_d = st.text_input("Cal Anterior Día", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")
+                e_cal_ant_n = st.text_input("Cal Anterior Noche", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")
+                e_cal_act_d = st.text_input("Cal Actual Día", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")
+                e_cal_act_n = st.text_input("Cal Actual Noche", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
+                e_fecha = st.text_input("Fecha Ult", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
+                e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
             
             foto_actual = row['fotos']
             if foto_actual is not None and len(foto_actual) > 0:
