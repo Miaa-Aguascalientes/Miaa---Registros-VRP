@@ -1,3 +1,4 @@
+# VRP - Registros.py
 import streamlit as st
 import pandas as pd
 from sqlalchemy import create_engine, text
@@ -166,19 +167,23 @@ st.write("""<style>
         text-overflow: ellipsis !important;
     }
 
-    /* Botones principales */
+    /* Botones principales con tono azul más obscuro y con vida */
     .stButton>button {
-        background: linear-gradient(135deg, #0077B6 0%, #00E5FF 100%);
-        color: #080C14;
-        border: none;
+        background: linear-gradient(135deg, #023e8a 0%, #0077b6 100%) !important;
+        color: #FFFFFF !important;
+        border: 1px solid rgba(0, 229, 255, 0.3) !important;
         border-radius: 4px;
         font-weight: 700;
         padding: 0.5rem 1rem;
         width: 100%;
-        box-shadow: 0 4px 12px rgba(0, 229, 255, 0.2);
+        box-shadow: 0 4px 15px rgba(2, 62, 138, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        transition: all 0.2s ease-in-out;
     }
     .stButton>button:hover {
-        opacity: 0.95;
+        background: linear-gradient(135deg, #03045e 0%, #023e8a 100%) !important;
+        border-color: #00E5FF !important;
+        box-shadow: 0 0 15px rgba(0, 229, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        opacity: 1;
     }
 
     /* FORZAR ANCHO TOTAL EN TODOS LOS CONTENEDORES DE ENTRADA Y TEXTO */
