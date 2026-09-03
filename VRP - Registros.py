@@ -134,15 +134,15 @@ st.write("""<style>
         font-size: 0.65rem !important;
     }
 
-    /* Tarjetas de registros estilo MIAA (Menos anchas y centradas) */
+    /* Tarjetas de registros estilo MIAA (Reducidas significativamente de ancho y centradas) */
     .user-card {
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
         border-left: 4px solid #00E5FF;
         border-radius: 12px;
-        padding: 18px 22px;
-        margin-bottom: 14px;
-        max-width: 900px;
+        padding: 14px 18px;
+        margin-bottom: 12px;
+        max-width: 550px;
         margin-left: auto;
         margin-right: auto;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
@@ -257,9 +257,9 @@ if st.session_state.active_tab == "📍 Registros":
 
             st.markdown(f"""
                 <div class="user-card">
-                    <span style="font-size: 1.1rem; font-weight: bold; color: #F8FAFC;">ID: {row['id']}{serie_texto}</span><br>
-                    <span style="color: #00E5FF; font-size: 0.9rem;">📍 {row['domicilio'] or 'Sin domicilio'}, Col. {row['colonia'] or 'Sin colonia'}</span><br>
-                    <span style="color: #94A3B8; font-size: 0.85rem; line-height: 1.5;">
+                    <span style="font-size: 1.05rem; font-weight: bold; color: #F8FAFC;">ID: {row['id']}{serie_texto}</span><br>
+                    <span style="color: #00E5FF; font-size: 0.85rem;">📍 {row['domicilio'] or 'Sin domicilio'}, Col. {row['colonia'] or 'Sin colonia'}</span><br>
+                    <span style="color: #94A3B8; font-size: 0.8rem; line-height: 1.4;">
                         Diámetro: {row['diametro']}mm | Marca: {row['marca_valv']} | Modelo: {row['model_valv']} | Trim: {row['marca_trim']} | Cota: {row['cota_terr']}<br>
                         Sector: {row['sector_hid']} | Estado: {row['estat_valv']} | Hora Cal: {row['hora_cal']} | Fecha: {row['fecha_ult_']}<br>
                         Cal Anterior Día: {row['cal_ant_d']} | Cal Anterior Noche: {row['cal_ant_n']}<br>
@@ -273,9 +273,9 @@ if st.session_state.active_tab == "📍 Registros":
             if foto_data is not None and len(foto_data) > 0:
                 try:
                     if isinstance(foto_data, bytes):
-                        st.image(foto_data, caption=f"Fotografía de Válvula - ID: {row['id']}", width=300)
+                        st.image(foto_data, caption=f"Fotografía de Válvula - ID: {row['id']}", width=250)
                     elif isinstance(foto_data, str) and len(foto_data) > 10:
-                        st.image(base64.b64decode(foto_data), caption=f"Fotografía de Válvula - ID: {row['id']}", width=300)
+                        st.image(base64.b64decode(foto_data), caption=f"Fotografía de Válvula - ID: {row['id']}", width=250)
                 except Exception:
                     st.warning(f"No se pudo renderizar la fotografía para el registro {row['id']}.")
     else:
@@ -486,7 +486,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 if st.button("🗑️ Eliminar", key=f"del_{row['fid']}", use_container_width=True):
                     st.session_state.registro_to_delete = row['fid']
                     st.rerun()
-            st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.1);'>", unsafe_allow_html=True)
+            st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.1);'>", unsafe_actualizado:=True)
 
     if st.session_state.registro_to_delete is not None:
         target_fid = st.session_state.registro_to_delete
