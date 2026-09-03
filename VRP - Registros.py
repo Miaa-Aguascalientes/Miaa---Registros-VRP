@@ -55,7 +55,7 @@ def ejecutar_sql(query, params=None):
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
-# --- ESTILOS CSS UNIFICADOS (Paleta MIAA Home Dark) ---
+# --- ESTILOS CSS UNIFICADOS (Paleta MIAA Home Dark + Grid adaptable) ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
     .block-container {
@@ -136,10 +136,23 @@ st.write("""<style>
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
 
-    /* CONTENEDOR RESTRICTIVO PARA CAMPOS DE EDICIÓN / CREACIÓN (ANCHO MÁS CORTO) */
-    .input-box-wrapper {
-        max-width: 340px;
-        margin-bottom: 8px;
+    /* CONTENEDOR EN REJILLA (GRID) PARA CAMPOS MÚLTIPLES EN FILAS DE 2 O 3 COLUMNAS */
+    .form-grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        width: 100%;
+    }
+    .form-grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        width: 100%;
+    }
+    @media (max-width: 768px) {
+        .form-grid-3 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
     }
 
     /* Botones principales */
@@ -276,42 +289,38 @@ if st.session_state.active_tab == "📍 Registros":
         st.info("No se encontraron registros que coincidan con la búsqueda.")
 
 # ==========================================
-# SECCIÓN 2: AÑADIR NUEVA VÁLVULA
+# SECCIÓN 2: AÑADIR NUEVA VÁLVULA (Distribución en 3 Columnas CSS)
 # ==========================================
 elif st.session_state.active_tab == "➕ Añadir":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.2rem; font-weight: 700; margin-bottom: 15px;">✨ Registrar nueva VPRS (Todos los campos + Fotografía)</h3>', unsafe_allow_html=True)
     
-    col1, col2, col3, col4 = st.columns([2, 2, 2, 2])
-    with col1:
-        with st.container():
-            st.markdown('<div class="input-box-wrapper">', unsafe_allow_html=True)
-            val_id_0 = st.number_input("ID_0 (Int)", min_value=0, value=0, key="add_id_0")
-            val_id = st.text_input("ID (Texto)", key="add_id")
-            val_serie = st.text_input("Serie", key="add_serie")
-            val_diametro = st.number_input("Diámetro (mm)", min_value=0, value=50, key="add_diam")
-            val_cota = st.number_input("Cota Territorio", value=0.0, key="add_cota")
-            val_marca = st.text_input("Marca Válvula", key="add_marca")
-            st.markdown('</div>', unsafe_allow_html=True)
-    with col2:
-        with st.container():
-            st.markdown('<div class="input-box-wrapper">', unsafe_allow_html=True)
-            val_modelo = st.text_input("Modelo Válvula", key="add_modelo")
-            val_trim = st.text_input("Marca Trim", key="add_trim")
-            val_sector = st.text_input("Sector Hidráulico", key="add_sector")
-            val_domicilio = st.text_input("Domicilio", key="add_dom")
-            val_colonia = st.text_input("Colonia", key="add_col")
-            val_estat = st.text_input("Estado Válvula", key="add_estat")
-            st.markdown('</div>', unsafe_allow_html=True)
-    with col3:
-        with st.container():
-            st.markdown('<div class="input-box-wrapper">', unsafe_allow_html=True)
-            val_hora = st.text_input("Hora Calibración", key="add_hora")
-            val_cal_ant_d = st.text_input("Cal Anterior Día", key="add_cand")
-            val_cal_ant_n = st.text_input("Cal Anterior Noche", key="add_cann")
-            val_cal_act_d = st.text_input("Cal Actual Día", key="add_cactd")
-            val_cal_act_n = st.text_input("Cal Actual Noche", key="add_cactn")
-            val_fecha = st.text_input("Fecha Última", key="add_fecha")
-            st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('<div class="form-grid-3">', unsafe_allow_html=True)
+    
+    # Grupo 1
+    val_id_0 = st.number_input("ID_0 (Int)", min_value=0, value=0, key="add_id_0")
+    val_id = st.text_input("ID (Texto)", key="add_id")
+    val_serie = st.text_input("Serie", key="add_serie")
+    val_diametro = st.number_input("Diámetro (mm)", min_value=0, value=50, key="add_diam")
+    val_cota = st.number_input("Cota Territorio", value=0.0, key="add_cota")
+    val_marca = st.text_input("Marca Válvula", key="add_marca")
+    
+    # Grupo 2
+    val_modelo = st.text_input("Modelo Válvula", key="add_modelo")
+    val_trim = st.text_input("Marca Trim", key="add_trim")
+    val_sector = st.text_input("Sector Hidráulico", key="add_sector")
+    val_domicilio = st.text_input("Domicilio", key="add_dom")
+    val_colonia = st.text_input("Colonia", key="add_col")
+    val_estat = st.text_input("Estado Válvula", key="add_estat")
+    
+    # Grupo 3
+    val_hora = st.text_input("Hora Calibración", key="add_hora")
+    val_cal_ant_d = st.text_input("Cal Anterior Día", key="add_cand")
+    val_cal_ant_n = st.text_input("Cal Anterior Noche", key="add_cann")
+    val_cal_act_d = st.text_input("Cal Actual Día", key="add_cactd")
+    val_cal_act_n = st.text_input("Cal Actual Noche", key="add_cactn")
+    val_fecha = st.text_input("Fecha Última", key="add_fecha")
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
     val_observ = st.text_input("Observaciones (observ)", key="add_obs")
 
@@ -366,7 +375,7 @@ elif st.session_state.active_tab == "➕ Añadir":
             st.warning("El campo ID es obligatorio.")
 
 # ==========================================
-# SECCIÓN 3: EDITAR Y ELIMINAR
+# SECCIÓN 3: EDITAR Y ELIMINAR (Distribución en 3 Columnas CSS)
 # ==========================================
 elif st.session_state.active_tab == "⚙️ Editar":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.2rem; font-weight: 700; margin-bottom: 15px;">🛠️ Modificar o Eliminar Válvula (Incluye Actualización de Foto)</h3>', unsafe_allow_html=True)
@@ -400,38 +409,34 @@ elif st.session_state.active_tab == "⚙️ Editar":
         for idx, row in df_vprs.iterrows():
             st.markdown(f"<span style='color: #00E5FF; font-weight: bold;'>FID Registro: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span>", unsafe_allow_html=True)
             
-            e1, e2, e3, e4 = st.columns([2, 2, 2, 2])
-            with e1:
-                with st.container():
-                    st.markdown('<div class="input-box-wrapper">', unsafe_allow_html=True)
-                    e_id_0 = st.number_input("ID_0", value=int(row['id_0'] or 0), key=f"id0_{row['fid']}")
-                    e_id = st.text_input("ID", value=str(row['id'] or ""), key=f"id_{row['fid']}")
-                    e_serie_val = "" if (pd.isna(row['serie']) or str(row['serie']).strip().lower() in ["nan", "none"]) else str(row['serie'])
-                    e_serie = st.text_input("Serie", value=e_serie_val, key=f"serie_{row['fid']}")
-                    e_diametro = st.number_input("Diámetro", value=int(row['diametro'] or 0), key=f"diam_{row['fid']}")
-                    e_cota = st.number_input("Cota Terr", value=float(row['cota_terr'] or 0.0), key=f"cota_{row['fid']}")
-                    e_marca = st.text_input("Marca Valv", value=str(row['marca_valv'] or ""), key=f"mar_{row['fid']}")
-                    st.markdown('</div>', unsafe_allow_html=True)
-            with e2:
-                with st.container():
-                    st.markdown('<div class="input-box-wrapper">', unsafe_allow_html=True)
-                    e_modelo = st.text_input("Modelo Valv", value=str(row['model_valv'] or ""), key=f"mod_{row['fid']}")
-                    e_trim = st.text_input("Marca Trim", value=str(row['marca_trim'] or ""), key=f"trim_{row['fid']}")
-                    e_sector = st.text_input("Sector Hid", value=str(row['sector_hid'] or ""), key=f"sec_{row['fid']}")
-                    e_domicilio = st.text_input("Domicilio", value=str(row['domicilio'] or ""), key=f"dom_{row['fid']}")
-                    e_colonia = st.text_input("Colonia", value=str(row['colonia'] or ""), key=f"col_{row['fid']}")
-                    e_estat = st.text_input("Estado Valv", value=str(row['estat_valv'] or ""), key=f"est_{row['fid']}")
-                    st.markdown('</div>', unsafe_allow_html=True)
-            with e3:
-                with st.container():
-                    st.markdown('<div class="input-box-wrapper">', unsafe_allow_html=True)
-                    e_hora = st.text_input("Hora Cal", value=str(row['hora_cal'] or ""), key=f"hora_{row['fid']}")
-                    e_cal_ant_d = st.text_input("Cal Anterior Día", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")
-                    e_cal_ant_n = st.text_input("Cal Anterior Noche", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")
-                    e_cal_act_d = st.text_input("Cal Actual Día", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")
-                    e_cal_act_n = st.text_input("Cal Actual Noche", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
-                    e_fecha = st.text_input("Fecha Ult", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
-                    st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown('<div class="form-grid-3">', unsafe_allow_html=True)
+            
+            # Grupo 1 Edición
+            e_id_0 = st.number_input("ID_0", value=int(row['id_0'] or 0), key=f"id0_{row['fid']}")
+            e_id = st.text_input("ID", value=str(row['id'] or ""), key=f"id_{row['fid']}")
+            e_serie_val = "" if (pd.isna(row['serie']) or str(row['serie']).strip().lower() in ["nan", "none"]) else str(row['serie'])
+            e_serie = st.text_input("Serie", value=e_serie_val, key=f"serie_{row['fid']}")
+            e_diametro = st.number_input("Diámetro", value=int(row['diametro'] or 0), key=f"diam_{row['fid']}")
+            e_cota = st.number_input("Cota Terr", value=float(row['cota_terr'] or 0.0), key=f"cota_{row['fid']}")
+            e_marca = st.text_input("Marca Valv", value=str(row['marca_valv'] or ""), key=f"mar_{row['fid']}")
+            
+            # Grupo 2 Edición
+            e_modelo = st.text_input("Modelo Valv", value=str(row['model_valv'] or ""), key=f"mod_{row['fid']}")
+            e_trim = st.text_input("Marca Trim", value=str(row['marca_trim'] or ""), key=f"trim_{row['fid']}")
+            e_sector = st.text_input("Sector Hid", value=str(row['sector_hid'] or ""), key=f"sec_{row['fid']}")
+            e_domicilio = st.text_input("Domicilio", value=str(row['domicilio'] or ""), key=f"dom_{row['fid']}")
+            e_colonia = st.text_input("Colonia", value=str(row['colonia'] or ""), key=f"col_{row['fid']}")
+            e_estat = st.text_input("Estado Valv", value=str(row['estat_valv'] or ""), key=f"est_{row['fid']}")
+            
+            # Grupo 3 Edición
+            e_hora = st.text_input("Hora Cal", value=str(row['hora_cal'] or ""), key=f"hora_{row['fid']}")
+            e_cal_ant_d = st.text_input("Cal Anterior Día", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")
+            e_cal_ant_n = st.text_input("Cal Anterior Noche", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")
+            e_cal_act_d = st.text_input("Cal Actual Día", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")
+            e_cal_act_n = st.text_input("Cal Actual Noche", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
+            e_fecha = st.text_input("Fecha Ult", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
+            
+            st.markdown('</div>', unsafe_allow_html=True)
 
             e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
             
