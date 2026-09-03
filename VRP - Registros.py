@@ -70,29 +70,18 @@ st.write("""<style>
         color: #F8FAFC;
     }
     
-    /* --- DISEÑO RESPONSIVO DE COLUMNAS --- */
+    /* --- FORZAR 3 COLUMNAS LADO A LADO PERMANENTE (INCLUYENDO MÓVIL) --- */
     [data-testid="stHorizontalBlock"] {
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
-        gap: 10px !important;
+        gap: 4px !important;
     }
     [data-testid="column"] {
         flex: 1 1 33.333% !important;
         min-width: 0 !important;
         width: 33.333% !important;
-    }
-
-    /* En celulares, apilar las columnas verticalmente al 100% para evitar desbordes */
-    @media (max-width: 768px) {
-        [data-testid="stHorizontalBlock"] {
-            flex-direction: column !important;
-            flex-wrap: wrap !important;
-        }
-        [data-testid="column"] {
-            width: 100% !important;
-            flex: 1 1 100% !important;
-        }
+        max-width: 33.333% !important;
     }
     
     /* Menú de navegación / Pestañas estilo tarjeta MIAA */
@@ -140,11 +129,11 @@ st.write("""<style>
         font-weight: 700 !important;
     }
 
-    /* Etiquetas de formularios */
+    /* Etiquetas de formularios compactas para móvil */
     .stTextInput label, .stSelectbox label, .stNumberInput label, [data-testid="stWidgetLabel"] p {
         color: #E2E8F0 !important;
         font-weight: 600 !important;
-        font-size: 0.75rem !important;
+        font-size: 0.65rem !important;
     }
 
     /* Tarjetas de registros estilo MIAA */
@@ -175,13 +164,14 @@ st.write("""<style>
         box-shadow: 0 4px 18px rgba(0, 229, 255, 0.4);
     }
 
-    /* Campos de entrada de texto/números */
+    /* Campos de entrada de texto/números compactos */
     div[data-baseweb="input"] input, div[data-baseweb="base-input"] input {
         background-color: #080C14 !important;
         color: #F8FAFC !important;
         border-color: rgba(0, 229, 255, 0.25) !important;
-        border-radius: 8px !important;
-        font-size: 0.8rem !important;
+        border-radius: 6px !important;
+        font-size: 0.7rem !important;
+        padding: 4px 6px !important;
     }
     div[data-baseweb="input"] input:focus {
         border-color: #00E5FF !important;
