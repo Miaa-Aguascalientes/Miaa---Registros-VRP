@@ -359,7 +359,7 @@ elif st.session_state.active_tab == "➕ Añadir":
         if activar_camara_nuevo:
             foto_camara = st.camera_input("Capturar", key="camara_nuevo", label_visibility="collapsed")
 
-    if st.button("💾 Guardar Registro", key="btn_guardar_nuevo"):
+    if st.button("💾 Guardar Registro", key="btn_guardar_nuevo", use_container_width=True):
         if val_id:
             try:
                 foto_bytes = None
@@ -489,8 +489,8 @@ elif st.session_state.active_tab == "⚙️ Editar":
             with ef_col2:
                 activar_camara_edit = st.checkbox("🟢 Activar cámara", key=f"chk_cam_edit_{row['fid']}")
 
-            # Botón Actualizar Registro
-            actualizar_click = st.button("💾 Actualizar Registro", key=f"btn_act_{row['fid']}")
+            # Botón Actualizar Registro con ancho total (use_container_width=True)
+            actualizar_click = st.button("💾 Actualizar Registro", key=f"btn_act_{row['fid']}", use_container_width=True)
 
             # Zona de la cámara debajo del botón Actualizar Registro
             nueva_foto_camara = None
@@ -530,7 +530,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             st.markdown("<br>", unsafe_allow_html=True)
             
-            # Botón de eliminar a mero abajo
+            # Botón de eliminar a mero abajo con ancho total
             if st.button("🗑️ Eliminar", key=f"del_{row['fid']}", use_container_width=True):
                 st.session_state.registro_to_delete = row['fid']
                 st.rerun()
@@ -544,7 +544,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
         
         c1, c2 = st.columns(2)
         with c1:
-            if st.button("Confirmar Eliminación", type="primary"):
+            if st.button("Confirmar Eliminación", type="primary", use_container_width=True):
                 if confirm.strip().lower() == "delete":
                     try:
                         ejecutar_sql('DELETE FROM "Agua_potable"."VPRS" WHERE fid = :fid', {"fid": target_fid})
@@ -557,7 +557,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 else:
                     st.error("Debes escribir 'delete'.")
         with c2:
-            if st.button("Cancelar"):
+            if st.button("Cancelar", use_container_width=True):
                 st.session_state.registro_to_delete = None
                 st.rerun()
 
