@@ -55,7 +55,7 @@ def ejecutar_sql(query, params=None):
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
-# --- ESTILOS CSS UNIFICADOS (Paleta MIAA Home Dark + Grid adaptable) ---
+# --- ESTILOS CSS (FORZANDO 2 COLUMNAS EN CELULAR) ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
     .block-container {
@@ -70,6 +70,19 @@ st.write("""<style>
         color: #F8FAFC;
     }
     
+    /* FORZAR QUE LAS COLUMNAS DE STREAMLIT NUNCA SE APILEN EN CELULAR (SIEMPRE 2 LADO A LADO) */
+    [data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 8px !important;
+    }
+    [data-testid="column"] {
+        width: 50% !important;
+        flex: 1 1 50% !important;
+        min-width: 0 !important;
+    }
+
     /* Menú de navegación / Pestañas estilo tarjeta MIAA */
     div.row-widget.stRadio > div {
         display: flex;
@@ -119,7 +132,7 @@ st.write("""<style>
     .stTextInput label, .stSelectbox label, .stNumberInput label, [data-testid="stWidgetLabel"] p {
         color: #E2E8F0 !important;
         font-weight: 600 !important;
-        font-size: 0.65rem !important;
+        font-size: 0.6rem !important;
     }
 
     /* Tarjetas de registros estilo MIAA */
@@ -134,25 +147,6 @@ st.write("""<style>
         margin-left: auto;
         margin-right: auto;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    }
-
-    /* CONTENEDOR EN REJILLA (GRID) PARA CAMPOS MÚLTIPLES EN FILAS DE 2 O 3 COLUMNAS */
-    .form-grid-2 {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-        width: 100%;
-    }
-    .form-grid-3 {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 10px;
-        width: 100%;
-    }
-    @media (max-width: 768px) {
-        .form-grid-3 {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
     }
 
     /* Botones principales */
@@ -178,8 +172,8 @@ st.write("""<style>
         color: #F8FAFC !important;
         border-color: rgba(0, 229, 255, 0.25) !important;
         border-radius: 6px !important;
-        font-size: 0.7rem !important;
-        padding: 4px 6px !important;
+        font-size: 0.65rem !important;
+        padding: 3px 5px !important;
     }
     div[data-baseweb="input"] input:focus {
         border-color: #00E5FF !important;
@@ -187,7 +181,7 @@ st.write("""<style>
     }
 </style>""", unsafe_allow_html=True)
 
-# --- CABECERA CON LOGOTIPO MÁS GRANDE Y TÍTULO A LA DERECHA ---
+# --- CABECERA ---
 st.markdown("""
     <div style="display: flex; align-items: center; gap: 15px; width: 100%; margin-bottom: 5px;">
         <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 125px; height: auto; flex-shrink: 0;" />
@@ -289,38 +283,46 @@ if st.session_state.active_tab == "📍 Registros":
         st.info("No se encontraron registros que coincidan con la búsqueda.")
 
 # ==========================================
-# SECCIÓN 2: AÑADIR NUEVA VÁLVULA (Distribución en 3 Columnas CSS)
+# SECCIÓN 2: AÑADIR NUEVA VÁLVULA (ESTRICTAMENTE 2 COLUMNAS)
 # ==========================================
 elif st.session_state.active_tab == "➕ Añadir":
-    st.markdown('<h3 style="color: #00E5FF; font-size: 1.2rem; font-weight: 700; margin-bottom: 15px;">✨ Registrar nueva VPRS (Todos los campos + Fotografía)</h3>', unsafe_allow_html=True)
+    st.markdown('<h3 style="color: #00E5FF; font-size: 1.2rem; font-weight: 700; margin-bottom: 15px;">✨ Registrar nueva VPRS</h3>', unsafe_allow_html=True)
     
-    st.markdown('<div class="form-grid-3">', unsafe_allow_html=True)
-    
-    # Grupo 1
-    val_id_0 = st.number_input("ID_0 (Int)", min_value=0, value=0, key="add_id_0")
-    val_id = st.text_input("ID (Texto)", key="add_id")
-    val_serie = st.text_input("Serie", key="add_serie")
-    val_diametro = st.number_input("Diámetro (mm)", min_value=0, value=50, key="add_diam")
-    val_cota = st.number_input("Cota Territorio", value=0.0, key="add_cota")
-    val_marca = st.text_input("Marca Válvula", key="add_marca")
-    
-    # Grupo 2
-    val_modelo = st.text_input("Modelo Válvula", key="add_modelo")
-    val_trim = st.text_input("Marca Trim", key="add_trim")
-    val_sector = st.text_input("Sector Hidráulico", key="add_sector")
-    val_domicilio = st.text_input("Domicilio", key="add_dom")
-    val_colonia = st.text_input("Colonia", key="add_col")
-    val_estat = st.text_input("Estado Válvula", key="add_estat")
-    
-    # Grupo 3
-    val_hora = st.text_input("Hora Calibración", key="add_hora")
-    val_cal_ant_d = st.text_input("Cal Anterior Día", key="add_cand")
-    val_cal_ant_n = st.text_input("Cal Anterior Noche", key="add_cann")
-    val_cal_act_d = st.text_input("Cal Actual Día", key="add_cactd")
-    val_cal_act_n = st.text_input("Cal Actual Noche", key="add_cactn")
-    val_fecha = st.text_input("Fecha Última", key="add_fecha")
-    
-    st.markdown('</div>', unsafe_allow_html=True)
+    r1c1, r1c2 = st.columns(2)
+    with r1c1: val_id_0 = st.number_input("ID_0 (Int)", min_value=0, value=0, key="add_id_0")
+    with r1c2: val_id = st.text_input("ID (Texto)", key="add_id")
+
+    r2c1, r2c2 = st.columns(2)
+    with r2c1: val_serie = st.text_input("Serie", key="add_serie")
+    with r2c2: val_diametro = st.number_input("Diámetro (mm)", min_value=0, value=50, key="add_diam")
+
+    r3c1, r3c2 = st.columns(2)
+    with r3c1: val_cota = st.number_input("Cota Territorio", value=0.0, key="add_cota")
+    with r3c2: val_marca = st.text_input("Marca Válvula", key="add_marca")
+
+    r4c1, r4c2 = st.columns(2)
+    with r4c1: val_modelo = st.text_input("Modelo Válvula", key="add_modelo")
+    with r4c2: val_trim = st.text_input("Marca Trim", key="add_trim")
+
+    r5c1, r5c2 = st.columns(2)
+    with r5c1: val_sector = st.text_input("Sector Hidráulico", key="add_sector")
+    with r5c2: val_domicilio = st.text_input("Domicilio", key="add_dom")
+
+    r6c1, r6c2 = st.columns(2)
+    with r6c1: val_colonia = st.text_input("Colonia", key="add_col")
+    with r6c2: val_estat = st.text_input("Estado Válvula", key="add_estat")
+
+    r7c1, r7c2 = st.columns(2)
+    with r7c1: val_hora = st.text_input("Hora Calibración", key="add_hora")
+    with r7c2: val_cal_ant_d = st.text_input("Cal Anterior Día", key="add_cand")
+
+    r8c1, r8c2 = st.columns(2)
+    with r8c1: val_cal_ant_n = st.text_input("Cal Anterior Noche", key="add_cann")
+    with r8c2: val_cal_act_d = st.text_input("Cal Actual Día", key="add_cactd")
+
+    r9c1, r9c2 = st.columns(2)
+    with r9c1: val_cal_act_n = st.text_input("Cal Actual Noche", key="add_cactn")
+    with r9c2: val_fecha = st.text_input("Fecha Última", key="add_fecha")
 
     val_observ = st.text_input("Observaciones (observ)", key="add_obs")
 
@@ -329,12 +331,11 @@ elif st.session_state.active_tab == "➕ Añadir":
     
     col_foto1, col_foto2 = st.columns(2)
     with col_foto1:
-        st.markdown("<p style='font-size: 0.85rem; color: #94A3B8;'>1. Subir archivo desde dispositivo:</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size: 0.85rem; color: #94A3B8;'>1. Subir archivo:</p>", unsafe_allow_html=True)
         foto_subida = st.file_uploader("Subir imagen", type=["jpg", "jpeg", "png"], key="subir_nuevo", label_visibility="collapsed")
     with col_foto2:
-        st.markdown("<p style='font-size: 0.85rem; color: #94A3B8;'>2. Usar cámara web/móvil:</p>", unsafe_allow_html=True)
-        activar_camara_nuevo = st.checkbox("🟢 Activar cámara para ver y tomar foto", key="chk_cam_nuevo")
-        
+        st.markdown("<p style='font-size: 0.85rem; color: #94A3B8;'>2. Usar cámara:</p>", unsafe_allow_html=True)
+        activar_camara_nuevo = st.checkbox("🟢 Activar cámara", key="chk_cam_nuevo")
         foto_camara = None
         if activar_camara_nuevo:
             foto_camara = st.camera_input("Capturar con cámara", key="camara_nuevo", label_visibility="collapsed")
@@ -366,7 +367,7 @@ elif st.session_state.active_tab == "➕ Añadir":
                     "fecha_ult_": val_fecha, "cal_act_d": val_cal_act_d, "cal_act_n": val_cal_act_n, "hora_cal": val_hora,
                     "estat_valv": val_estat, "observ": val_observ, "fotos": foto_bytes
                 })
-                st.success("¡Válvula VPRS registrada exitosamente con su fotografía!")
+                st.success("¡Válvula VPRS registrada exitosamente!")
                 t.sleep(1)
                 st.rerun()
             except Exception as ex:
@@ -375,12 +376,12 @@ elif st.session_state.active_tab == "➕ Añadir":
             st.warning("El campo ID es obligatorio.")
 
 # ==========================================
-# SECCIÓN 3: EDITAR Y ELIMINAR (Distribución en 3 Columnas CSS)
+# SECCIÓN 3: EDITAR Y ELIMINAR (ESTRICTAMENTE 2 COLUMNAS)
 # ==========================================
 elif st.session_state.active_tab == "⚙️ Editar":
-    st.markdown('<h3 style="color: #00E5FF; font-size: 1.2rem; font-weight: 700; margin-bottom: 15px;">🛠️ Modificar o Eliminar Válvula (Incluye Actualización de Foto)</h3>', unsafe_allow_html=True)
+    st.markdown('<h3 style="color: #00E5FF; font-size: 1.2rem; font-weight: 700; margin-bottom: 15px;">🛠️ Modificar o Eliminar Válvula</h3>', unsafe_allow_html=True)
     
-    busqueda_edit = st.text_input("🔍 Filtrar registros a editar (por ID, Serie, Domicilio o Colonia):", placeholder="Dejar en blanco para ver los primeros 10 o buscar uno específico...")
+    busqueda_edit = st.text_input("🔍 Filtrar registros a editar (por ID, Serie, Domicilio o Colonia):", placeholder="Dejar en blanco para ver los primeros 10...")
     
     if busqueda_edit and busqueda_edit.strip() != "":
         filtro_ed = f"%{busqueda_edit.strip()}%"
@@ -402,41 +403,49 @@ elif st.session_state.active_tab == "⚙️ Editar":
         st.error(f"Error: {error_db}")
     elif not df_vprs.empty:
         if not busqueda_edit or busqueda_edit.strip() == "":
-            st.markdown(f"<p style='color: #94A3B8; font-size: 0.85rem; margin-bottom: 10px;'>Mostrando los primeros 10 registros. Usa el buscador superior para encontrar más.</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='color: #94A3B8; font-size: 0.85rem; margin-bottom: 10px;'>Mostrando los primeros 10 registros.</p>", unsafe_allow_html=True)
         else:
-            st.markdown(f"<p style='color: #94A3B8; font-size: 0.85rem; margin-bottom: 10px;'>Mostrando {len(df_vprs)} registros para gestión.</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='color: #94A3B8; font-size: 0.85rem; margin-bottom: 10px;'>Mostrando {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
             
         for idx, row in df_vprs.iterrows():
-            st.markdown(f"<span style='color: #00E5FF; font-weight: bold;'>FID Registro: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span>", unsafe_allow_html=True)
+            st.markdown(f"<span style='color: #00E5FF; font-weight: bold;'>FID: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span>", unsafe_allow_html=True)
             
-            st.markdown('<div class="form-grid-3">', unsafe_allow_html=True)
-            
-            # Grupo 1 Edición
-            e_id_0 = st.number_input("ID_0", value=int(row['id_0'] or 0), key=f"id0_{row['fid']}")
-            e_id = st.text_input("ID", value=str(row['id'] or ""), key=f"id_{row['fid']}")
+            e_r1c1, e_r1c2 = st.columns(2)
+            with e_r1c1: e_id_0 = st.number_input("ID_0", value=int(row['id_0'] or 0), key=f"id0_{row['fid']}")
+            with e_r1c2: e_id = st.text_input("ID", value=str(row['id'] or ""), key=f"id_{row['fid']}")
+
+            e_r2c1, e_r2c2 = st.columns(2)
             e_serie_val = "" if (pd.isna(row['serie']) or str(row['serie']).strip().lower() in ["nan", "none"]) else str(row['serie'])
-            e_serie = st.text_input("Serie", value=e_serie_val, key=f"serie_{row['fid']}")
-            e_diametro = st.number_input("Diámetro", value=int(row['diametro'] or 0), key=f"diam_{row['fid']}")
-            e_cota = st.number_input("Cota Terr", value=float(row['cota_terr'] or 0.0), key=f"cota_{row['fid']}")
-            e_marca = st.text_input("Marca Valv", value=str(row['marca_valv'] or ""), key=f"mar_{row['fid']}")
-            
-            # Grupo 2 Edición
-            e_modelo = st.text_input("Modelo Valv", value=str(row['model_valv'] or ""), key=f"mod_{row['fid']}")
-            e_trim = st.text_input("Marca Trim", value=str(row['marca_trim'] or ""), key=f"trim_{row['fid']}")
-            e_sector = st.text_input("Sector Hid", value=str(row['sector_hid'] or ""), key=f"sec_{row['fid']}")
-            e_domicilio = st.text_input("Domicilio", value=str(row['domicilio'] or ""), key=f"dom_{row['fid']}")
-            e_colonia = st.text_input("Colonia", value=str(row['colonia'] or ""), key=f"col_{row['fid']}")
-            e_estat = st.text_input("Estado Valv", value=str(row['estat_valv'] or ""), key=f"est_{row['fid']}")
-            
-            # Grupo 3 Edición
-            e_hora = st.text_input("Hora Cal", value=str(row['hora_cal'] or ""), key=f"hora_{row['fid']}")
-            e_cal_ant_d = st.text_input("Cal Anterior Día", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")
-            e_cal_ant_n = st.text_input("Cal Anterior Noche", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")
-            e_cal_act_d = st.text_input("Cal Actual Día", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")
-            e_cal_act_n = st.text_input("Cal Actual Noche", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
-            e_fecha = st.text_input("Fecha Ult", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
-            
-            st.markdown('</div>', unsafe_allow_html=True)
+            with e_r2c1: e_serie = st.text_input("Serie", value=e_serie_val, key=f"serie_{row['fid']}")
+            with e_r2c2: e_diametro = st.number_input("Diámetro", value=int(row['diametro'] or 0), key=f"diam_{row['fid']}")
+
+            e_r3c1, e_r3c2 = st.columns(2)
+            with e_r3c1: e_cota = st.number_input("Cota Terr", value=float(row['cota_terr'] or 0.0), key=f"cota_{row['fid']}")
+            with e_r3c2: e_marca = st.text_input("Marca Valv", value=str(row['marca_valv'] or ""), key=f"mar_{row['fid']}")
+
+            e_r4c1, e_r4c2 = st.columns(2)
+            with e_r4c1: e_modelo = st.text_input("Modelo Valv", value=str(row['model_valv'] or ""), key=f"mod_{row['fid']}")
+            with e_r4c2: e_trim = st.text_input("Marca Trim", value=str(row['marca_trim'] or ""), key=f"trim_{row['fid']}")
+
+            e_r5c1, e_r5c2 = st.columns(2)
+            with e_r5c1: e_sector = st.text_input("Sector Hid", value=str(row['sector_hid'] or ""), key=f"sec_{row['fid']}")
+            with e_r5c2: e_domicilio = st.text_input("Domicilio", value=str(row['domicilio'] or ""), key=f"dom_{row['fid']}")
+
+            e_r6c1, e_r6c2 = st.columns(2)
+            with e_r6c1: e_colonia = st.text_input("Colonia", value=str(row['colonia'] or ""), key=f"col_{row['fid']}")
+            with e_r6c2: e_estat = st.text_input("Estado Valv", value=str(row['estat_valv'] or ""), key=f"est_{row['fid']}")
+
+            e_r7c1, e_r7c2 = st.columns(2)
+            with e_r7c1: e_hora = st.text_input("Hora Cal", value=str(row['hora_cal'] or ""), key=f"hora_{row['fid']}")
+            with e_r7c2: e_cal_ant_d = st.text_input("Cal Anterior Día", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")
+
+            e_r8c1, e_r8c2 = st.columns(2)
+            with e_r8c1: e_cal_ant_n = st.text_input("Cal Anterior Noche", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")
+            with e_r8c2: e_cal_act_d = st.text_input("Cal Actual Día", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")
+
+            e_r9c1, e_r9c2 = st.columns(2)
+            with e_r9c1: e_cal_act_n = st.text_input("Cal Actual Noche", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
+            with e_r9c2: e_fecha = st.text_input("Fecha Ult", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
 
             e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
             
@@ -446,28 +455,24 @@ elif st.session_state.active_tab == "⚙️ Editar":
             if foto_actual is not None and len(foto_actual) > 0:
                 try:
                     if isinstance(foto_actual, bytes):
-                        st.image(foto_actual, caption="Fotografía actual almacenada", width=200)
+                        st.image(foto_actual, caption="Fotografía actual", width=200)
                     elif isinstance(foto_actual, str) and len(foto_actual) > 10:
-                        st.image(base64.b64decode(foto_actual), caption="Fotografía actual almacenada", width=200)
+                        st.image(base64.b64decode(foto_actual), caption="Fotografía actual", width=200)
                 except:
                     pass
 
-            st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.85rem;'>📸 Actualizar fotografía (Opcional):</p>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.85rem;'>📸 Actualizar foto (Opcional):</p>", unsafe_allow_html=True)
             
             ef_col1, ef_col2 = st.columns(2)
             with ef_col1:
-                st.markdown("<p style='font-size: 0.8rem; color: #94A3B8;'>Subir archivo:</p>", unsafe_allow_html=True)
                 nueva_foto_subida = st.file_uploader("Subir foto", type=["jpg", "jpeg", "png"], key=f"up_edit_{row['fid']}", label_visibility="collapsed")
-                
             with ef_col2:
-                st.markdown("<p style='font-size: 0.8rem; color: #94A3B8;'>O usar cámara:</p>", unsafe_allow_html=True)
-                activar_camara_edit = st.checkbox("🟢 Activar cámara para ver y tomar foto", key=f"chk_cam_edit_{row['fid']}")
-                
+                activar_camara_edit = st.checkbox("🟢 Activar cámara", key=f"chk_cam_edit_{row['fid']}")
                 nueva_foto_camara = None
                 if activar_camara_edit:
                     nueva_foto_camara = st.camera_input("Tomar foto", key=f"cam_edit_{row['fid']}", label_visibility="collapsed")
             
-            if st.button("💾 Actualizar Registro y Fotografía", key=f"btn_act_{row['fid']}"):
+            if st.button("💾 Actualizar Registro y Foto", key=f"btn_act_{row['fid']}"):
                 try:
                     foto_bytes_final = row['fotos']
                     if nueva_foto_camara is not None:
@@ -492,7 +497,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                         "fecha_ult_": e_fecha, "cal_act_d": e_cal_act_d, "cal_act_n": e_cal_act_n, "hora_cal": e_hora,
                         "estat_valv": e_estat, "observ": e_observ, "fotos": foto_bytes_final, "fid": row['fid']
                     })
-                    st.success("¡Registro actualizado con éxito!")
+                    st.success("¡Actualizado con éxito!")
                     t.sleep(0.8)
                     st.rerun()
                 except Exception as ex:
@@ -507,8 +512,8 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
     if st.session_state.registro_to_delete is not None:
         target_fid = st.session_state.registro_to_delete
-        st.warning(f"⚠️ Estás a punto de eliminar permanentemente el registro con FID: {target_fid}")
-        confirm = st.text_input("Escribe 'delete' para confirmar la eliminación:", key="del_confirm_input")
+        st.warning(f"⚠️ Estás a punto de eliminar el registro FID: {target_fid}")
+        confirm = st.text_input("Escribe 'delete' para confirmar:", key="del_confirm_input")
         
         c1, c2 = st.columns(2)
         with c1:
@@ -516,7 +521,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 if confirm.strip().lower() == "delete":
                     try:
                         ejecutar_sql('DELETE FROM "Agua_potable"."VPRS" WHERE fid = :fid', {"fid": target_fid})	
-                        st.success("Registro eliminado con éxito.")
+                        st.success("Registro eliminado.")
                         st.session_state.registro_to_delete = None
                         t.sleep(0.5)
                         st.rerun()
