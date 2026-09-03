@@ -354,10 +354,26 @@ elif st.session_state.active_tab == "➕ Añadir":
         foto_subida = st.file_uploader("Subir imagen", type=["jpg", "jpeg", "png"], key="subir_nuevo", label_visibility="collapsed")
     with col_foto2:
         st.markdown("<p style='font-size: 0.78rem; color: #94A3B8;'>Usar cámara:</p>", unsafe_allow_html=True)
-        activar_camara_nuevo = st.checkbox("🟢 Activar cámara", key="chk_cam_nuevo")
+        
+        # Activador moderno de cámara interactivo (Añadir)
+        cam_key_nuevo = "cam_open_nuevo"
+        if cam_key_nuevo not in st.session_state:
+            st.session_state[cam_key_nuevo] = False
+            
+        if not st.session_state[cam_key_nuevo]:
+            if st.button("📷 Activar Cámara", key="btn_open_cam_nuevo", use_container_width=True):
+                st.session_state[cam_key_nuevo] = True
+                st.rerun()
+        else:
+            if st.button("❌ Cerrar Cámara", key="btn_close_cam_nuevo", use_container_width=True):
+                st.session_state[cam_key_nuevo] = False
+                st.rerun()
+
         foto_camara = None
-        if activar_camara_nuevo:
+        if st.session_state[cam_key_nuevo]:
+            st.markdown('<div style="background: rgba(0,229,255,0.05); border: 1px dashed #00E5FF; padding: 8px; border-radius: 6px; margin-top: 5px;">', unsafe_allow_html=True)
             foto_camara = st.camera_input("Capturar", key="camara_nuevo", label_visibility="collapsed")
+            st.markdown('</div>', unsafe_allow_html=True)
 
     if st.button("💾 Guardar Registro", key="btn_guardar_nuevo", use_container_width=True):
         if val_id:
@@ -482,20 +498,36 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem; padding: 0 2px;'>📸 Actualizar foto:</p>", unsafe_allow_html=True)
             
-            # Subida de archivo (izquierda) y Activador de cámara (derecha)
+            # Subida de archivo (izquierda) y Activador moderno interactivo de cámara (derecha)
             ef_col1, ef_col2 = st.columns(2)
             with ef_col1:
                 nueva_foto_subida = st.file_uploader("Subir foto", type=["jpg", "jpeg", "png"], key=f"up_edit_{row['fid']}", label_visibility="collapsed")
             with ef_col2:
-                activar_camara_edit = st.checkbox("🟢 Activar cámara", key=f"chk_cam_edit_{row['fid']}")
+                cam_key_edit = f"cam_open_edit_{row['fid']}"
+                if cam_key_edit not in st.session_state:
+                    st.session_state[cam_key_edit] = False
 
-            # Botón Actualizar Registro con ancho total (use_container_width=True)
+                if not st.session_state[cam_key_edit]:
+                    if st.button("📷 Activar Cámara", key=f"btn_open_cam_edit_{row['fid']}", use_container_width=True):
+                        st.session_state[cam_key_edit] = True
+                        st.rerun()
+                else:
+                    if st.button("❌ Cerrar Cámara", key=f"btn_close_cam_edit_{row['fid']}", use_container_width=True):
+                        st.session_state[cam_key_edit] = False
+                        st.rerun()
+
+            # Botón Actualizar Registro con ancho total
             actualizar_click = st.button("💾 Actualizar Registro", key=f"btn_act_{row['fid']}", use_container_width=True)
 
-            # Zona de la cámara debajo del botón Actualizar Registro
+            # Zona de la cámara debajo del botón Actualizar Registro (con contenedor visual moderno)
             nueva_foto_camara = None
-            if activar_camara_edit:
-                nueva_foto_camara = st.camera_input("Tomar foto", key=f"cam_edit_{row['fid']}")
+            if st.session_state.get(f"cam_open_edit_{row['fid']}", False):
+                st.markdown(f"""
+                    <div style="background: rgba(0, 229, 255, 0.04); border: 1.5px dashed #00E5FF; padding: 12px; border-radius: 6px; margin: 8px 0; box-shadow: 0 0 15px rgba(0,229,255,0.1);">
+                        <p style="color: #00E5FF; font-size: 0.75rem; font-weight: 700; margin-bottom: 6px;">🔴 Cámara en vivo activa (FID: {row['fid']})</p>
+                    </div>
+                """, unsafe_allow_html=True)
+                nueva_foto_camara = st.camera_input("Tomar foto", key=f"cam_edit_{row['fid']}", label_visibility="collapsed")
 
             if actualizar_click:
                 try:
