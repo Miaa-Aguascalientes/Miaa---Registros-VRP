@@ -344,7 +344,7 @@ if st.session_state.active_tab == "📍 Registros":
         st.info("No se encontraron registros.")
 
 # ==========================================
-# SECCIÓN 2: AÑADIR NUEVA VÁLVULA (MANTIENE 2 COLUMNAS)
+# SECCIÓN 2: AÑADIR NUEVA VÁLVULA
 # ==========================================
 elif st.session_state.active_tab == "➕ Añadir":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">✨ Registrar nueva VPRS</h3>', unsafe_allow_html=True)
@@ -390,29 +390,27 @@ elif st.session_state.active_tab == "➕ Añadir":
     st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.2);'>", unsafe_allow_html=True)
     st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.8rem; padding: 0 2px;'>📸 Fotografía:</p>", unsafe_allow_html=True)
     
-    col_foto1, col_foto2 = st.columns(2)
-    with col_foto1:
-        st.markdown("<p style='font-size: 0.78rem; color: #94A3B8;'>Subir archivo o galería:</p>", unsafe_allow_html=True)
-        foto_subida = st.file_uploader("Subir imagen", type=["jpg", "jpeg", "png"], key="subir_nuevo", label_visibility="collapsed", accept_multiple_files=False)
-    with col_foto2:
-        st.markdown("<p style='font-size: 0.78rem; color: #94A3B8;'>Usar cámara:</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 0.78rem; color: #94A3B8; margin-bottom: 2px;'>Subir archivo o galería:</p>", unsafe_allow_html=True)
+    foto_subida = st.file_uploader("Subir imagen", type=["jpg", "jpeg", "png"], key="subir_nuevo", label_visibility="collapsed", accept_multiple_files=False)
+    
+    st.markdown("<p style='font-size: 0.78rem; color: #94A3B8; margin-top: 10px; margin-bottom: 2px;'>Usar cámara:</p>", unsafe_allow_html=True)
+    
+    cam_key_nuevo = "cam_open_nuevo"
+    if cam_key_nuevo not in st.session_state:
+        st.session_state[cam_key_nuevo] = False
         
-        cam_key_nuevo = "cam_open_nuevo"
-        if cam_key_nuevo not in st.session_state:
+    if not st.session_state[cam_key_nuevo]:
+        if st.button("📷 Activar Cámara", key="btn_open_cam_nuevo", use_container_width=True):
+            st.session_state[cam_key_nuevo] = True
+            st.rerun()
+    else:
+        if st.button("❌ Cerrar Cámara", key="btn_close_cam_nuevo", use_container_width=True):
             st.session_state[cam_key_nuevo] = False
-            
-        if not st.session_state[cam_key_nuevo]:
-            if st.button("📷 Activar Cámara", key="btn_open_cam_nuevo", use_container_width=True):
-                st.session_state[cam_key_nuevo] = True
-                st.rerun()
-        else:
-            if st.button("❌ Cerrar Cámara", key="btn_close_cam_nuevo", use_container_width=True):
-                st.session_state[cam_key_nuevo] = False
-                st.rerun()
+            st.rerun()
 
-        foto_camara = None
-        if st.session_state[cam_key_nuevo]:
-            foto_camara = st.camera_input("Capturar", key="camara_nuevo", label_visibility="collapsed")
+    foto_camara = None
+    if st.session_state[cam_key_nuevo]:
+        foto_camara = st.camera_input("Capturar", key="camara_nuevo", label_visibility="collapsed")
 
     if st.button("💾 Guardar Registro", key="btn_guardar_nuevo", use_container_width=True):
         if val_id:
@@ -537,22 +535,22 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem; padding: 0 2px;'>📸 Actualizar foto:</p>", unsafe_allow_html=True)
             
-            ef_col1, ef_col2 = st.columns(2)
-            with ef_col1:
-                nueva_foto_subida = st.file_uploader("Subir foto", type=["jpg", "jpeg", "png"], key=f"up_edit_{row['fid']}", label_visibility="collapsed", accept_multiple_files=False)
-            with ef_col2:
-                cam_key_edit = f"cam_open_edit_{row['fid']}"
-                if cam_key_edit not in st.session_state:
-                    st.session_state[cam_key_edit] = False
+            st.markdown("<p style='font-size: 0.78rem; color: #94A3B8; margin-bottom: 2px;'>Subir foto:</p>", unsafe_allow_html=True)
+            nueva_foto_subida = st.file_uploader("Subir foto", type=["jpg", "jpeg", "png"], key=f"up_edit_{row['fid']}", label_visibility="collapsed", accept_multiple_files=False)
+            
+            st.markdown("<p style='font-size: 0.78rem; color: #94A3B8; margin-top: 10px; margin-bottom: 2px;'>Usar cámara:</p>", unsafe_allow_html=True)
+            cam_key_edit = f"cam_open_edit_{row['fid']}"
+            if cam_key_edit not in st.session_state:
+                st.session_state[cam_key_edit] = False
 
-                if not st.session_state[cam_key_edit]:
-                    if st.button("📷 Activar Cámara", key=f"btn_open_cam_edit_{row['fid']}", use_container_width=True):
-                        st.session_state[cam_key_edit] = True
-                        st.rerun()
-                else:
-                    if st.button("❌ Cerrar Cámara", key=f"btn_close_cam_edit_{row['fid']}", use_container_width=True):
-                        st.session_state[cam_key_edit] = False
-                        st.rerun()
+            if not st.session_state[cam_key_edit]:
+                if st.button("📷 Activar Cámara", key=f"btn_open_cam_edit_{row['fid']}", use_container_width=True):
+                    st.session_state[cam_key_edit] = True
+                    st.rerun()
+            else:
+                if st.button("❌ Cerrar Cámara", key=f"btn_close_cam_edit_{row['fid']}", use_container_width=True):
+                    st.session_state[cam_key_edit] = False
+                    st.rerun()
 
             actualizar_click = st.button("💾 Actualizar Registro", key=f"btn_act_{row['fid']}", use_container_width=True)
 
