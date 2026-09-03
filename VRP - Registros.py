@@ -499,15 +499,6 @@ elif st.session_state.active_tab == "⚙️ Editar":
             
         for idx, row in df_vprs.iterrows():
             st.markdown(f"<div style='padding: 0 2px;'><span style='color: #00E5FF; font-weight: bold;'>FID Registro: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span></div>", unsafe_allow_html=True)
-            
-            # --- VISUALIZACIÓN Y GESTIÓN DE LA FOTO ALMACENADA ---
-            foto_actual_bytes = procesar_bytes_foto(row['fotos'])
-            eliminar_foto = False
-            
-            if foto_actual_bytes is not None and len(foto_actual_bytes) > 0:
-                st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 6px; margin-bottom: 2px;'>📸 Fotografía almacenada actual:</p>", unsafe_allow_html=True)
-                st.image(foto_actual_bytes, caption=f"ID: {row['id']}", width=280)
-                eliminar_foto = st.checkbox("🗑️ Eliminar esta fotografía actual", key=f"del_foto_{row['fid']}")
 
             e_r1c1, e_r1c2 = st.columns(2)
             with e_r1c1: 
@@ -550,6 +541,15 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
             
+            # --- VISUALIZACIÓN Y GESTIÓN DE LA FOTO ALMACENADA (DEBAJO DE OBSERVACIONES) ---
+            foto_actual_bytes = procesar_bytes_foto(row['fotos'])
+            eliminar_foto = False
+            
+            if foto_actual_bytes is not None and len(foto_actual_bytes) > 0:
+                st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 10px; margin-bottom: 2px;'>📸 Fotografía almacenada actual:</p>", unsafe_allow_html=True)
+                st.image(foto_actual_bytes, caption=f"ID: {row['id']}", width=280)
+                eliminar_foto = st.checkbox("🗑️ Eliminar esta fotografía actual", key=f"del_foto_{row['fid']}")
+
             st.markdown("<br>", unsafe_allow_html=True)
 
             st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem; padding: 0 2px;'>📸 Reemplazar o capturar nueva foto:</p>", unsafe_allow_html=True)
