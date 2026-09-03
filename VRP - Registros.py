@@ -211,7 +211,7 @@ st.write("""<style>
         width: 100% !important;
     }
 
-    /* Ocultar texto descriptivo, tamaño e icono/recuadro interno en stFileUploader */
+    /* ELIMINAR COMPLETAMENTE EL RECUADRO Y CONTENIDOS DEL FILE UPLOADER */
     [data-testid="stFileUploader"] small, 
     [data-testid="stFileUploader"] section div span, 
     [data-testid="fileUploaderDropzone"] div:has(> small),
@@ -227,11 +227,10 @@ st.write("""<style>
         width: 100% !important;
     }
     [data-testid="stFileUploader"] section {
-        padding: 12px !important;
-        background-color: #0D1424 !important;
-        border: 1px dashed rgba(0, 229, 255, 0.4) !important;
-        border-radius: 6px !important;
-        min-height: 44px !important;
+        padding: 0 !important;
+        background-color: transparent !important;
+        border: none !important;
+        min-height: unset !important;
     }
     [data-testid="stFileUploader"] section input[type="file"] {
         display: block !important;
