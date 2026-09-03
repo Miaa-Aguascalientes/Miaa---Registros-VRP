@@ -134,7 +134,7 @@ st.write("""<style>
         font-size: 0.65rem !important;
     }
 
-    /* Tarjetas de registros estilo MIAA */
+    /* Tarjetas de registros estilo MIAA (Menos anchas y centradas) */
     .user-card {
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
@@ -142,6 +142,9 @@ st.write("""<style>
         border-radius: 12px;
         padding: 18px 22px;
         margin-bottom: 14px;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
 
