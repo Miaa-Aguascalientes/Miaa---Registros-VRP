@@ -53,7 +53,7 @@ def ejecutar_sql(query, params=None):
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
-# --- ESTILOS CSS PARA 2 COLUMNAS ESTRICTAS (INPUTS Y TARJETAS) ---
+# --- ESTILOS CSS CON GRID FORZADO DE 2 COLUMNAS (MÓVIL Y PC) ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
     .block-container {
@@ -70,45 +70,17 @@ st.write("""<style>
         overflow-x: hidden;
     }
     
-    /* FORZAR 2 COLUMNAS EXACTAS EN Cualquier BLOQUE HORIZONTAL */
-    [data-testid="stHorizontalBlock"] {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
+    /* REJILLA DE 2 COLUMNAS REALES PARA TARJETAS DE REGISTROS */
+    .miaa-grid-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr) !important;
         gap: 8px !important;
         width: 100% !important;
         box-sizing: border-box !important;
-    }
-    [data-testid="column"] {
-        flex: 1 1 50% !important;
-        min-width: 0 !important;
-        max-width: 50% !important;
-        box-sizing: border-box !important;
-        overflow: hidden !important;
-        padding: 0 !important;
+        margin-bottom: 10px !important;
     }
 
-    /* INPUTS ADAPTADOS AL 100% DE SU CONTENEDOR */
-    div.stTextInput, div.stNumberInput, div.stSelectbox {
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-    }
-    div[data-baseweb="input"], div[data-baseweb="base-input"], div[data-baseweb="spinbutton"] {
-        width: 100% !important;
-        box-sizing: border-box !important;
-    }
-
-    /* CONTENEDOR DE TARJETAS EN DOS COLUMNAS AUTOMÁTICAS */
-    .cards-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    /* Tarjetas de registros adaptadas */
+    /* Tarjetas de registros adaptadas a la rejilla */
     .user-card {
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
@@ -118,7 +90,8 @@ st.write("""<style>
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         word-break: break-word;
         box-sizing: border-box;
-        height: 100%;
+        width: 100% !important;
+        height: 100% !important;
     }
 
     /* Menú de navegación / Pestañas estilo tarjeta MIAA */
@@ -234,7 +207,7 @@ COLUMNAS_VPRS = """
 """
 
 # ==========================================
-# SECCIÓN 1: VER REGISTROS (VPRS) EN 2 COLUMNAS
+# SECCIÓN 1: VER REGISTROS (VPRS) EN 2 COLUMNAS CSS GRID
 # ==========================================
 if st.session_state.active_tab == "📍 Registros":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">📂 Catálogo de Válvulas VPRS</h3>', unsafe_allow_html=True)
@@ -265,69 +238,77 @@ if st.session_state.active_tab == "📍 Registros":
         else:
             st.markdown(f"<p style='color: #94A3B8; font-size: 0.8rem; margin-bottom: 8px;'>Se encontraron {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
             
-        # Renderizado en rejilla de 2 columnas usando st.columns por pares
+        # Renderizado utilizando CSS Grid de 2 columnas de manera nativa para evitar que Streamlit los rompa
         for i in range(0, len(df_vprs), 2):
-            col_a, col_b = st.columns(2)
+            row1 = df_vprs.iloc[i]
+            serie_val1 = row1['serie']
+            serie_texto1 = "" if (pd.isna(serie_val1) or str(serie_val1).strip().lower() in ["nan", "none", ""]) else f" | Serie: {serie_val1}"
             
-            with col_a:
-                row1 = df_vprs.iloc[i]
-                serie_val1 = row1['serie']
-                serie_texto1 = "" if (pd.isna(serie_val1) or str(serie_val1).strip().lower() in ["nan", "none", ""]) else f" | Serie: {serie_val1}"
-
-                st.markdown(f"""
+            card1_html = f"""
+                <div class="user-card">
+                    <span style="font-size: 0.85rem; font-weight: bold; color: #F8FAFC;">ID: {row1['id']}{serie_texto1}</span><br>
+                    <span style="color: #00E5FF; font-size: 0.75rem;">📍 {row1['domicilio'] or 'Sin domicilio'}, Col. {row1['colonia'] or 'Sin colonia'}</span><br>
+                    <span style="color: #94A3B8; font-size: 0.68rem; line-height: 1.3;">
+                        Diámetro: {row1['diametro']}mm | Marca: {row1['marca_valv']} | Modelo: {row1['model_valv']} | Trim: {row1['marca_trim']} | Cota: {row1['cota_terr']}<br>
+                        Sector: {row1['sector_hid']} | Estado: {row1['estat_valv']} | Hora Cal: {row1['hora_cal']} | Fecha: {row1['fecha_ult_']}<br>
+                        Cal Ant Día: {row1['cal_ant_d']} | Cal Ant Noche: {row1['cal_ant_n']}<br>
+                        Cal Act Día: {row1['cal_act_d']} | Cal Act Noche: {row1['cal_act_n']}<br>
+                        Obs: {row1['observ']}
+                    </span>
+                </div>
+            """
+            
+            card2_html = ""
+            if i + 1 < len(df_vprs):
+                row2 = df_vprs.iloc[i + 1]
+                serie_val2 = row2['serie']
+                serie_texto2 = "" if (pd.isna(serie_val2) or str(serie_val2).strip().lower() in ["nan", "none", ""]) else f" | Serie: {serie_val2}"
+                
+                card2_html = f"""
                     <div class="user-card">
-                        <span style="font-size: 0.9rem; font-weight: bold; color: #F8FAFC;">ID: {row1['id']}{serie_texto1}</span><br>
-                        <span style="color: #00E5FF; font-size: 0.75rem;">📍 {row1['domicilio'] or 'Sin domicilio'}, Col. {row1['colonia'] or 'Sin colonia'}</span><br>
-                        <span style="color: #94A3B8; font-size: 0.7rem; line-height: 1.3;">
-                            Diámetro: {row1['diametro']}mm | Marca: {row1['marca_valv']} | Modelo: {row1['model_valv']} | Trim: {row1['marca_trim']} | Cota: {row1['cota_terr']}<br>
-                            Sector: {row1['sector_hid']} | Estado: {row1['estat_valv']} | Hora Cal: {row1['hora_cal']} | Fecha: {row1['fecha_ult_']}<br>
-                            Cal Ant Día: {row1['cal_ant_d']} | Cal Ant Noche: {row1['cal_ant_n']}<br>
-                            Cal Act Día: {row1['cal_act_d']} | Cal Act Noche: {row1['cal_act_n']}<br>
-                            Obs: {row1['observ']}
+                        <span style="font-size: 0.85rem; font-weight: bold; color: #F8FAFC;">ID: {row2['id']}{serie_texto2}</span><br>
+                        <span style="color: #00E5FF; font-size: 0.75rem;">📍 {row2['domicilio'] or 'Sin domicilio'}, Col. {row2['colonia'] or 'Sin colonia'}</span><br>
+                        <span style="color: #94A3B8; font-size: 0.68rem; line-height: 1.3;">
+                            Diámetro: {row2['diametro']}mm | Marca: {row2['marca_valv']} | Modelo: {row2['model_valv']} | Trim: {row2['marca_trim']} | Cota: {row2['cota_terr']}<br>
+                            Sector: {row2['sector_hid']} | Estado: {row2['estat_valv']} | Hora Cal: {row2['hora_cal']} | Fecha: {row2['fecha_ult_']}<br>
+                            Cal Ant Día: {row2['cal_ant_d']} | Cal Ant Noche: {row2['cal_ant_n']}<br>
+                            Cal Act Día: {row2['cal_act_d']} | Cal Act Noche: {row2['cal_act_n']}<br>
+                            Obs: {row2['observ']}
                         </span>
                     </div>
-                """, unsafe_allow_html=True)
-                
+                """
+
+            st.markdown(f"""
+                <div class="miaa-grid-container">
+                    <div>{card1_html}</div>
+                    <div>{card2_html}</div>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            # Fotos opcionales separadas de manera limpia
+            c_foto1, c_foto2 = st.columns(2)
+            with c_foto1:
                 foto_data1 = row1['fotos']
                 if foto_data1 is not None and len(foto_data1) > 0:
                     try:
                         if isinstance(foto_data1, bytes):
-                            st.image(foto_data1, caption=f"ID: {row1['id']}", width=150)
+                            st.image(foto_data1, caption=f"ID: {row1['id']}", width=140)
                         elif isinstance(foto_data1, str) and len(foto_data1) > 10:
-                            st.image(base64.b64decode(foto_data1), caption=f"ID: {row1['id']}", width=150)
+                            st.image(base64.b64decode(foto_data1), caption=f"ID: {row1['id']}", width=140)
                     except:
                         pass
-
             if i + 1 < len(df_vprs):
-                with col_b:
-                    row2 = df_vprs.iloc[i + 1]
-                    serie_val2 = row2['serie']
-                    serie_texto2 = "" if (pd.isna(serie_val2) or str(serie_val2).strip().lower() in ["nan", "none", ""]) else f" | Serie: {serie_val2}"
-
-                    st.markdown(f"""
-                        <div class="user-card">
-                            <span style="font-size: 0.9rem; font-weight: bold; color: #F8FAFC;">ID: {row2['id']}{serie_texto2}</span><br>
-                            <span style="color: #00E5FF; font-size: 0.75rem;">📍 {row2['domicilio'] or 'Sin domicilio'}, Col. {row2['colonia'] or 'Sin colonia'}</span><br>
-                            <span style="color: #94A3B8; font-size: 0.7rem; line-height: 1.3;">
-                                Diámetro: {row2['diametro']}mm | Marca: {row2['marca_valv']} | Modelo: {row2['model_valv']} | Trim: {row2['marca_trim']} | Cota: {row2['cota_terr']}<br>
-                                Sector: {row2['sector_hid']} | Estado: {row2['estat_valv']} | Hora Cal: {row2['hora_cal']} | Fecha: {row2['fecha_ult_']}<br>
-                                Cal Ant Día: {row2['cal_ant_d']} | Cal Ant Noche: {row2['cal_ant_n']}<br>
-                                Cal Act Día: {row2['cal_act_d']} | Cal Act Noche: {row2['cal_act_n']}<br>
-                                Obs: {row2['observ']}
-                            </span>
-                        </div>
-                    """, unsafe_allow_html=True)
-                    
-                    foto_data2 = row2['fotos']
+                with c_foto2:
+                    foto_data2 = df_vprs.iloc[i + 1]['fotos']
                     if foto_data2 is not None and len(foto_data2) > 0:
                         try:
                             if isinstance(foto_data2, bytes):
-                                st.image(foto_data2, caption=f"ID: {row2['id']}", width=150)
+                                st.image(foto_data2, caption=f"ID: {df_vprs.iloc[i + 1]['id']}", width=140)
                             elif isinstance(foto_data2, str) and len(foto_data2) > 10:
-                                st.image(base64.b64decode(foto_data2), caption=f"ID: {row2['id']}", width=150)
+                                st.image(base64.b64decode(foto_data2), caption=f"ID: {df_vprs.iloc[i + 1]['id']}", width=140)
                         except:
                             pass
-            st.markdown("<div style='margin-bottom: 8px;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='margin-bottom: 6px;'></div>", unsafe_allow_html=True)
     else:
         st.info("No se encontraron registros.")
 
@@ -401,191 +382,4 @@ elif st.session_state.active_tab == "➕ Añadir":
                 sql_insert = """
                     INSERT INTO "Agua_potable"."VPRS" (
                         id_0, id, serie, diametro, marca_valv, model_valv, marca_trim, domicilio, colonia, 
-                        cota_terr, sector_hid, cal_ant_d, cal_ant_n, fecha_ult_, cal_act_d, cal_act_n, 
-                        hora_cal, estat_valv, observ, fotos
-                    ) VALUES (
-                        :id_0, :id, :serie, :diametro, :marca_valv, :model_valv, :marca_trim, :domicilio, :colonia, 
-                        :cota_terr, :sector_hid, :cal_ant_d, :cal_ant_n, :fecha_ult_, :cal_act_d, :cal_act_n, 
-                        :hora_cal, :estat_valv, :observ, :fotos
-                    )
-                """
-                ejecutar_sql(sql_insert, {
-                    "id_0": val_id_0, "id": val_id, "serie": val_serie if val_serie.strip() != "" else None, "diametro": val_diametro, "marca_valv": val_marca,
-                    "model_valv": val_modelo, "marca_trim": val_trim, "domicilio": val_domicilio, "colonia": val_colonia,
-                    "cota_terr": val_cota, "sector_hid": val_sector, "cal_ant_d": val_cal_ant_d, "cal_ant_n": val_cal_ant_n,
-                    "fecha_ult_": val_fecha, "cal_act_d": val_cal_act_d, "cal_act_n": val_cal_act_n, "hora_cal": val_hora,
-                    "estat_valv": val_estat, "observ": val_observ, "fotos": foto_bytes
-                })
-                st.success("¡Válvula registrada con éxito!")
-                t.sleep(1)
-                st.rerun()
-            except Exception as ex:
-                st.error(f"Error al insertar: {ex}")
-        else:
-            st.warning("El campo ID es obligatorio.")
-
-# ==========================================
-# SECCIÓN 3: EDITAR Y ELIMINAR
-# ==========================================
-elif st.session_state.active_tab == "⚙️ Editar":
-    st.markdown('<h3 style="color: #00E5FF; font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">🛠️ Modificar o Eliminar Válvula</h3>', unsafe_allow_html=True)
-    
-    busqueda_edit = st.text_input("🔍 Filtrar registros a editar:", placeholder="Dejar en blanco para ver 10...")
-    
-    if busqueda_edit and busqueda_edit.strip() != "":
-        filtro_ed = f"%{busqueda_edit.strip()}%"
-        query_edit = f"""
-            SELECT {COLUMNAS_VPRS} 
-            FROM "Agua_potable"."VPRS" 
-            WHERE id ILIKE :filtro 
-               OR serie ILIKE :filtro 
-               OR domicilio ILIKE :filtro 
-               OR colonia ILIKE :filtro 
-            ORDER BY fid
-        """
-        df_vprs, error_db = obtener_datos(query_edit, {"filtro": filtro_ed})
-    else:
-        query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VPRS" ORDER BY fid LIMIT 10'
-        df_vprs, error_db = obtener_datos(query)
-    
-    if error_db:
-        st.error(f"Error: {error_db}")
-    elif not df_vprs.empty:
-        if not busqueda_edit or busqueda_edit.strip() == "":
-            st.markdown(f"<p style='color: #94A3B8; font-size: 0.8rem; margin-bottom: 8px;'>Mostrando primeros 10 registros.</p>", unsafe_allow_html=True)
-        else:
-            st.markdown(f"<p style='color: #94A3B8; font-size: 0.8rem; margin-bottom: 8px;'>Se encontraron {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
-            
-        for idx, row in df_vprs.iterrows():
-            st.markdown(f"<span style='color: #00E5FF; font-weight: bold;'>FID: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span>", unsafe_allow_html=True)
-            
-            e_r1c1, e_r1c2 = st.columns(2)
-            with e_r1c1: e_id_0 = st.number_input("ID_0", value=int(row['id_0'] or 0), key=f"id0_{row['fid']}")
-            with e_r1c2: e_id = st.text_input("ID", value=str(row['id'] or ""), key=f"id_{row['fid']}")
-
-            e_r2c1, e_r2c2 = st.columns(2)
-            e_serie_val = "" if (pd.isna(row['serie']) or str(row['serie']).strip().lower() in ["nan", "none"]) else str(row['serie'])
-            with e_r2c1: e_serie = st.text_input("Serie", value=e_serie_val, key=f"serie_{row['fid']}")
-            with e_r2c2: e_diametro = st.number_input("Diámetro", value=int(row['diametro'] or 0), key=f"diam_{row['fid']}")
-
-            e_r3c1, e_r3c2 = st.columns(2)
-            with e_r3c1: e_cota = st.number_input("Cota Terr", value=float(row['cota_terr'] or 0.0), key=f"cota_{row['fid']}")
-            with e_r3c2: e_marca = st.text_input("Marca Valv", value=str(row['marca_valv'] or ""), key=f"mar_{row['fid']}")
-
-            e_r4c1, e_r4c2 = st.columns(2)
-            with e_r4c1: e_modelo = st.text_input("Modelo Valv", value=str(row['model_valv'] or ""), key=f"mod_{row['fid']}")
-            with e_r4c2: e_trim = st.text_input("Marca Trim", value=str(row['marca_trim'] or ""), key=f"trim_{row['fid']}")
-
-            e_r5c1, e_r5c2 = st.columns(2)
-            with e_r5c1: e_sector = st.text_input("Sector Hid", value=str(row['sector_hid'] or ""), key=f"sec_{row['fid']}")
-            with e_r5c2: e_domicilio = st.text_input("Domicilio", value=str(row['domicilio'] or ""), key=f"dom_{row['fid']}")
-
-            e_r6c1, e_r6c2 = st.columns(2)
-            with e_r6c1: e_colonia = st.text_input("Colonia", value=str(row['colonia'] or ""), key=f"col_{row['fid']}")
-            with e_r6c2: e_estat = st.text_input("Estado Valv", value=str(row['estat_valv'] or ""), key=f"est_{row['fid']}")
-
-            e_r7c1, e_r7c2 = st.columns(2)
-            with e_r7c1: e_hora = st.text_input("Hora Cal", value=str(row['hora_cal'] or ""), key=f"hora_{row['fid']}")
-            with e_r7c2: e_cal_ant_d = st.text_input("Cal Anterior Día", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")
-
-            e_r8c1, e_r8c2 = st.columns(2)
-            with e_r8c1: e_cal_ant_n = st.text_input("Cal Anterior Noche", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")
-            with e_r8c2: e_cal_act_d = st.text_input("Cal Actual Día", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")
-
-            e_r9c1, e_r9c2 = st.columns(2)
-            with e_r9c1: e_cal_act_n = st.text_input("Cal Actual Noche", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
-            with e_r9c2: e_fecha = st.text_input("Fecha Ult", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
-
-            e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
-            
-            st.markdown("<br>", unsafe_allow_html=True)
-            
-            foto_actual = row['fotos']
-            if foto_actual is not None and len(foto_actual) > 0:
-                try:
-                    if isinstance(foto_actual, bytes):
-                        st.image(foto_actual, caption="Fotografía actual", width=200)
-                    elif isinstance(foto_actual, str) and len(foto_actual) > 10:
-                        st.image(base64.b64decode(foto_actual), caption="Fotografía actual", width=200)
-                except:
-                    pass
-
-            st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.8rem;'>📸 Actualizar foto:</p>", unsafe_allow_html=True)
-            
-            ef_col1, ef_col2 = st.columns(2)
-            with ef_col1:
-                nueva_foto_subida = st.file_uploader("Subir foto", type=["jpg", "jpeg", "png"], key=f"up_edit_{row['fid']}", label_visibility="collapsed")
-            with ef_col2:
-                activar_camara_edit = st.checkbox("🟢 Activar cámara", key=f"chk_cam_edit_{row['fid']}")
-                nueva_foto_camara = None
-                if activar_camara_edit:
-                    nueva_foto_camara = st.camera_input("Tomar foto", key=f"cam_edit_{row['fid']}", label_visibility="collapsed")
-            
-            if st.button("💾 Actualizar Registro", key=f"btn_act_{row['fid']}"):
-                try:
-                    foto_bytes_final = row['fotos']
-                    if nueva_foto_camara is not None:
-                        foto_bytes_final = nueva_foto_camara.getvalue()
-                    elif nueva_foto_subida is not None:
-                        foto_bytes_final = nueva_foto_subida.getvalue()
-
-                    sql_update = """
-                        UPDATE "Agua_potable"."VPRS" 
-                        SET id_0 = :id_0, id = :id, serie = :serie, diametro = :diametro, marca_valv = :marca_valv, 
-                            model_valv = :model_valv, marca_trim = :marca_trim, domicilio = :domicilio, 
-                            colonia = :colonia, cota_terr = :cota_terr, sector_hid = :sector_hid, 
-                            cal_ant_d = :cal_ant_d, cal_ant_n = :cal_ant_n, fecha_ult_ = :fecha_ult_, 
-                            cal_act_d = :cal_act_d, cal_act_n = :cal_act_n, hora_cal = :hora_cal, 
-                            estat_valv = :estat_valv, observ = :observ, fotos = :fotos 
-                        WHERE fid = :fid
-                    """
-                    ejecutar_sql(sql_update, {
-                        "id_0": e_id_0, "id": e_id, "serie": e_serie if e_serie.strip() != "" else None, "diametro": e_diametro, "marca_valv": e_marca,
-                        "model_valv": e_modelo, "marca_trim": e_trim, "domicilio": e_domicilio, "colonia": e_colonia,
-                        "cota_terr": e_cota, "sector_hid": e_sector, "cal_ant_d": e_cal_ant_d, "cal_ant_n": e_cal_ant_n,
-                        "fecha_ult_": e_fecha, "cal_act_d": e_cal_act_d, "cal_act_n": e_cal_act_n, "hora_cal": e_hora,
-                        "estat_valv": e_estat, "observ": e_observ, "fotos": foto_bytes_final, "fid": row['fid']
-                    })
-                    st.success("¡Actualizado con éxito!")
-                    t.sleep(0.8)
-                    st.rerun()
-                except Exception as ex:
-                    st.error(f"Error al actualizar: {ex}")
-
-            d_col1, d_col2 = st.columns([6, 2])
-            with d_col2:
-                if st.button("🗑️ Eliminar", key=f"del_{row['fid']}", use_container_width=True):
-                    st.session_state.registro_to_delete = row['fid']
-                    st.rerun()
-            st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.1);'>", unsafe_allow_html=True)
-
-    if st.session_state.registro_to_delete is not None:
-        target_fid = st.session_state.registro_to_delete
-        st.warning(f"⚠️ Estás a punto de eliminar el registro FID: {target_fid}")
-        confirm = st.text_input("Escribe 'delete' para confirmar:", key="del_confirm_input")
-        
-        c1, c2 = st.columns(2)
-        with c1:
-            if st.button("Confirmar Eliminación", type="primary"):
-                if confirm.strip().lower() == "delete":
-                    try:
-                        ejecutar_sql('DELETE FROM "Agua_potable"."VPRS" WHERE fid = :fid', {"fid": target_fid})
-                        st.success("Registro eliminado.")
-                        st.session_state.registro_to_delete = None
-                        t.sleep(0.5)
-                        st.rerun()
-                    except Exception as ex:
-                        st.error(f"Error al borrar: {ex}")
-                else:
-                    st.error("Debes escribir 'delete'.")
-        with c2:
-            if st.button("Cancelar"):
-                st.session_state.registro_to_delete = None
-                st.rerun()
-
-# --- PIE DE PÁGINA ---
-st.markdown("""
-    <div style="text-align: center; color: #94A3B8; font-size: 0.8rem; margin-top: 2.5rem; border-top: 1px solid rgba(0, 229, 255, 0.12); padding-top: 1rem;">
-        © 2026 MIAA &bull; Sistema de Gestión PostGIS
-    </div>
-""", unsafe_allow_html=True)
+                        cota_terr, sector_hid, cal_ant_d, cal_ant_n, fecha_ult_, cal_act_d, cal_act_n,
