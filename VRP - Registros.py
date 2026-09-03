@@ -319,8 +319,8 @@ if st.session_state.active_tab == "📍 Registros":
             """
             st.markdown(card_html, unsafe_allow_html=True)
             
-            # Contenedor desplegable para el detalle a partir del Diámetro en adelante (modificado a pulgadas)
-            with st.expander("🔍 Ver detalles completos (Diámetro, Calibración, Obs...)"):
+            # Contenedor desplegable para el detalle con título simplificado
+            with st.expander("🔍 Ver detalles completos"):
                 detalle_html = f"""
                     <span style="color: #94A3B8; font-size: 0.68rem; line-height: 1.4;">
                         Diámetro: {row['diametro']} pulgadas | Marca: {row['marca_valv']} | Modelo: {row['model_valv']} | Trim: {row['marca_trim']} | Cota: {row['cota_terr']}<br>
