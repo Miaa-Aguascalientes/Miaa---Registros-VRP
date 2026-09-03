@@ -70,16 +70,16 @@ st.write("""<style>
         color: #F8FAFC;
     }
     
-    /* --- AUTOAJUSTE FLUIDO DE 3 COLUMNAS AL ANCHO DE PANTALLA --- */
+    /* --- FORZAR 3 COLUMNAS LADO A LADO EN PC Y CELULAR --- */
     [data-testid="stHorizontalBlock"] {
         display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 8px !important;
+        flex-wrap: nowrap !important;
+        gap: 6px !important;
     }
     [data-testid="column"] {
-        flex: 1 1 calc(33.333% - 8px) !important;
-        min-width: 140px !important;
-        max-width: 100% !important;
+        flex: 1 1 calc(33.333% - 6px) !important;
+        min-width: 90px !important;
+        max-width: 33.333% !important;
     }
     
     /* Menú de navegación / Pestañas estilo tarjeta MIAA */
