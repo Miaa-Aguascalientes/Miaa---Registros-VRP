@@ -53,14 +53,14 @@ def ejecutar_sql(query, params=None):
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
-# --- ESTILOS CSS CON CONTENEDOR EXPANDIDO A 100% DE ANCHO ---
+# --- ESTILOS CSS CON TARJETAS MÁS ANCHAS Y MÁRGENES CERO ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
     .block-container {
-        padding-top: 0.1rem !important; 
+        padding-top: 0.05rem !important; 
         padding-bottom: 2.5rem !important;
-        padding-left: 0.1rem !important;
-        padding-right: 0.1rem !important;
+        padding-left: 0rem !important;
+        padding-right: 0rem !important;
         background: #080C14;
         color: #F8FAFC;
         max-width: 100% !important;
@@ -72,22 +72,24 @@ st.write("""<style>
         overflow-x: hidden;
     }
     
-    /* REJILLA DE 2 COLUMNAS AMPLIADAS AL MÁXIMO DE PANTALLA */
+    /* REJILLA EXPANDIDA AL MÁXIMO DE ANCHO */
     .miaa-grid-container {
         display: grid;
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 4px !important;
+        gap: 2px !important;
         width: 100% !important;
         box-sizing: border-box !important;
-        margin-bottom: 6px !important;
+        margin-bottom: 4px !important;
+        padding: 0 !important;
     }
 
     /* Anular restricciones de Streamlit en bloques horizontales */
     [data-testid="stHorizontalBlock"] {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 4px !important;
+        gap: 2px !important;
         width: 100% !important;
+        margin: 0 !important;
     }
     [data-testid="column"] {
         width: 100% !important;
@@ -97,13 +99,13 @@ st.write("""<style>
         padding: 0 !important;
     }
 
-    /* Tarjetas de registros de ancho completo */
+    /* Tarjetas de registros más anchas y con bordes reducidos al mínimo */
     .user-card {
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
         border-left: 4px solid #00E5FF;
-        border-radius: 8px;
-        padding: 8px;
+        border-radius: 6px;
+        padding: 6px 4px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         word-break: break-word;
         box-sizing: border-box;
@@ -177,7 +179,7 @@ st.write("""<style>
         opacity: 0.95;
     }
 
-    /* Campos de entrada compactos y expandidos */
+    /* Campos de entrada compactos y de ancho completo */
     div[data-baseweb="input"] input, div[data-baseweb="base-input"] input {
         background-color: #080C14 !important;
         color: #F8FAFC !important;
@@ -307,9 +309,9 @@ if st.session_state.active_tab == "📍 Registros":
                 if foto_data1 is not None and len(foto_data1) > 0:
                     try:
                         if isinstance(foto_data1, bytes):
-                            st.image(foto_data1, caption=f"ID: {row1['id']}", width=140)
+                            st.image(foto_data1, caption=f"ID: {row1['id']}", width=155)
                         elif isinstance(foto_data1, str) and len(foto_data1) > 10:
-                            st.image(base64.b64decode(foto_data1), caption=f"ID: {row1['id']}", width=140)
+                            st.image(base64.b64decode(foto_data1), caption=f"ID: {row1['id']}", width=155)
                     except:
                         pass
             if i + 1 < len(df_vprs):
@@ -318,9 +320,9 @@ if st.session_state.active_tab == "📍 Registros":
                     if foto_data2 is not None and len(foto_data2) > 0:
                         try:
                             if isinstance(foto_data2, bytes):
-                                st.image(foto_data2, caption=f"ID: {df_vprs.iloc[i + 1]['id']}", width=140)
+                                st.image(foto_data2, caption=f"ID: {df_vprs.iloc[i + 1]['id']}", width=155)
                             elif isinstance(foto_data2, str) and len(foto_data2) > 10:
-                                st.image(base64.b64decode(foto_data2), caption=f"ID: {df_vprs.iloc[i + 1]['id']}", width=140)
+                                st.image(base64.b64decode(foto_data2), caption=f"ID: {df_vprs.iloc[i + 1]['id']}", width=155)
                         except:
                             pass
             st.markdown("<div style='margin-bottom: 4px;'></div>", unsafe_allow_html=True)
