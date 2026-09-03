@@ -211,11 +211,15 @@ st.write("""<style>
         width: 100% !important;
     }
 
-    /* Ocultar texto descriptivo y de tamaño en stFileUploader */
+    /* Ocultar texto descriptivo, tamaño e icono/recuadro interno en stFileUploader */
     [data-testid="stFileUploader"] small, 
     [data-testid="stFileUploader"] section div span, 
     [data-testid="fileUploaderDropzone"] div:has(> small),
-    [data-testid="stFileUploader"] section div div {
+    [data-testid="stFileUploader"] section div div,
+    [data-testid="stFileUploader"] svg,
+    [data-testid="stFileUploader"] img,
+    [data-testid="stFileUploader"] [data-testid="stIcon"],
+    [data-testid="stFileUploader"] section div:first-child {
         display: none !important;
     }
 
