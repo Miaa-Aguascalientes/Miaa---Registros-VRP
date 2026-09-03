@@ -395,7 +395,7 @@ elif st.session_state.active_tab == "➕ Añadir":
             st.warning("El campo ID es obligatorio.")
 
 # ==========================================
-# SECCIÓN 3: EDITAR Y ELIMINAR (MANTIENE 2 COLUMNAS)
+# SECCIÓN 3: EDITAR Y ELIMINAR
 # ==========================================
 elif st.session_state.active_tab == "⚙️ Editar":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">🛠️ Modificar o Eliminar Válvula</h3>', unsafe_allow_html=True)
@@ -482,16 +482,22 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem; padding: 0 2px;'>📸 Actualizar foto:</p>", unsafe_allow_html=True)
             
+            # Subida de archivo (izquierda) y Activador de cámara (derecha)
             ef_col1, ef_col2 = st.columns(2)
             with ef_col1:
                 nueva_foto_subida = st.file_uploader("Subir foto", type=["jpg", "jpeg", "png"], key=f"up_edit_{row['fid']}", label_visibility="collapsed")
             with ef_col2:
                 activar_camara_edit = st.checkbox("🟢 Activar cámara", key=f"chk_cam_edit_{row['fid']}")
-                nueva_foto_camara = None
-                if activar_camara_edit:
-                    nueva_foto_camara = st.camera_input("Tomar foto", key=f"cam_edit_{row['fid']}", label_visibility="collapsed")
-            
-            if st.button("💾 Actualizar Registro", key=f"btn_act_{row['fid']}"):
+
+            # Botón Actualizar Registro
+            actualizar_click = st.button("💾 Actualizar Registro", key=f"btn_act_{row['fid']}")
+
+            # Zona de la cámara debajo del botón Actualizar Registro
+            nueva_foto_camara = None
+            if activar_camara_edit:
+                nueva_foto_camara = st.camera_input("Tomar foto", key=f"cam_edit_{row['fid']}")
+
+            if actualizar_click:
                 try:
                     foto_bytes_final = row['fotos']
                     if nueva_foto_camara is not None:
@@ -522,11 +528,13 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 except Exception as ex:
                     st.error(f"Error al actualizar: {ex}")
 
-            d_col1, d_col2 = st.columns([6, 2])
-            with d_col2:
-                if st.button("🗑️ Eliminar", key=f"del_{row['fid']}", use_container_width=True):
-                    st.session_state.registro_to_delete = row['fid']
-                    st.rerun()
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            # Botón de eliminar a mero abajo
+            if st.button("🗑️ Eliminar", key=f"del_{row['fid']}", use_container_width=True):
+                st.session_state.registro_to_delete = row['fid']
+                st.rerun()
+                
             st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.1);'>", unsafe_allow_html=True)
 
     if st.session_state.registro_to_delete is not None:
