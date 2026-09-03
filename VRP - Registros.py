@@ -241,6 +241,14 @@ st.write("""<style>
         cursor: pointer !important;
         z-index: 999 !important;
     }
+    
+    /* OCULTAR EL CONTENEDOR DE VISTA PREVIA / CUADRO VACÍO DEL CAMERA_INPUT */
+    [data-testid="stCameraInput"] > div:first-child {
+        display: none !important;
+    }
+    [data-testid="stCameraInput"] {
+        width: 100% !important;
+    }
 </style>""", unsafe_allow_html=True)
 
 # --- CABECERA ---
@@ -599,7 +607,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
     if st.session_state.registro_to_delete is not None:
         target_fid = st.session_state.registro_to_delete
-        st.warning(f"⚠️ Estás a punto de eliminar el registro FID: {target_fid}")
+        st.warning(f"⚠️ Estás a pungent de eliminar el registro FID: {target_fid}")
         confirm = st.text_input("Escribe 'delete' para confirmar:", key="del_confirm_input")
         
         c1, c2 = st.columns(2)
