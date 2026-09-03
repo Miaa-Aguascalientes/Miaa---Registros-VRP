@@ -345,11 +345,11 @@ elif st.session_state.active_tab == "➕ Añadir":
         # ID_0 asignado automáticamente y bloqueado visualmente para que el usuario no pueda editarlo directamente
         st.text_input("ID_0 (Automático)", value=str(siguiente_id_0), disabled=True, key="add_id_0_bloq")
         val_id_0 = siguiente_id_0
-    with r1c2: val_id = st.text_input("ID (Texto)", key="add_id")
+    with r1c2: val_id = st.text_input("ID (VRP)", key="add_id")
 
     r2c1, r2c2 = st.columns(2)
     with r2c1: val_serie = st.text_input("Serie", key="add_serie")
-    with r2c2: val_diametro = st.number_input("Diámetro (mm)", min_value=0, value=50, key="add_diam")
+    with r2c2: val_diametro = st.number_input("Diámetro (mm)", min_value=0, value=0, key="add_diam")
 
     r3c1, r3c2 = st.columns(2)
     with r3c1: val_cota = st.number_input("Cota Territorio", value=0.0, key="add_cota")
