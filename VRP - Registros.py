@@ -460,7 +460,10 @@ elif st.session_state.active_tab == "⚙️ Editar":
             st.markdown(f"<div style='padding: 0 2px;'><span style='color: #00E5FF; font-weight: bold;'>FID Registro: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span></div>", unsafe_allow_html=True)
             
             e_r1c1, e_r1c2 = st.columns(2)
-            with e_r1c1: e_id_0 = st.number_input("ID_0", value=int(row['id_0'] or 0), key=f"id0_{row['fid']}")
+            with e_r1c1: 
+                # ID_0 bloqueado visualmente usando text_input con disabled=True para que no pueda ser alterado
+                st.text_input("ID_0 (Bloqueado)", value=str(row['id_0'] or 0), disabled=True, key=f"id0_bloq_{row['fid']}")
+                e_id_0 = row['id_0'] # Mantiene el valor original de la base de datos intacto al actualizar
             with e_r1c2: e_id = st.text_input("ID", value=str(row['id'] or ""), key=f"id_{row['fid']}")
 
             e_r2c1, e_r2c2 = st.columns(2)
