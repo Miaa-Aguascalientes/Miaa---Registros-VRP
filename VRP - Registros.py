@@ -70,18 +70,6 @@ st.write("""<style>
         color: #F8FAFC;
     }
     
-    /* --- FORZAR 3 COLUMNAS LADO A LADO EN PC Y CELULAR --- */
-    [data-testid="stHorizontalBlock"] {
-        display: flex !important;
-        flex-wrap: nowrap !important;
-        gap: 6px !important;
-    }
-    [data-testid="column"] {
-        flex: 1 1 calc(33.333% - 6px) !important;
-        min-width: 90px !important;
-        max-width: 33.333% !important;
-    }
-    
     /* Menú de navegación / Pestañas estilo tarjeta MIAA */
     div.row-widget.stRadio > div {
         display: flex;
@@ -134,7 +122,7 @@ st.write("""<style>
         font-size: 0.65rem !important;
     }
 
-    /* Tarjetas de registros estilo MIAA (Reducidas significativamente de ancho y centradas) */
+    /* Tarjetas de registros estilo MIAA */
     .user-card {
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
@@ -146,6 +134,12 @@ st.write("""<style>
         margin-left: auto;
         margin-right: auto;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    /* CONTENEDOR RESTRICTIVO PARA CAMPOS DE EDICIÓN / CREACIÓN (ANCHO MÁS CORTO) */
+    .input-box-wrapper {
+        max-width: 340px;
+        margin-bottom: 8px;
     }
 
     /* Botones principales */
@@ -287,28 +281,37 @@ if st.session_state.active_tab == "📍 Registros":
 elif st.session_state.active_tab == "➕ Añadir":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.2rem; font-weight: 700; margin-bottom: 15px;">✨ Registrar nueva VPRS (Todos los campos + Fotografía)</h3>', unsafe_allow_html=True)
     
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns([2, 2, 2, 2])
     with col1:
-        val_id_0 = st.number_input("ID_0 (Int)", min_value=0, value=0, key="add_id_0")
-        val_id = st.text_input("ID (Texto)", key="add_id")
-        val_serie = st.text_input("Serie", key="add_serie")
-        val_diametro = st.number_input("Diámetro (mm)", min_value=0, value=50, key="add_diam")
-        val_cota = st.number_input("Cota Territorio", value=0.0, key="add_cota")
-        val_marca = st.text_input("Marca Válvula", key="add_marca")
+        with st.container():
+            st.markdown('<div class="input-box-wrapper">', unsafe_allow_html=True)
+            val_id_0 = st.number_input("ID_0 (Int)", min_value=0, value=0, key="add_id_0")
+            val_id = st.text_input("ID (Texto)", key="add_id")
+            val_serie = st.text_input("Serie", key="add_serie")
+            val_diametro = st.number_input("Diámetro (mm)", min_value=0, value=50, key="add_diam")
+            val_cota = st.number_input("Cota Territorio", value=0.0, key="add_cota")
+            val_marca = st.text_input("Marca Válvula", key="add_marca")
+            st.markdown('</div>', unsafe_allow_html=True)
     with col2:
-        val_modelo = st.text_input("Modelo Válvula", key="add_modelo")
-        val_trim = st.text_input("Marca Trim", key="add_trim")
-        val_sector = st.text_input("Sector Hidráulico", key="add_sector")
-        val_domicilio = st.text_input("Domicilio", key="add_dom")
-        val_colonia = st.text_input("Colonia", key="add_col")
-        val_estat = st.text_input("Estado Válvula", key="add_estat")
+        with st.container():
+            st.markdown('<div class="input-box-wrapper">', unsafe_allow_html=True)
+            val_modelo = st.text_input("Modelo Válvula", key="add_modelo")
+            val_trim = st.text_input("Marca Trim", key="add_trim")
+            val_sector = st.text_input("Sector Hidráulico", key="add_sector")
+            val_domicilio = st.text_input("Domicilio", key="add_dom")
+            val_colonia = st.text_input("Colonia", key="add_col")
+            val_estat = st.text_input("Estado Válvula", key="add_estat")
+            st.markdown('</div>', unsafe_allow_html=True)
     with col3:
-        val_hora = st.text_input("Hora Calibración", key="add_hora")
-        val_cal_ant_d = st.text_input("Cal Anterior Día", key="add_cand")
-        val_cal_ant_n = st.text_input("Cal Anterior Noche", key="add_cann")
-        val_cal_act_d = st.text_input("Cal Actual Día", key="add_cactd")
-        val_cal_act_n = st.text_input("Cal Actual Noche", key="add_cactn")
-        val_fecha = st.text_input("Fecha Última", key="add_fecha")
+        with st.container():
+            st.markdown('<div class="input-box-wrapper">', unsafe_allow_html=True)
+            val_hora = st.text_input("Hora Calibración", key="add_hora")
+            val_cal_ant_d = st.text_input("Cal Anterior Día", key="add_cand")
+            val_cal_ant_n = st.text_input("Cal Anterior Noche", key="add_cann")
+            val_cal_act_d = st.text_input("Cal Actual Día", key="add_cactd")
+            val_cal_act_n = st.text_input("Cal Actual Noche", key="add_cactn")
+            val_fecha = st.text_input("Fecha Última", key="add_fecha")
+            st.markdown('</div>', unsafe_allow_html=True)
 
     val_observ = st.text_input("Observaciones (observ)", key="add_obs")
 
@@ -397,29 +400,38 @@ elif st.session_state.active_tab == "⚙️ Editar":
         for idx, row in df_vprs.iterrows():
             st.markdown(f"<span style='color: #00E5FF; font-weight: bold;'>FID Registro: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span>", unsafe_allow_html=True)
             
-            e1, e2, e3 = st.columns(3)
+            e1, e2, e3, e4 = st.columns([2, 2, 2, 2])
             with e1:
-                e_id_0 = st.number_input("ID_0", value=int(row['id_0'] or 0), key=f"id0_{row['fid']}")
-                e_id = st.text_input("ID", value=str(row['id'] or ""), key=f"id_{row['fid']}")
-                e_serie_val = "" if (pd.isna(row['serie']) or str(row['serie']).strip().lower() in ["nan", "none"]) else str(row['serie'])
-                e_serie = st.text_input("Serie", value=e_serie_val, key=f"serie_{row['fid']}")
-                e_diametro = st.number_input("Diámetro", value=int(row['diametro'] or 0), key=f"diam_{row['fid']}")
-                e_cota = st.number_input("Cota Terr", value=float(row['cota_terr'] or 0.0), key=f"cota_{row['fid']}")
-                e_marca = st.text_input("Marca Valv", value=str(row['marca_valv'] or ""), key=f"mar_{row['fid']}")
+                with st.container():
+                    st.markdown('<div class="input-box-wrapper">', unsafe_allow_html=True)
+                    e_id_0 = st.number_input("ID_0", value=int(row['id_0'] or 0), key=f"id0_{row['fid']}")
+                    e_id = st.text_input("ID", value=str(row['id'] or ""), key=f"id_{row['fid']}")
+                    e_serie_val = "" if (pd.isna(row['serie']) or str(row['serie']).strip().lower() in ["nan", "none"]) else str(row['serie'])
+                    e_serie = st.text_input("Serie", value=e_serie_val, key=f"serie_{row['fid']}")
+                    e_diametro = st.number_input("Diámetro", value=int(row['diametro'] or 0), key=f"diam_{row['fid']}")
+                    e_cota = st.number_input("Cota Terr", value=float(row['cota_terr'] or 0.0), key=f"cota_{row['fid']}")
+                    e_marca = st.text_input("Marca Valv", value=str(row['marca_valv'] or ""), key=f"mar_{row['fid']}")
+                    st.markdown('</div>', unsafe_allow_html=True)
             with e2:
-                e_modelo = st.text_input("Modelo Valv", value=str(row['model_valv'] or ""), key=f"mod_{row['fid']}")
-                e_trim = st.text_input("Marca Trim", value=str(row['marca_trim'] or ""), key=f"trim_{row['fid']}")
-                e_sector = st.text_input("Sector Hid", value=str(row['sector_hid'] or ""), key=f"sec_{row['fid']}")
-                e_domicilio = st.text_input("Domicilio", value=str(row['domicilio'] or ""), key=f"dom_{row['fid']}")
-                e_colonia = st.text_input("Colonia", value=str(row['colonia'] or ""), key=f"col_{row['fid']}")
-                e_estat = st.text_input("Estado Valv", value=str(row['estat_valv'] or ""), key=f"est_{row['fid']}")
+                with st.container():
+                    st.markdown('<div class="input-box-wrapper">', unsafe_allow_html=True)
+                    e_modelo = st.text_input("Modelo Valv", value=str(row['model_valv'] or ""), key=f"mod_{row['fid']}")
+                    e_trim = st.text_input("Marca Trim", value=str(row['marca_trim'] or ""), key=f"trim_{row['fid']}")
+                    e_sector = st.text_input("Sector Hid", value=str(row['sector_hid'] or ""), key=f"sec_{row['fid']}")
+                    e_domicilio = st.text_input("Domicilio", value=str(row['domicilio'] or ""), key=f"dom_{row['fid']}")
+                    e_colonia = st.text_input("Colonia", value=str(row['colonia'] or ""), key=f"col_{row['fid']}")
+                    e_estat = st.text_input("Estado Valv", value=str(row['estat_valv'] or ""), key=f"est_{row['fid']}")
+                    st.markdown('</div>', unsafe_allow_html=True)
             with e3:
-                e_hora = st.text_input("Hora Cal", value=str(row['hora_cal'] or ""), key=f"hora_{row['fid']}")
-                e_cal_ant_d = st.text_input("Cal Anterior Día", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")
-                e_cal_ant_n = st.text_input("Cal Anterior Noche", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")
-                e_cal_act_d = st.text_input("Cal Actual Día", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")
-                e_cal_act_n = st.text_input("Cal Actual Noche", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
-                e_fecha = st.text_input("Fecha Ult", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
+                with st.container():
+                    st.markdown('<div class="input-box-wrapper">', unsafe_allow_html=True)
+                    e_hora = st.text_input("Hora Cal", value=str(row['hora_cal'] or ""), key=f"hora_{row['fid']}")
+                    e_cal_ant_d = st.text_input("Cal Anterior Día", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")
+                    e_cal_ant_n = st.text_input("Cal Anterior Noche", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")
+                    e_cal_act_d = st.text_input("Cal Actual Día", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")
+                    e_cal_act_n = st.text_input("Cal Actual Noche", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
+                    e_fecha = st.text_input("Fecha Ult", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
+                    st.markdown('</div>', unsafe_allow_html=True)
 
             e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
             
@@ -486,7 +498,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 if st.button("🗑️ Eliminar", key=f"del_{row['fid']}", use_container_width=True):
                     st.session_state.registro_to_delete = row['fid']
                     st.rerun()
-            st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.1);'>", unsafe_actualizado:=True)
+            st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.1);'>", unsafe_allow_html=True)
 
     if st.session_state.registro_to_delete is not None:
         target_fid = st.session_state.registro_to_delete
@@ -498,7 +510,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
             if st.button("Confirmar Eliminación", type="primary"):
                 if confirm.strip().lower() == "delete":
                     try:
-                        ejecutar_sql('DELETE FROM "Agua_potable"."VPRS" WHERE fid = :fid', {"fid": target_fid})
+                        ejecutar_sql('DELETE FROM "Agua_potable"."VPRS" WHERE fid = :fid', {"fid": target_fid})	
                         st.success("Registro eliminado con éxito.")
                         st.session_state.registro_to_delete = None
                         t.sleep(0.5)
