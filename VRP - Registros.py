@@ -70,7 +70,7 @@ st.write("""<style>
         color: #F8FAFC;
     }
     
-    /* --- FORZAR 3 COLUMNAS LADO A LADO EN CELULARES Y ESCRITORIO --- */
+    /* --- DISEÑO RESPONSIVO DE COLUMNAS --- */
     [data-testid="stHorizontalBlock"] {
         display: flex !important;
         flex-direction: row !important;
@@ -81,6 +81,18 @@ st.write("""<style>
         flex: 1 1 33.333% !important;
         min-width: 0 !important;
         width: 33.333% !important;
+    }
+
+    /* En celulares, apilar las columnas verticalmente al 100% para evitar desbordes */
+    @media (max-width: 768px) {
+        [data-testid="stHorizontalBlock"] {
+            flex-direction: column !important;
+            flex-wrap: wrap !important;
+        }
+        [data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+        }
     }
     
     /* Menú de navegación / Pestañas estilo tarjeta MIAA */
@@ -128,7 +140,7 @@ st.write("""<style>
         font-weight: 700 !important;
     }
 
-    /* Etiquetas de formularios (Tamaño más compacto para celular) */
+    /* Etiquetas de formularios */
     .stTextInput label, .stSelectbox label, .stNumberInput label, [data-testid="stWidgetLabel"] p {
         color: #E2E8F0 !important;
         font-weight: 600 !important;
