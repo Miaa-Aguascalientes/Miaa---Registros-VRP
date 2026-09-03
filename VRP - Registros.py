@@ -53,7 +53,7 @@ def ejecutar_sql(query, params=None):
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
-# --- ESTILOS CSS CON ANCHO MÁXIMO AMPLIADO ---
+# --- ESTILOS CSS CON ANCHO MÁXIMO AMPLIADO AL 100% REAL ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
     .block-container {
@@ -72,7 +72,7 @@ st.write("""<style>
         overflow-x: hidden;
     }
     
-    /* REJILLA EXPANDIDA A BORDE A BORDE */
+    /* REJILLA EXPANDIDA Y FORZADA A BORDE A BORDE */
     .miaa-grid-container {
         display: grid;
         grid-template-columns: repeat(2, 1fr) !important;
@@ -83,7 +83,7 @@ st.write("""<style>
         padding: 0 !important;
     }
 
-    /* Anular restricciones de Streamlit en bloques horizontales */
+    /* Anular restricciones y paddings de Streamlit en bloques horizontales */
     [data-testid="stHorizontalBlock"] {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
@@ -97,16 +97,17 @@ st.write("""<style>
         flex: unset !important;
         min-width: unset !important;
         max-width: 100% !important;
-        padding: 0 1px !important;
+        padding: 0 !important;
+        margin: 0 !important;
     }
 
-    /* Tarjetas de registros con ancho total y sin paddings sobrantes */
+    /* Tarjetas de registros con ancho total absoluto y bordes ajustados */
     .user-card {
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
         border-left: 3px solid #00E5FF;
-        border-radius: 4px;
-        padding: 5px 3px;
+        border-radius: 2px;
+        padding: 6px 4px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         word-break: break-word;
         box-sizing: border-box;
@@ -121,7 +122,7 @@ st.write("""<style>
         justify-content: center;
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
-        border-radius: 10px;
+        border-radius: 8px;
         padding: 3px;
         gap: 3px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
@@ -129,7 +130,7 @@ st.write("""<style>
     div.row-widget.stRadio > div > label {
         background: #111A30;
         border: 1px solid rgba(0, 229, 255, 0.15) !important;
-        border-radius: 7px !important;
+        border-radius: 6px !important;
         padding: 6px 2px !important;
         flex: 1;
         text-align: center;
@@ -170,7 +171,7 @@ st.write("""<style>
         background: linear-gradient(135deg, #0077B6 0%, #00E5FF 100%);
         color: #080C14;
         border: none;
-        border-radius: 6px;
+        border-radius: 4px;
         font-weight: 700;
         padding: 0.5rem 1rem;
         width: 100%;
@@ -180,7 +181,7 @@ st.write("""<style>
         opacity: 0.95;
     }
 
-    /* Campos de entrada optimizados al 100% de ancho */
+    /* Campos de entrada optimizados al 100% de ancho sin márgenes internos */
     div[data-baseweb="input"], div[data-baseweb="base-input"], div[data-baseweb="select"] {
         width: 100% !important;
     }
@@ -188,7 +189,7 @@ st.write("""<style>
         background-color: #080C14 !important;
         color: #F8FAFC !important;
         border-color: rgba(0, 229, 255, 0.25) !important;
-        border-radius: 6px !important;
+        border-radius: 4px !important;
         font-size: 0.8rem !important;
         width: 100% !important;
     }
@@ -314,9 +315,9 @@ if st.session_state.active_tab == "📍 Registros":
                 if foto_data1 is not None and len(foto_data1) > 0:
                     try:
                         if isinstance(foto_data1, bytes):
-                            st.image(foto_data1, caption=f"ID: {row1['id']}", width=165)
+                            st.image(foto_data1, caption=f"ID: {row1['id']}", width=175)
                         elif isinstance(foto_data1, str) and len(foto_data1) > 10:
-                            st.image(base64.b64decode(foto_data1), caption=f"ID: {row1['id']}", width=165)
+                            st.image(base64.b64decode(foto_data1), caption=f"ID: {row1['id']}", width=175)
                     except:
                         pass
             if i + 1 < len(df_vprs):
@@ -325,9 +326,9 @@ if st.session_state.active_tab == "📍 Registros":
                     if foto_data2 is not None and len(foto_data2) > 0:
                         try:
                             if isinstance(foto_data2, bytes):
-                                st.image(foto_data2, caption=f"ID: {df_vprs.iloc[i + 1]['id']}", width=165)
+                                st.image(foto_data2, caption=f"ID: {df_vprs.iloc[i + 1]['id']}", width=175)
                             elif isinstance(foto_data2, str) and len(foto_data2) > 10:
-                                st.image(base64.b64decode(foto_data2), caption=f"ID: {df_vprs.iloc[i + 1]['id']}", width=165)
+                                st.image(base64.b64decode(foto_data2), caption=f"ID: {df_vprs.iloc[i + 1]['id']}", width=175)
                         except:
                             pass
             st.markdown("<div style='margin-bottom: 3px;'></div>", unsafe_allow_html=True)
@@ -379,7 +380,7 @@ elif st.session_state.active_tab == "➕ Añadir":
     val_observ = st.text_input("Observaciones", key="add_obs")
 
     st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.2);'>", unsafe_allow_html=True)
-    st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.8rem;'>📸 Fotografía:</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.8rem; padding: 0 2px;'>📸 Fotografía:</p>", unsafe_allow_html=True)
     
     col_foto1, col_foto2 = st.columns(2)
     with col_foto1:
@@ -513,7 +514,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 except:
                     pass
 
-            st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem;'>📸 Actualizar foto:</p>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem; padding: 0 2px;'>📸 Actualizar foto:</p>", unsafe_allow_html=True)
             
             ef_col1, ef_col2 = st.columns(2)
             with ef_col1:
