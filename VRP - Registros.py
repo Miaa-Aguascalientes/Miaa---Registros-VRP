@@ -70,18 +70,16 @@ st.write("""<style>
         color: #F8FAFC;
     }
     
-    /* --- FORZAR 3 COLUMNAS LADO A LADO PERMANENTE (INCLUYENDO MÓVIL) --- */
+    /* --- AUTOAJUSTE FLUIDO DE 3 COLUMNAS AL ANCHO DE PANTALLA --- */
     [data-testid="stHorizontalBlock"] {
         display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        gap: 4px !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
     }
     [data-testid="column"] {
-        flex: 1 1 33.333% !important;
-        min-width: 0 !important;
-        width: 33.333% !important;
-        max-width: 33.333% !important;
+        flex: 1 1 calc(33.333% - 8px) !important;
+        min-width: 140px !important;
+        max-width: 100% !important;
     }
     
     /* Menú de navegación / Pestañas estilo tarjeta MIAA */
@@ -129,7 +127,7 @@ st.write("""<style>
         font-weight: 700 !important;
     }
 
-    /* Etiquetas de formularios compactas para móvil */
+    /* Etiquetas de formularios compactas */
     .stTextInput label, .stSelectbox label, .stNumberInput label, [data-testid="stWidgetLabel"] p {
         color: #E2E8F0 !important;
         font-weight: 600 !important;
@@ -164,7 +162,7 @@ st.write("""<style>
         box-shadow: 0 4px 18px rgba(0, 229, 255, 0.4);
     }
 
-    /* Campos de entrada de texto/números compactos */
+    /* Campos de entrada compactos y adaptativos */
     div[data-baseweb="input"] input, div[data-baseweb="base-input"] input {
         background-color: #080C14 !important;
         color: #F8FAFC !important;
