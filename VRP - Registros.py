@@ -55,7 +55,7 @@ def ejecutar_sql(query, params=None):
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
-# --- ESTILOS CSS (CORRIGIENDO DESBORDE DE WIDGETS Y CONTENEDORES EN MÓVIL) ---
+# --- ESTILOS CSS (AJUSTE AUTOMÁTICO DE ANCHO AL CONTENIDO) ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
     .block-container {
@@ -157,17 +157,21 @@ st.write("""<style>
         font-size: 0.58rem !important;
     }
 
-    /* Tarjetas de registros estilo MIAA */
+    /* Tarjetas de registros ajustadas exactamente al contenido */
     .user-card {
+        display: inline-block;
+        width: auto;
+        min-width: 100%;
+        max-width: 100%;
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
         border-left: 4px solid #00E5FF;
         border-radius: 12px;
         padding: 14px 18px;
         margin-bottom: 12px;
-        max-width: 100%;
         box-sizing: border-box;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        word-break: break-word;
     }
 
     /* Botones principales */
@@ -534,7 +538,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
     if st.session_state.registro_to_delete is not None:
         target_fid = st.session_state.registro_to_delete
-        st.warning(f"⚠️ Estás a punto de eliminar el registro FID: {target_fid}")
+        st.warning(f"⚠️ Estás a pungent de eliminar el registro FID: {target_fid}")
         confirm = st.text_input("Escribe 'delete' para confirmar:", key="del_confirm_input")
         
         c1, c2 = st.columns(2)
