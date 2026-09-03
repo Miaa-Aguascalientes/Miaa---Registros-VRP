@@ -53,7 +53,7 @@ def ejecutar_sql(query, params=None):
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
-# --- ESTILOS CSS AISLADOS ---
+# --- ESTILOS CSS ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
     .block-container {
@@ -72,6 +72,21 @@ st.write("""<style>
         overflow-x: hidden;
     }
     
+    /* FORZAR 2 COLUMNAS FIJAS EN AÑADIR Y EDITAR (Evita que Streamlit las apile) */
+    [data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 6px !important;
+        width: 100% !important;
+    }
+    [data-testid="column"] {
+        flex: 1 !important;
+        min-width: 0 !important;
+        width: 50% !important;
+        padding: 0 2px !important;
+    }
+
     /* Tarjetas de registros en una sola columna */
     .user-card {
         background: #0D1424;
@@ -240,7 +255,7 @@ if st.session_state.active_tab == "📍 Registros":
         else:
             st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 4px; padding: 0 2px;'>Se encontraron {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
             
-        # Renderizado estricto en UNA SOLA COLUMNA para los registros
+        # Renderizado estricto en UNA SOLA COLUMNA vertical
         for idx, row in df_vprs.iterrows():
             serie_val = row['serie']
             serie_texto = "" if (pd.isna(serie_val) or str(serie_val).strip().lower() in ["nan", "none", ""]) else f" | Serie: {serie_val}"
@@ -274,7 +289,7 @@ if st.session_state.active_tab == "📍 Registros":
         st.info("No se encontraron registros.")
 
 # ==========================================
-# SECCIÓN 2: AÑADIR NUEVA VÁLVULA (2 columnas)
+# SECCIÓN 2: AÑADIR NUEVA VÁLVULA (2 columnas forzadas)
 # ==========================================
 elif st.session_state.active_tab == "➕ Añadir":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">✨ Registrar nueva VPRS</h3>', unsafe_allow_html=True)
@@ -367,7 +382,7 @@ elif st.session_state.active_tab == "➕ Añadir":
             st.warning("El campo ID es obligatorio.")
 
 # ==========================================
-# SECCIÓN 3: EDITAR Y ELIMINAR (2 columnas)
+# SECCIÓN 3: EDITAR Y ELIMINAR (2 columnas forzadas)
 # ==========================================
 elif st.session_state.active_tab == "⚙️ Editar":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">🛠️ Modificar o Eliminar Válvula</h3>', unsafe_allow_html=True)
