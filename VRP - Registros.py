@@ -331,8 +331,20 @@ if st.session_state.active_tab == "📍 Registros":
 elif st.session_state.active_tab == "➕ Añadir":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">✨ Registrar nueva VPRS</h3>', unsafe_allow_html=True)
     
+    # Calcular automáticamente el siguiente ID_0 basado en el valor máximo existente en la base de datos
+    df_max_id0, err_max = obtener_datos('SELECT MAX(id_0) as max_id FROM "Agua_potable"."VPRS"')
+    siguiente_id_0 = 1
+    if not err_max and not df_max_id0.empty and df_max_id0['max_id'].iloc[0] is not None:
+        try:
+            siguiente_id_0 = int(df_max_id0['max_id'].iloc[0]) + 1
+        except:
+            siguiente_id_0 = 1
+
     r1c1, r1c2 = st.columns(2)
-    with r1c1: val_id_0 = st.number_input("ID_0 (Int)", min_value=0, value=0, key="add_id_0")
+    with r1c1: 
+        # ID_0 asignado automáticamente y bloqueado visualmente para que el usuario no pueda editarlo directamente
+        st.text_input("ID_0 (Automático)", value=str(siguiente_id_0), disabled=True, key="add_id_0_bloq")
+        val_id_0 = siguiente_id_0
     with r1c2: val_id = st.text_input("ID (Texto)", key="add_id")
 
     r2c1, r2c2 = st.columns(2)
@@ -461,9 +473,8 @@ elif st.session_state.active_tab == "⚙️ Editar":
             
             e_r1c1, e_r1c2 = st.columns(2)
             with e_r1c1: 
-                # ID_0 bloqueado visualmente usando text_input con disabled=True para que no pueda ser alterado
                 st.text_input("ID_0 (Bloqueado)", value=str(row['id_0'] or 0), disabled=True, key=f"id0_bloq_{row['fid']}")
-                e_id_0 = row['id_0'] # Mantiene el valor original de la base de datos intacto al actualizar
+                e_id_0 = row['id_0']
             with e_r1c2: e_id = st.text_input("ID", value=str(row['id'] or ""), key=f"id_{row['fid']}")
 
             e_r2c1, e_r2c2 = st.columns(2)
