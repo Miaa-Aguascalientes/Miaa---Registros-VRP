@@ -204,6 +204,26 @@ st.write("""<style>
         width: 100% !important;
         max-width: 100% !important;
     }
+
+    /* Corrección crítica para dispositivos móviles: Forzar visibilidad y clickabilidad en stFileUploader */
+    [data-testid="stFileUploader"] {
+        width: 100% !important;
+    }
+    [data-testid="stFileUploader"] section {
+        padding: 12px !important;
+        background-color: #0D1424 !important;
+        border: 1px dashed rgba(0, 229, 255, 0.4) !important;
+        border-radius: 6px !important;
+    }
+    [data-testid="stFileUploader"] section input[type="file"] {
+        display: block !important;
+        opacity: 0 !important;
+        position: absolute !important;
+        width: 100% !important;
+        height: 100% !important;
+        cursor: pointer !important;
+        z-index: 999 !important;
+    }
 </style>""", unsafe_allow_html=True)
 
 # --- CABECERA ---
@@ -355,8 +375,8 @@ elif st.session_state.active_tab == "➕ Añadir":
     
     col_foto1, col_foto2 = st.columns(2)
     with col_foto1:
-        st.markdown("<p style='font-size: 0.78rem; color: #94A3B8;'>Subir archivo:</p>", unsafe_allow_html=True)
-        foto_subida = st.file_uploader("Subir imagen", type=["jpg", "jpeg", "png"], key="subir_nuevo", label_visibility="collapsed")
+        st.markdown("<p style='font-size: 0.78rem; color: #94A3B8;'>Subir archivo o galería:</p>", unsafe_allow_html=True)
+        foto_subida = st.file_uploader("Subir imagen", type=["jpg", "jpeg", "png"], key="subir_nuevo", label_visibility="collapsed", accept_multiple_files=False)
     with col_foto2:
         st.markdown("<p style='font-size: 0.78rem; color: #94A3B8;'>Usar cámara:</p>", unsafe_allow_html=True)
         
@@ -485,7 +505,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             e_r9c1, e_r9c2 = st.columns(2)
             with e_r9c1: e_cal_act_n = st.text_input("Cal Actual Noche", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
-            with e_r9c2: e_fecha = st.text_input("Fecha Ult", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
+            with e_r9c2: e_fecha = st.text_input("Fecha Ult", value=str(row['fecha_ult_']  or ""), key=f"fec_{row['fid']}")
 
             e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
             
@@ -506,7 +526,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
             # Subida de archivo (izquierda) y Activador moderno interactivo de cámara (derecha)
             ef_col1, ef_col2 = st.columns(2)
             with ef_col1:
-                nueva_foto_subida = st.file_uploader("Subir foto", type=["jpg", "jpeg", "png"], key=f"up_edit_{row['fid']}", label_visibility="collapsed")
+                nueva_foto_subida = st.file_uploader("Subir foto", type=["jpg", "jpeg", "png"], key=f"up_edit_{row['fid']}", label_visibility="collapsed", accept_multiple_files=False)
             with ef_col2:
                 cam_key_edit = f"cam_open_edit_{row['fid']}"
                 if cam_key_edit not in st.session_state:
