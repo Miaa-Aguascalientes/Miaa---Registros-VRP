@@ -286,7 +286,7 @@ st.markdown("<hr style='border: 0.5px solid rgba(0,229,255,0.15); margin: 8px 0;
 COLUMNAS_VPRS = """
     fid, id_0, id, serie, diametro, marca_valv, model_valv, marca_trim, domicilio, colonia, 
     cota_terr, sector_hid, cal_ant_d, cal_ant_n, fecha_ult_, cal_act_d, cal_act_n, 
-    hora_cal, estat_valv, observ, fotos
+    hora_cal, estat_valv, observ, fotos, fotos_2
 """
 
 # ==========================================
@@ -346,11 +346,17 @@ if st.session_state.active_tab == "📍 Registros":
                 """
                 st.markdown(detalle_html, unsafe_allow_html=True)
                 
-                # Visualización de la foto almacenada en el campo fotos
+                # Visualización de la foto 1 almacenada
                 img_bytes = procesar_bytes_foto(row['fotos'])
                 if img_bytes is not None and len(img_bytes) > 0:
-                    st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 6px; margin-bottom: 2px;'>📸 Fotografía registrada:</p>", unsafe_allow_html=True)
-                    st.image(img_bytes, caption=f"ID: {row['id']}", width=280)
+                    st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 6px; margin-bottom: 2px;'>📸 Fotografía 1 registrada:</p>", unsafe_allow_html=True)
+                    st.image(img_bytes, caption=f"ID: {row['id']} (Foto 1)", width=280)
+
+                # Visualización de la foto 2 almacenada
+                img_bytes_2 = procesar_bytes_foto(row['fotos_2'])
+                if img_bytes_2 is not None and len(img_bytes_2) > 0:
+                    st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 6px; margin-bottom: 2px;'>📸 Fotografía 2 registrada:</p>", unsafe_allow_html=True)
+                    st.image(img_bytes_2, caption=f"ID: {row['id']} (Foto 2)", width=280)
                         
             st.markdown("<div style='margin-bottom: 8px;'></div>", unsafe_allow_html=True)
     else:
@@ -410,44 +416,62 @@ elif st.session_state.active_tab == "➕ Añadir":
 
     val_observ = st.text_input("Observaciones", key="add_obs")
 
+    # --- FOTO 1 ---
     st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.2);'>", unsafe_allow_html=True)
-    st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.8rem; padding: 0 2px;'>📸 Fotografía:</p>", unsafe_allow_html=True)
-    
-    st.markdown("<p style='font-size: 0.78rem; color: #94A3B8; margin-top: 10px; margin-bottom: 2px;'>Usar cámara:</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.8rem; padding: 0 2px;'>📸 Fotografía 1:</p>", unsafe_allow_html=True)
     
     cam_key_nuevo = "cam_open_nuevo"
     if cam_key_nuevo not in st.session_state:
         st.session_state[cam_key_nuevo] = False
         
     if not st.session_state[cam_key_nuevo]:
-        if st.button("📷 Activar Cámara", key="btn_open_cam_nuevo", use_container_width=True):
+        if st.button("📷 Activar Cámara 1", key="btn_open_cam_nuevo", use_container_width=True):
             st.session_state[cam_key_nuevo] = True
             st.rerun()
     else:
-        if st.button("❌ Cerrar Cámara", key="btn_close_cam_nuevo", use_container_width=True):
+        if st.button("❌ Cerrar Cámara 1", key="btn_close_cam_nuevo", use_container_width=True):
             st.session_state[cam_key_nuevo] = False
             st.rerun()
 
     foto_camara = None
     if st.session_state[cam_key_nuevo]:
-        foto_camara = st.camera_input("Capturar", key="camara_nuevo", label_visibility="collapsed")
+        foto_camara = st.camera_input("Capturar 1", key="camara_nuevo", label_visibility="collapsed")
+
+    # --- FOTO 2 ---
+    st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.8rem; padding: 0 2px; margin-top: 10px;'>📸 Fotografía 2:</p>", unsafe_allow_html=True)
+    
+    cam_key_nuevo_2 = "cam_open_nuevo_2"
+    if cam_key_nuevo_2 not in st.session_state:
+        st.session_state[cam_key_nuevo_2] = False
+        
+    if not st.session_state[cam_key_nuevo_2]:
+        if st.button("📷 Activar Cámara 2", key="btn_open_cam_nuevo_2", use_container_width=True):
+            st.session_state[cam_key_nuevo_2] = True
+            st.rerun()
+    else:
+        if st.button("❌ Cerrar Cámara 2", key="btn_close_cam_nuevo_2", use_container_width=True):
+            st.session_state[cam_key_nuevo_2] = False
+            st.rerun()
+
+    foto_camara_2 = None
+    if st.session_state[cam_key_nuevo_2]:
+        foto_camara_2 = st.camera_input("Capturar 2", key="camara_nuevo_2", label_visibility="collapsed")
 
     if st.button("💾 Guardar Registro", key="btn_guardar_nuevo", use_container_width=True):
         if val_id:
             try:
-                foto_bytes = None
-                if foto_camara is not None:
-                    foto_bytes = foto_camara.getvalue()
+                foto_bytes = foto_camara.getvalue() if foto_camara is not None else None
+                foto_bytes_2 = foto_camara_2.getvalue() if foto_camara_2 is not None else None
                 
                 sql_insert = """
                     INSERT INTO "Agua_potable"."VPRS" (
                         id_0, id, serie, diametro, marca_valv, model_valv, marca_trim, domicilio, colonia, 
                         cota_terr, sector_hid, cal_ant_d, cal_ant_n, fecha_ult_, cal_act_d, cal_act_n, 
-                        hora_cal, estat_valv, observ, fotos
+                        hora_cal, estat_valv, observ, fotos, fotos_2
                     ) VALUES (
                         :id_0, :id, :serie, :diametro, :marca_valv, :model_valv, :marca_trim, :domicilio, :colonia, 
                         :cota_terr, :sector_hid, :cal_ant_d, :cal_ant_n, :fecha_ult_, :cal_act_d, :cal_act_n, 
-                        :hora_cal, :estat_valv, :observ, :fotos
+                        :hora_cal, :estat_valv, :observ, :fotos, :fotos_2
                     )
                 """
                 ejecutar_sql(sql_insert, {
@@ -455,7 +479,7 @@ elif st.session_state.active_tab == "➕ Añadir":
                     "model_valv": val_modelo, "marca_trim": val_trim, "domicilio": val_domicilio, "colonia": val_colonia,
                     "cota_terr": val_cota, "sector_hid": val_sector, "cal_ant_d": val_cal_ant_d, "cal_ant_n": val_cal_ant_n,
                     "fecha_ult_": val_fecha, "cal_act_d": val_cal_act_d, "cal_act_n": val_cal_act_n, "hora_cal": val_hora,
-                    "estat_valv": val_estat, "observ": val_observ, "fotos": foto_bytes
+                    "estat_valv": val_estat, "observ": val_observ, "fotos": foto_bytes, "fotos_2": foto_bytes_2
                 })
                 st.success("¡Válvula registrada con éxito!")
                 t.sleep(1)
@@ -541,47 +565,83 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
             
-            # --- VISUALIZACIÓN Y GESTIÓN DE LA FOTO ALMACENADA (DEBAJO DE OBSERVACIONES) ---
+            # --- FOTO 1 (DEBAJO DE OBSERVACIONES) ---
             foto_actual_bytes = procesar_bytes_foto(row['fotos'])
             eliminar_foto = False
             
             if foto_actual_bytes is not None and len(foto_actual_bytes) > 0:
-                st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 10px; margin-bottom: 2px;'>📸 Fotografía almacenada actual:</p>", unsafe_allow_html=True)
-                st.image(foto_actual_bytes, caption=f"ID: {row['id']}", width=280)
-                eliminar_foto = st.checkbox("🗑️ Eliminar esta fotografía actual", key=f"del_foto_{row['fid']}")
+                st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 10px; margin-bottom: 2px;'>📸 Fotografía 1 actual:</p>", unsafe_allow_html=True)
+                st.image(foto_actual_bytes, caption=f"ID: {row['id']} (Foto 1)", width=280)
+                eliminar_foto = st.checkbox("🗑️ Eliminar la fotografía 1 actual", key=f"del_foto_{row['fid']}")
 
-            st.markdown("<br>", unsafe_allow_html=True)
-
-            st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem; padding: 0 2px;'>📸 Reemplazar o capturar nueva foto:</p>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem; padding: 0 2px; margin-top: 10px;'>📸 Reemplazar o capturar nueva Foto 1:</p>", unsafe_allow_html=True)
             
-            st.markdown("<p style='font-size: 0.78rem; color: #94A3B8; margin-top: 10px; margin-bottom: 2px;'>Usar cámara:</p>", unsafe_allow_html=True)
             cam_key_edit = f"cam_open_edit_{row['fid']}"
             if cam_key_edit not in st.session_state:
                 st.session_state[cam_key_edit] = False
 
             if not st.session_state[cam_key_edit]:
-                if st.button("📷 Activar Cámara", key=f"btn_open_cam_edit_{row['fid']}", use_container_width=True):
+                if st.button("📷 Activar Cámara 1", key=f"btn_open_cam_edit_{row['fid']}", use_container_width=True):
                     st.session_state[cam_key_edit] = True
                     st.rerun()
             else:
-                if st.button("❌ Cerrar Cámara", key=f"btn_close_cam_edit_{row['fid']}", use_container_width=True):
+                if st.button("❌ Cerrar Cámara 1", key=f"btn_close_cam_edit_{row['fid']}", use_container_width=True):
                     st.session_state[cam_key_edit] = False
                     st.rerun()
 
-            actualizar_click = st.button("💾 Actualizar Registro", key=f"btn_act_{row['fid']}", use_container_width=True)
-
             nueva_foto_camara = None
             if st.session_state.get(f"cam_open_edit_{row['fid']}", False):
-                nueva_foto_camara = st.camera_input("Tomar foto", key=f"cam_edit_{row['fid']}", label_visibility="collapsed")
+                nueva_foto_camara = st.camera_input("Tomar foto 1", key=f"cam_edit_{row['fid']}", label_visibility="collapsed")
+
+
+            # --- FOTO 2 ---
+            foto_actual_bytes_2 = procesar_bytes_foto(row['fotos_2'])
+            eliminar_foto_2 = False
+            
+            if foto_actual_bytes_2 is not None and len(foto_actual_bytes_2) > 0:
+                st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 15px; margin-bottom: 2px;'>📸 Fotografía 2 actual:</p>", unsafe_allow_html=True)
+                st.image(foto_actual_bytes_2, caption=f"ID: {row['id']} (Foto 2)", width=280)
+                eliminar_foto_2 = st.checkbox("🗑️ Eliminar la fotografía 2 actual", key=f"del_foto_2_{row['fid']}")
+
+            st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem; padding: 0 2px; margin-top: 10px;'>📸 Reemplazar o capturar nueva Foto 2:</p>", unsafe_allow_html=True)
+            
+            cam_key_edit_2 = f"cam_open_edit_2_{row['fid']}"
+            if cam_key_edit_2 not in st.session_state:
+                st.session_state[cam_key_edit_2] = False
+
+            if not st.session_state[cam_key_edit_2]:
+                if st.button("📷 Activar Cámara 2", key=f"btn_open_cam_edit_2_{row['fid']}", use_container_width=True):
+                    st.session_state[cam_key_edit_2] = True
+                    st.rerun()
+            else:
+                if st.button("❌ Cerrar Cámara 2", key=f"btn_close_cam_edit_2_{row['fid']}", use_container_width=True):
+                    st.session_state[cam_key_edit_2] = False
+                    st.rerun()
+
+            nueva_foto_camara_2 = None
+            if st.session_state.get(f"cam_open_edit_2_{row['fid']}", False):
+                nueva_foto_camara_2 = st.camera_input("Tomar foto 2", key=f"cam_edit_2_{row['fid']}", label_visibility="collapsed")
+
+            st.markdown("<br>", unsafe_allow_html=True)
+            actualizar_click = st.button("💾 Actualizar Registro", key=f"btn_act_{row['fid']}", use_container_width=True)
 
             if actualizar_click:
                 try:
+                    # Foto 1 final
                     if eliminar_foto:
                         foto_bytes_final = None
                     else:
                         foto_bytes_final = foto_actual_bytes
                         if nueva_foto_camara is not None:
                             foto_bytes_final = nueva_foto_camara.getvalue()
+
+                    # Foto 2 final
+                    if eliminar_foto_2:
+                        foto_bytes_final_2 = None
+                    else:
+                        foto_bytes_final_2 = foto_actual_bytes_2
+                        if nueva_foto_camara_2 is not None:
+                            foto_bytes_final_2 = nueva_foto_camara_2.getvalue()
 
                     sql_update = """
                         UPDATE "Agua_potable"."VPRS" 
@@ -590,7 +650,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                             colonia = :colonia, cota_terr = :cota_terr, sector_hid = :sector_hid, 
                             cal_ant_d = :cal_ant_d, cal_ant_n = :cal_ant_n, fecha_ult_ = :fecha_ult_, 
                             cal_act_d = :cal_act_d, cal_act_n = :cal_act_n, hora_cal = :hora_cal, 
-                            estat_valv = :estat_valv, observ = :observ, fotos = :fotos 
+                            estat_valv = :estat_valv, observ = :observ, fotos = :fotos, fotos_2 = :fotos_2 
                         WHERE fid = :fid
                     """
                     ejecutar_sql(sql_update, {
@@ -598,7 +658,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                         "model_valv": e_modelo, "marca_trim": e_trim, "domicilio": e_domicilio, "colonia": e_colonia,
                         "cota_terr": e_cota, "sector_hid": e_sector, "cal_ant_d": e_cal_ant_d, "cal_ant_n": e_cal_ant_n,
                         "fecha_ult_": e_fecha, "cal_act_d": e_cal_act_d, "cal_act_n": e_cal_act_n, "hora_cal": e_hora,
-                        "estat_valv": e_estat, "observ": e_observ, "fotos": foto_bytes_final, "fid": row['fid']
+                        "estat_valv": e_estat, "observ": e_observ, "fotos": foto_bytes_final, "fotos_2": foto_bytes_final_2, "fid": row['fid']
                     })
                     st.success("¡Actualizado con éxito!")
                     t.sleep(0.8)
