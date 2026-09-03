@@ -53,11 +53,11 @@ def ejecutar_sql(query, params=None):
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
-# --- ESTILOS CSS CON TARJETAS MÁS ANCHAS Y MÁRGENES CERO ---
+# --- ESTILOS CSS CON ANCHO MÁXIMO AMPLIADO ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
     .block-container {
-        padding-top: 0.05rem !important; 
+        padding-top: 0rem !important; 
         padding-bottom: 2.5rem !important;
         padding-left: 0rem !important;
         padding-right: 0rem !important;
@@ -72,14 +72,14 @@ st.write("""<style>
         overflow-x: hidden;
     }
     
-    /* REJILLA EXPANDIDA AL MÁXIMO DE ANCHO */
+    /* REJILLA EXPANDIDA A BORDE A BORDE */
     .miaa-grid-container {
         display: grid;
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 2px !important;
+        gap: 1px !important;
         width: 100% !important;
         box-sizing: border-box !important;
-        margin-bottom: 4px !important;
+        margin-bottom: 3px !important;
         padding: 0 !important;
     }
 
@@ -87,25 +87,26 @@ st.write("""<style>
     [data-testid="stHorizontalBlock"] {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 2px !important;
+        gap: 1px !important;
         width: 100% !important;
         margin: 0 !important;
+        padding: 0 !important;
     }
     [data-testid="column"] {
         width: 100% !important;
         flex: unset !important;
         min-width: unset !important;
         max-width: 100% !important;
-        padding: 0 !important;
+        padding: 0 1px !important;
     }
 
-    /* Tarjetas de registros más anchas y con bordes reducidos al mínimo */
+    /* Tarjetas de registros con ancho total y sin paddings sobrantes */
     .user-card {
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
-        border-left: 4px solid #00E5FF;
-        border-radius: 6px;
-        padding: 6px 4px;
+        border-left: 3px solid #00E5FF;
+        border-radius: 4px;
+        padding: 5px 3px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         word-break: break-word;
         box-sizing: border-box;
@@ -120,16 +121,16 @@ st.write("""<style>
         justify-content: center;
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
-        border-radius: 12px;
-        padding: 4px;
-        gap: 4px;
+        border-radius: 10px;
+        padding: 3px;
+        gap: 3px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
     div.row-widget.stRadio > div > label {
         background: #111A30;
         border: 1px solid rgba(0, 229, 255, 0.15) !important;
-        border-radius: 8px !important;
-        padding: 8px 2px !important;
+        border-radius: 7px !important;
+        padding: 6px 2px !important;
         flex: 1;
         text-align: center;
         cursor: pointer;
@@ -169,7 +170,7 @@ st.write("""<style>
         background: linear-gradient(135deg, #0077B6 0%, #00E5FF 100%);
         color: #080C14;
         border: none;
-        border-radius: 8px;
+        border-radius: 6px;
         font-weight: 700;
         padding: 0.5rem 1rem;
         width: 100%;
@@ -179,22 +180,26 @@ st.write("""<style>
         opacity: 0.95;
     }
 
-    /* Campos de entrada compactos y de ancho completo */
+    /* Campos de entrada optimizados al 100% de ancho */
+    div[data-baseweb="input"], div[data-baseweb="base-input"], div[data-baseweb="select"] {
+        width: 100% !important;
+    }
     div[data-baseweb="input"] input, div[data-baseweb="base-input"] input {
         background-color: #080C14 !important;
         color: #F8FAFC !important;
         border-color: rgba(0, 229, 255, 0.25) !important;
-        border-radius: 8px !important;
+        border-radius: 6px !important;
         font-size: 0.8rem !important;
+        width: 100% !important;
     }
 </style>""", unsafe_allow_html=True)
 
 # --- CABECERA ---
 st.markdown("""
-    <div style="display: flex; align-items: center; gap: 10px; width: 100%; margin-bottom: 5px;">
-        <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 90px; height: auto; flex-shrink: 0;" />
+    <div style="display: flex; align-items: center; gap: 8px; width: 100%; margin-bottom: 5px; padding: 0 2px;">
+        <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 85px; height: auto; flex-shrink: 0;" />
         <div>
-            <h2 style="color: #00E5FF; margin: 0; font-size: 1.15rem; font-weight: 800; line-height: 1.2;">Gestion VRP's</h2>
+            <h2 style="color: #00E5FF; margin: 0; font-size: 1.1rem; font-weight: 800; line-height: 1.2;">Gestion VRP's</h2>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -217,7 +222,7 @@ if seleccion_tab != st.session_state.active_tab:
     st.session_state.active_tab = seleccion_tab
     st.rerun()
 
-st.markdown("<hr style='border: 0.5px solid rgba(0,229,255,0.15); margin: 10px 0;'>", unsafe_allow_html=True)
+st.markdown("<hr style='border: 0.5px solid rgba(0,229,255,0.15); margin: 8px 0;'>", unsafe_allow_html=True)
 
 COLUMNAS_VPRS = """
     fid, id_0, id, serie, diametro, marca_valv, model_valv, marca_trim, domicilio, colonia, 
@@ -229,7 +234,7 @@ COLUMNAS_VPRS = """
 # SECCIÓN 1: VER REGISTROS (VPRS)
 # ==========================================
 if st.session_state.active_tab == "📍 Registros":
-    st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 10px;">📂 Catálogo de Válvulas VPRS</h3>', unsafe_allow_html=True)
+    st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">📂 Catálogo de Válvulas VPRS</h3>', unsafe_allow_html=True)
     
     busqueda = st.text_input("🔍 Buscar válvula (ID, Serie, Domicilio, Col.):", placeholder="Ej. VF01, Centro...")
     
@@ -253,9 +258,9 @@ if st.session_state.active_tab == "📍 Registros":
         st.error(f"❌ Error al consultar PostgreSQL: {error_db}")
     elif not df_vprs.empty:
         if not busqueda or busqueda.strip() == "":
-            st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 6px;'>Mostrando primeros 10 registros.</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 4px; padding: 0 2px;'>Mostrando primeros 10 registros.</p>", unsafe_allow_html=True)
         else:
-            st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 6px;'>Se encontraron {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 4px; padding: 0 2px;'>Se encontraron {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
             
         for i in range(0, len(df_vprs), 2):
             row1 = df_vprs.iloc[i]
@@ -264,9 +269,9 @@ if st.session_state.active_tab == "📍 Registros":
             
             card1_html = f"""
                 <div class="user-card">
-                    <span style="font-size: 0.82rem; font-weight: bold; color: #F8FAFC;">ID: {row1['id']}{serie_texto1}</span><br>
-                    <span style="color: #00E5FF; font-size: 0.72rem;">📍 {row1['domicilio'] or 'Sin domicilio'}, Col. {row1['colonia'] or 'Sin colonia'}</span><br>
-                    <span style="color: #94A3B8; font-size: 0.65rem; line-height: 1.3;">
+                    <span style="font-size: 0.8rem; font-weight: bold; color: #F8FAFC;">ID: {row1['id']}{serie_texto1}</span><br>
+                    <span style="color: #00E5FF; font-size: 0.7rem;">📍 {row1['domicilio'] or 'Sin domicilio'}, Col. {row1['colonia'] or 'Sin colonia'}</span><br>
+                    <span style="color: #94A3B8; font-size: 0.63rem; line-height: 1.25;">
                         Diámetro: {row1['diametro']}mm | Marca: {row1['marca_valv']} | Modelo: {row1['model_valv']} | Trim: {row1['marca_trim']} | Cota: {row1['cota_terr']}<br>
                         Sector: {row1['sector_hid']} | Estado: {row1['estat_valv']} | Hora Cal: {row1['hora_cal']} | Fecha: {row1['fecha_ult_']}<br>
                         Cal Ant Día: {row1['cal_ant_d']} | Cal Ant Noche: {row1['cal_ant_n']}<br>
@@ -284,9 +289,9 @@ if st.session_state.active_tab == "📍 Registros":
                 
                 card2_html = f"""
                     <div class="user-card">
-                        <span style="font-size: 0.82rem; font-weight: bold; color: #F8FAFC;">ID: {row2['id']}{serie_texto2}</span><br>
-                        <span style="color: #00E5FF; font-size: 0.72rem;">📍 {row2['domicilio'] or 'Sin domicilio'}, Col. {row2['colonia'] or 'Sin colonia'}</span><br>
-                        <span style="color: #94A3B8; font-size: 0.65rem; line-height: 1.3;">
+                        <span style="font-size: 0.8rem; font-weight: bold; color: #F8FAFC;">ID: {row2['id']}{serie_texto2}</span><br>
+                        <span style="color: #00E5FF; font-size: 0.7rem;">📍 {row2['domicilio'] or 'Sin domicilio'}, Col. {row2['colonia'] or 'Sin colonia'}</span><br>
+                        <span style="color: #94A3B8; font-size: 0.63rem; line-height: 1.25;">
                             Diámetro: {row2['diametro']}mm | Marca: {row2['marca_valv']} | Modelo: {row2['model_valv']} | Trim: {row2['marca_trim']} | Cota: {row2['cota_terr']}<br>
                             Sector: {row2['sector_hid']} | Estado: {row2['estat_valv']} | Hora Cal: {row2['hora_cal']} | Fecha: {row2['fecha_ult_']}<br>
                             Cal Ant Día: {row2['cal_ant_d']} | Cal Ant Noche: {row2['cal_ant_n']}<br>
@@ -309,9 +314,9 @@ if st.session_state.active_tab == "📍 Registros":
                 if foto_data1 is not None and len(foto_data1) > 0:
                     try:
                         if isinstance(foto_data1, bytes):
-                            st.image(foto_data1, caption=f"ID: {row1['id']}", width=155)
+                            st.image(foto_data1, caption=f"ID: {row1['id']}", width=165)
                         elif isinstance(foto_data1, str) and len(foto_data1) > 10:
-                            st.image(base64.b64decode(foto_data1), caption=f"ID: {row1['id']}", width=155)
+                            st.image(base64.b64decode(foto_data1), caption=f"ID: {row1['id']}", width=165)
                     except:
                         pass
             if i + 1 < len(df_vprs):
@@ -320,12 +325,12 @@ if st.session_state.active_tab == "📍 Registros":
                     if foto_data2 is not None and len(foto_data2) > 0:
                         try:
                             if isinstance(foto_data2, bytes):
-                                st.image(foto_data2, caption=f"ID: {df_vprs.iloc[i + 1]['id']}", width=155)
+                                st.image(foto_data2, caption=f"ID: {df_vprs.iloc[i + 1]['id']}", width=165)
                             elif isinstance(foto_data2, str) and len(foto_data2) > 10:
-                                st.image(base64.b64decode(foto_data2), caption=f"ID: {df_vprs.iloc[i + 1]['id']}", width=155)
+                                st.image(base64.b64decode(foto_data2), caption=f"ID: {df_vprs.iloc[i + 1]['id']}", width=165)
                         except:
                             pass
-            st.markdown("<div style='margin-bottom: 4px;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='margin-bottom: 3px;'></div>", unsafe_allow_html=True)
     else:
         st.info("No se encontraron registros.")
 
@@ -333,7 +338,7 @@ if st.session_state.active_tab == "📍 Registros":
 # SECCIÓN 2: AÑADIR NUEVA VÁLVULA
 # ==========================================
 elif st.session_state.active_tab == "➕ Añadir":
-    st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 10px;">✨ Registrar nueva VPRS</h3>', unsafe_allow_html=True)
+    st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">✨ Registrar nueva VPRS</h3>', unsafe_allow_html=True)
     
     r1c1, r1c2 = st.columns(2)
     with r1c1: val_id_0 = st.number_input("ID_0 (Int)", min_value=0, value=0, key="add_id_0")
@@ -426,7 +431,7 @@ elif st.session_state.active_tab == "➕ Añadir":
 # SECCIÓN 3: EDITAR Y ELIMINAR
 # ==========================================
 elif st.session_state.active_tab == "⚙️ Editar":
-    st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 10px;">🛠️ Modificar o Eliminar Válvula</h3>', unsafe_allow_html=True)
+    st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">🛠️ Modificar o Eliminar Válvula</h3>', unsafe_allow_html=True)
     
     busqueda_edit = st.text_input("🔍 Filtrar registros a editar:", placeholder="Dejar en blanco para ver 10...")
     
@@ -450,12 +455,12 @@ elif st.session_state.active_tab == "⚙️ Editar":
         st.error(f"Error: {error_db}")
     elif not df_vprs.empty:
         if not busqueda_edit or busqueda_edit.strip() == "":
-            st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 6px;'>Mostrando primeros 10 registros.</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 4px; padding: 0 2px;'>Mostrando primeros 10 registros.</p>", unsafe_allow_html=True)
         else:
-            st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 6px;'>Se encontraron {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 4px; padding: 0 2px;'>Se encontraron {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
             
         for idx, row in df_vprs.iterrows():
-            st.markdown(f"<span style='color: #00E5FF; font-weight: bold;'>FID Registro: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span>", unsafe_allow_html=True)
+            st.markdown(f"<div style='padding: 0 2px;'><span style='color: #00E5FF; font-weight: bold;'>FID Registro: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span></div>", unsafe_allow_html=True)
             
             e_r1c1, e_r1c2 = st.columns(2)
             with e_r1c1: e_id_0 = st.number_input("ID_0", value=int(row['id_0'] or 0), key=f"id0_{row['fid']}")
