@@ -102,7 +102,7 @@ st.write("""<style>
         margin: 0 !important;
     }
 
-    /* Tarjetas de registros con ancho total absoluto */
+    /* Tarjetas de registros con ancho total absoluto y cuadros de texto más anchos */
     .user-card {
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
@@ -186,7 +186,7 @@ st.write("""<style>
         opacity: 1;
     }
 
-    /* FORZAR ANCHO TOTAL EN TODOS LOS CONTENEDORES DE ENTRADA Y TEXTO */
+    /* FORZAR ANCHO TOTAL Y MAYOR EXPANSIÓN LATERAL EN TODOS LOS CUADROS DE TEXTO Y ENTRADAS */
     .stTextInput, .stNumberInput, .stSelectbox, .stDateInput, .stTextArea {
         width: 100% !important;
         max-width: 100% !important;
@@ -203,6 +203,13 @@ st.write("""<style>
         font-size: 0.8rem !important;
         width: 100% !important;
         max-width: 100% !important;
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+    
+    /* Ampliar contenedores internos de los inputs de texto para asegurar una mayor anchura visual */
+    .stTextInput > div, .stNumberInput > div, .stSelectbox > div, .stDateInput > div {
+        width: 100% !important;
     }
 
     /* Ocultar texto descriptivo y de tamaño (200MB, JPG, PNG) en stFileUploader */
@@ -601,7 +608,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 st.session_state.registro_to_delete = row['fid']
                 st.rerun()
                 
-            st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.1);'>", unsafe_app_html=True)
+            st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.1);'>")
 
     if st.session_state.registro_to_delete is not None:
         target_fid = st.session_state.registro_to_delete
