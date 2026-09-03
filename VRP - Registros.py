@@ -53,7 +53,21 @@ def ejecutar_sql(query, params=None):
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
-# --- ESTILOS CSS CON ANCHO TOTAL AL 100% EN CUADROS Y CONTENEDORES ---
+# --- SCRIPT JS PARA TRADUCIR EL BOTÓN DE LA CÁMARA ---
+st.markdown("""
+<script>
+    const observer = new MutationObserver(() => {
+        document.querySelectorAll('button').forEach(el => {
+            if (el.innerText.trim() === 'Take Photo') {
+                el.innerText = 'Capturar Foto';
+            }
+        });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+</script>
+""", unsafe_allow_html=True)
+
+# --- ESTILOS CSS ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
     .block-container {
@@ -72,36 +86,6 @@ st.write("""<style>
         overflow-x: hidden;
     }
     
-    /* REJILLA EXPANDIDA Y FORZADA A BORDE A BORDE */
-    .miaa-grid-container {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 1px !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-        margin-bottom: 3px !important;
-        padding: 0 !important;
-    }
-
-    /* Anular restricciones y paddings de Streamlit en bloques horizontales */
-    [data-testid="stHorizontalBlock"] {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 1px !important;
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    [data-testid="column"] {
-        width: 100% !important;
-        flex: unset !important;
-        min-width: unset !important;
-        max-width: 100% !important;
-        padding: 0 2px !important;
-        margin: 0 !important;
-    }
-
-    /* Tarjetas de registros con ancho total absoluto */
     .user-card {
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
@@ -115,7 +99,6 @@ st.write("""<style>
         height: 100% !important;
     }
 
-    /* Menú de navegación / Pestañas estilo tarjeta MIAA */
     div.row-widget.stRadio > div {
         display: flex;
         flex-direction: row;
@@ -156,7 +139,6 @@ st.write("""<style>
         font-weight: 700 !important;
     }
 
-    /* Etiquetas de los inputs */
     .stTextInput label, .stSelectbox label, .stNumberInput label, [data-testid="stWidgetLabel"] p {
         color: #E2E8F0 !important;
         font-weight: 600 !important;
@@ -166,7 +148,6 @@ st.write("""<style>
         text-overflow: ellipsis !important;
     }
 
-    /* Botones principales */
     .stButton>button {
         background: linear-gradient(135deg, #0077B6 0%, #00E5FF 100%);
         color: #080C14;
@@ -181,7 +162,6 @@ st.write("""<style>
         opacity: 0.95;
     }
 
-    /* FORZAR ANCHO TOTAL EN TODOS LOS CONTENEDORES DE ENTRADA Y TEXTO */
     .stTextInput, .stNumberInput, .stSelectbox, .stDateInput, .stTextArea {
         width: 100% !important;
         max-width: 100% !important;
@@ -238,7 +218,7 @@ COLUMNAS_VPRS = """
 """
 
 # ==========================================
-# SECCIÓN 1: VER REGISTROS (VPRS) - UNA SOLA COLUMNA
+# SECCIÓN 1: VER REGISTROS (VPRS)
 # ==========================================
 if st.session_state.active_tab == "📍 Registros":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">📂 Catálogo de Válvulas VPRS</h3>', unsafe_allow_html=True)
@@ -302,7 +282,7 @@ if st.session_state.active_tab == "📍 Registros":
         st.info("No se encontraron registros.")
 
 # ==========================================
-# SECCIÓN 2: AÑADIR NUEVA VÁLVULA (MANTIENE 2 COLUMNAS)
+# SECCIÓN 2: AÑADIR NUEVA VÁLVULA
 # ==========================================
 elif st.session_state.active_tab == "➕ Añadir":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">✨ Registrar nueva VPRS</h3>', unsafe_allow_html=True)
@@ -355,7 +335,6 @@ elif st.session_state.active_tab == "➕ Añadir":
     with col_foto2:
         st.markdown("<p style='font-size: 0.78rem; color: #94A3B8;'>Usar cámara:</p>", unsafe_allow_html=True)
         
-        # Activador moderno de cámara interactivo (Añadir)
         cam_key_nuevo = "cam_open_nuevo"
         if cam_key_nuevo not in st.session_state:
             st.session_state[cam_key_nuevo] = False
@@ -498,7 +477,6 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem; padding: 0 2px;'>📸 Actualizar foto:</p>", unsafe_allow_html=True)
             
-            # Subida de archivo (izquierda) y Activador moderno interactivo de cámara (derecha)
             ef_col1, ef_col2 = st.columns(2)
             with ef_col1:
                 nueva_foto_subida = st.file_uploader("Subir foto", type=["jpg", "jpeg", "png"], key=f"up_edit_{row['fid']}", label_visibility="collapsed")
@@ -516,10 +494,8 @@ elif st.session_state.active_tab == "⚙️ Editar":
                         st.session_state[cam_key_edit] = False
                         st.rerun()
 
-            # Botón Actualizar Registro con ancho total
             actualizar_click = st.button("💾 Actualizar Registro", key=f"btn_act_{row['fid']}", use_container_width=True)
 
-            # Zona de la cámara debajo del botón Actualizar Registro (con contenedor visual moderno)
             nueva_foto_camara = None
             if st.session_state.get(f"cam_open_edit_{row['fid']}", False):
                 st.markdown(f"""
@@ -562,7 +538,6 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             st.markdown("<br>", unsafe_allow_html=True)
             
-            # Botón de eliminar a mero abajo con ancho total
             if st.button("🗑️ Eliminar", key=f"del_{row['fid']}", use_container_width=True):
                 st.session_state.registro_to_delete = row['fid']
                 st.rerun()
