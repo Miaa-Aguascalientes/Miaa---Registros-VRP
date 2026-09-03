@@ -53,14 +53,14 @@ def ejecutar_sql(query, params=None):
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
-# --- ESTILOS CSS CON ANCHO TOTAL AL 100% EN CUADROS Y CONTENEDORES ---
+# --- ESTILOS CSS AISLADOS ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
     .block-container {
         padding-top: 0rem !important; 
         padding-bottom: 2.5rem !important;
-        padding-left: 0rem !important;
-        padding-right: 0rem !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
         background: #080C14;
         color: #F8FAFC;
         max-width: 100% !important;
@@ -72,47 +72,18 @@ st.write("""<style>
         overflow-x: hidden;
     }
     
-    /* REJILLA EXPANDIDA Y FORZADA A BORDE A BORDE */
-    .miaa-grid-container {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 1px !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-        margin-bottom: 3px !important;
-        padding: 0 !important;
-    }
-
-    /* Anular restricciones y paddings de Streamlit en bloques horizontales */
-    [data-testid="stHorizontalBlock"] {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 1px !important;
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    [data-testid="column"] {
-        width: 100% !important;
-        flex: unset !important;
-        min-width: unset !important;
-        max-width: 100% !important;
-        padding: 0 2px !important;
-        margin: 0 !important;
-    }
-
-    /* Tarjetas de registros con ancho total absoluto */
+    /* Tarjetas de registros en una sola columna */
     .user-card {
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
         border-left: 3px solid #00E5FF;
-        border-radius: 2px;
-        padding: 6px 4px;
+        border-radius: 4px;
+        padding: 10px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         word-break: break-word;
         box-sizing: border-box;
         width: 100% !important;
-        height: 100% !important;
+        margin-bottom: 8px;
     }
 
     /* Menú de navegación / Pestañas estilo tarjeta MIAA */
@@ -181,7 +152,7 @@ st.write("""<style>
         opacity: 0.95;
     }
 
-    /* FORZAR ANCHO TOTAL EN TODOS LOS CONTENEDORES DE ENTRADA Y TEXTO */
+    /* Ancho total en contenedores de entrada */
     .stTextInput, .stNumberInput, .stSelectbox, .stDateInput, .stTextArea {
         width: 100% !important;
         max-width: 100% !important;
@@ -238,7 +209,7 @@ COLUMNAS_VPRS = """
 """
 
 # ==========================================
-# SECCIÓN 1: VER REGISTROS (VPRS)
+# SECCIÓN 1: VER REGISTROS (VPRS) - UNA SOLA COLUMNA
 # ==========================================
 if st.session_state.active_tab == "📍 Registros":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">📂 Catálogo de Válvulas VPRS</h3>', unsafe_allow_html=True)
@@ -269,80 +240,41 @@ if st.session_state.active_tab == "📍 Registros":
         else:
             st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 4px; padding: 0 2px;'>Se encontraron {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
             
-        for i in range(0, len(df_vprs), 2):
-            row1 = df_vprs.iloc[i]
-            serie_val1 = row1['serie']
-            serie_texto1 = "" if (pd.isna(serie_val1) or str(serie_val1).strip().lower() in ["nan", "none", ""]) else f" | Serie: {serie_val1}"
+        # Renderizado estricto en UNA SOLA COLUMNA para los registros
+        for idx, row in df_vprs.iterrows():
+            serie_val = row['serie']
+            serie_texto = "" if (pd.isna(serie_val) or str(serie_val).strip().lower() in ["nan", "none", ""]) else f" | Serie: {serie_val}"
             
-            card1_html = f"""
+            card_html = f"""
                 <div class="user-card">
-                    <span style="font-size: 0.8rem; font-weight: bold; color: #F8FAFC;">ID: {row1['id']}{serie_texto1}</span><br>
-                    <span style="color: #00E5FF; font-size: 0.7rem;">📍 {row1['domicilio'] or 'Sin domicilio'}, Col. {row1['colonia'] or 'Sin colonia'}</span><br>
-                    <span style="color: #94A3B8; font-size: 0.63rem; line-height: 1.25;">
-                        Diámetro: {row1['diametro']}mm | Marca: {row1['marca_valv']} | Modelo: {row1['model_valv']} | Trim: {row1['marca_trim']} | Cota: {row1['cota_terr']}<br>
-                        Sector: {row1['sector_hid']} | Estado: {row1['estat_valv']} | Hora Cal: {row1['hora_cal']} | Fecha: {row1['fecha_ult_']}<br>
-                        Cal Ant Día: {row1['cal_ant_d']} | Cal Ant Noche: {row1['cal_ant_n']}<br>
-                        Cal Act Día: {row1['cal_act_d']} | Cal Act Noche: {row1['cal_act_n']}<br>
-                        Obs: {row1['observ']}
+                    <span style="font-size: 0.85rem; font-weight: bold; color: #F8FAFC;">ID: {row['id']}{serie_texto}</span><br>
+                    <span style="color: #00E5FF; font-size: 0.75rem;">📍 {row['domicilio'] or 'Sin domicilio'}, Col. {row['colonia'] or 'Sin colonia'}</span><br>
+                    <span style="color: #94A3B8; font-size: 0.7rem; line-height: 1.4;">
+                        <b>Diámetro:</b> {row['diametro']}mm | <b>Marca:</b> {row['marca_valv']} | <b>Modelo:</b> {row['model_valv']} | <b>Trim:</b> {row['marca_trim']} | <b>Cota:</b> {row['cota_terr']}<br>
+                        <b>Sector:</b> {row['sector_hid']} | <b>Estado:</b> {row['estat_valv']} | <b>Hora Cal:</b> {row['hora_cal']} | <b>Fecha:</b> {row['fecha_ult_']}<br>
+                        <b>Cal Ant Día:</b> {row['cal_ant_d']} | <b>Cal Ant Noche:</b> {row['cal_ant_n']}<br>
+                        <b>Cal Act Día:</b> {row['cal_act_d']} | <b>Cal Act Noche:</b> {row['cal_act_n']}<br>
+                        <b>Obs:</b> {row['observ']}
                     </span>
                 </div>
             """
+            st.markdown(card_html, unsafe_allow_html=True)
             
-            card2_html = ""
-            if i + 1 < len(df_vprs):
-                row2 = df_vprs.iloc[i + 1]
-                serie_val2 = row2['serie']
-                serie_texto2 = "" if (pd.isna(serie_val2) or str(serie_val2).strip().lower() in ["nan", "none", ""]) else f" | Serie: {serie_val2}"
-                
-                card2_html = f"""
-                    <div class="user-card">
-                        <span style="font-size: 0.8rem; font-weight: bold; color: #F8FAFC;">ID: {row2['id']}{serie_texto2}</span><br>
-                        <span style="color: #00E5FF; font-size: 0.7rem;">📍 {row2['domicilio'] or 'Sin domicilio'}, Col. {row2['colonia'] or 'Sin colonia'}</span><br>
-                        <span style="color: #94A3B8; font-size: 0.63rem; line-height: 1.25;">
-                            Diámetro: {row2['diametro']}mm | Marca: {row2['marca_valv']} | Modelo: {row2['model_valv']} | Trim: {row2['marca_trim']} | Cota: {row2['cota_terr']}<br>
-                            Sector: {row2['sector_hid']} | Estado: {row2['estat_valv']} | Hora Cal: {row2['hora_cal']} | Fecha: {row2['fecha_ult_']}<br>
-                            Cal Ant Día: {row2['cal_ant_d']} | Cal Ant Noche: {row2['cal_ant_n']}<br>
-                            Cal Act Día: {row2['cal_act_d']} | Cal Act Noche: {row2['cal_act_n']}<br>
-                            Obs: {row2['observ']}
-                        </span>
-                    </div>
-                """
-
-            st.markdown(f"""
-                <div class="miaa-grid-container">
-                    <div>{card1_html}</div>
-                    <div>{card2_html}</div>
-                </div>
-            """, unsafe_allow_html=True)
-            
-            c_foto1, c_foto2 = st.columns(2)
-            with c_foto1:
-                foto_data1 = row1['fotos']
-                if foto_data1 is not None and len(foto_data1) > 0:
-                    try:
-                        if isinstance(foto_data1, bytes):
-                            st.image(foto_data1, caption=f"ID: {row1['id']}", width=175)
-                        elif isinstance(foto_data1, str) and len(foto_data1) > 10:
-                            st.image(base64.b64decode(foto_data1), caption=f"ID: {row1['id']}", width=175)
-                    except:
-                        pass
-            if i + 1 < len(df_vprs):
-                with c_foto2:
-                    foto_data2 = df_vprs.iloc[i + 1]['fotos']
-                    if foto_data2 is not None and len(foto_data2) > 0:
-                        try:
-                            if isinstance(foto_data2, bytes):
-                                st.image(foto_data2, caption=f"ID: {df_vprs.iloc[i + 1]['id']}", width=175)
-                            elif isinstance(foto_data2, str) and len(foto_data2) > 10:
-                                st.image(base64.b64decode(foto_data2), caption=f"ID: {df_vprs.iloc[i + 1]['id']}", width=175)
-                        except:
-                            pass
-            st.markdown("<div style='margin-bottom: 3px;'></div>", unsafe_allow_html=True)
+            foto_data = row['fotos']
+            if foto_data is not None and len(foto_data) > 0:
+                try:
+                    if isinstance(foto_data, bytes):
+                        st.image(foto_data, caption=f"ID: {row['id']}", width=200)
+                    elif isinstance(foto_data, str) and len(foto_data) > 10:
+                        st.image(base64.b64decode(foto_data), caption=f"ID: {row['id']}", width=200)
+                except:
+                    pass
+            st.markdown("<hr style='border: 0.2px solid rgba(0,229,255,0.1); margin: 6px 0;'>", unsafe_allow_html=True)
     else:
         st.info("No se encontraron registros.")
 
 # ==========================================
-# SECCIÓN 2: AÑADIR NUEVA VÁLVULA
+# SECCIÓN 2: AÑADIR NUEVA VÁLVULA (2 columnas)
 # ==========================================
 elif st.session_state.active_tab == "➕ Añadir":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">✨ Registrar nueva VPRS</h3>', unsafe_allow_html=True)
@@ -435,7 +367,7 @@ elif st.session_state.active_tab == "➕ Añadir":
             st.warning("El campo ID es obligatorio.")
 
 # ==========================================
-# SECCIÓN 3: EDITAR Y ELIMINAR
+# SECCIÓN 3: EDITAR Y ELIMINAR (2 columnas)
 # ==========================================
 elif st.session_state.active_tab == "⚙️ Editar":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">🛠️ Modificar o Eliminar Válvula</h3>', unsafe_allow_html=True)
