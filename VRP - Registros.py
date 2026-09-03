@@ -53,7 +53,7 @@ def ejecutar_sql(query, params=None):
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
-# --- ESTILOS CSS CON GRID FORZADO DE 2 COLUMNAS (MÓVIL Y PC) ---
+# --- ESTILOS CSS CON GRID ESTRICTO DE 2 COLUMNAS PARA TODO ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
     .block-container {
@@ -70,17 +70,31 @@ st.write("""<style>
         overflow-x: hidden;
     }
     
-    /* REJILLA DE 2 COLUMNAS REALES PARA TARJETAS DE REGISTROS */
+    /* REJILLA DE 2 COLUMNAS EXACTAS PARA TARJETAS E INPUTS */
     .miaa-grid-container {
         display: grid;
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 8px !important;
         width: 100% !important;
         box-sizing: border-box !important;
-        margin-bottom: 10px !important;
+        margin-bottom: 8px !important;
     }
 
-    /* Tarjetas de registros adaptadas a la rejilla */
+    /* Anular cualquier comportamiento responsivo de Streamlit en bloques horizontales */
+    [data-testid="stHorizontalBlock"] {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+    [data-testid="column"] {
+        width: 100% !important;
+        flex: unset !important;
+        min-width: unset !important;
+        max-width: 100% !important;
+    }
+
+    /* Tarjetas de registros */
     .user-card {
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
@@ -238,7 +252,6 @@ if st.session_state.active_tab == "📍 Registros":
         else:
             st.markdown(f"<p style='color: #94A3B8; font-size: 0.8rem; margin-bottom: 8px;'>Se encontraron {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
             
-        # Renderizado utilizando CSS Grid de 2 columnas de manera nativa para evitar que Streamlit los rompa
         for i in range(0, len(df_vprs), 2):
             row1 = df_vprs.iloc[i]
             serie_val1 = row1['serie']
@@ -285,7 +298,6 @@ if st.session_state.active_tab == "📍 Registros":
                 </div>
             """, unsafe_allow_html=True)
             
-            # Fotos opcionales separadas de manera limpia
             c_foto1, c_foto2 = st.columns(2)
             with c_foto1:
                 foto_data1 = row1['fotos']
@@ -438,7 +450,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
             st.markdown(f"<p style='color: #94A3B8; font-size: 0.8rem; margin-bottom: 8px;'>Se encontraron {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
             
         for idx, row in df_vprs.iterrows():
-            st.markdown(f"<span style='color: #00E5FF; font-weight: bold;'>FID: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span>", unsafe_allow_html=True)
+            st.markdown(f"<span style='color: #00E5FF; font-weight: bold;'>FID Registro: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span>", unsafe_allow_html=True)
             
             e_r1c1, e_r1c2 = st.columns(2)
             with e_r1c1: e_id_0 = st.number_input("ID_0", value=int(row['id_0'] or 0), key=f"id0_{row['fid']}")
@@ -513,4 +525,60 @@ elif st.session_state.active_tab == "⚙️ Editar":
                     sql_update = """
                         UPDATE "Agua_potable"."VPRS" 
                         SET id_0 = :id_0, id = :id, serie = :serie, diametro = :diametro, marca_valv = :marca_valv, 
-                            model_valv = :model_
+                            model_valv = :model_valv, marca_trim = :marca_trim, domicilio = :domicilio, 
+                            colonia = :colonia, cota_terr = :cota_terr, sector_hid = :sector_hid, 
+                            cal_ant_d = :cal_ant_d, cal_ant_n = :cal_ant_n, fecha_ult_ = :fecha_ult_, 
+                            cal_act_d = :cal_act_d, cal_act_n = :cal_act_n, hora_cal = :hora_cal, 
+                            estat_valv = :estat_valv, observ = :observ, fotos = :fotos 
+                        WHERE fid = :fid
+                    """
+                    ejecutar_sql(sql_update, {
+                        "id_0": e_id_0, "id": e_id, "serie": e_serie if e_serie.strip() != "" else None, "diametro": e_diametro, "marca_valv": e_marca,
+                        "model_valv": e_modelo, "marca_trim": e_trim, "domicilio": e_domicilio, "colonia": e_colonia,
+                        "cota_terr": e_cota, "sector_hid": e_sector, "cal_ant_d": e_cal_ant_d, "cal_ant_n": e_cal_ant_n,
+                        "fecha_ult_": e_fecha, "cal_act_d": e_cal_act_d, "cal_act_n": e_cal_act_n, "hora_cal": e_hora,
+                        "estat_valv": e_estat, "observ": e_observ, "fotos": foto_bytes_final, "fid": row['fid']
+                    })
+                    st.success("¡Actualizado con éxito!")
+                    t.sleep(0.8)
+                    st.rerun()
+                except Exception as ex:
+                    st.error(f"Error al actualizar: {ex}")
+
+            d_col1, d_col2 = st.columns([6, 2])
+            with d_col2:
+                if st.button("🗑️ Eliminar", key=f"del_{row['fid']}", use_container_width=True):
+                    st.session_state.registro_to_delete = row['fid']
+                    st.rerun()
+            st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.1);'>", unsafe_allow_html=True)
+
+    if st.session_state.registro_to_delete is not None:
+        target_fid = st.session_state.registro_to_delete
+        st.warning(f"⚠️ Estás a punto de eliminar el registro FID: {target_fid}")
+        confirm = st.text_input("Escribe 'delete' para confirmar:", key="del_confirm_input")
+        
+        c1, c2 = st.columns(2)
+        with c1:
+            if st.button("Confirmar Eliminación", type="primary"):
+                if confirm.strip().lower() == "delete":
+                    try:
+                        ejecutar_sql('DELETE FROM "Agua_potable"."VPRS" WHERE fid = :fid', {"fid": target_fid})
+                        st.success("Registro eliminado.")
+                        st.session_state.registro_to_delete = None
+                        t.sleep(0.5)
+                        st.rerun()
+                    except Exception as ex:
+                        st.error(f"Error al borrar: {ex}")
+                else:
+                    st.error("Debes escribir 'delete'.")
+        with c2:
+            if st.button("Cancelar"):
+                st.session_state.registro_to_delete = None
+                st.rerun()
+
+# --- PIE DE PÁGINA ---
+st.markdown("""
+    <div style="text-align: center; color: #94A3B8; font-size: 0.8rem; margin-top: 2.5rem; border-top: 1px solid rgba(0, 229, 255, 0.12); padding-top: 1rem;">
+        © 2026 MIAA &bull; Sistema de Gestión PostGIS
+    </div>
+""", unsafe_allow_html=True)
