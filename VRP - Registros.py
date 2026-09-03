@@ -409,9 +409,7 @@ elif st.session_state.active_tab == "➕ Añadir":
 
         foto_camara = None
         if st.session_state[cam_key_nuevo]:
-            st.markdown('<div style="background: rgba(0,229,255,0.05); border: 1px dashed #00E5FF; padding: 8px; border-radius: 6px; margin-top: 5px;">', unsafe_allow_html=True)
             foto_camara = st.camera_input("Capturar", key="camara_nuevo", label_visibility="collapsed")
-            st.markdown('</div>', unsafe_allow_html=True)
 
     if st.button("💾 Guardar Registro", key="btn_guardar_nuevo", use_container_width=True):
         if val_id:
@@ -557,11 +555,6 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             nueva_foto_camara = None
             if st.session_state.get(f"cam_open_edit_{row['fid']}", False):
-                st.markdown(f"""
-                    <div style="background: rgba(0, 229, 255, 0.04); border: 1.5px dashed #00E5FF; padding: 12px; border-radius: 6px; margin: 8px 0; box-shadow: 0 0 15px rgba(0,229,255,0.1);">
-                        <p style="color: #00E5FF; font-size: 0.75rem; font-weight: 700; margin-bottom: 6px;">🔴 Cámara en vivo activa (FID: {row['fid']})</p>
-                    </div>
-                """, unsafe_allow_html=True)
                 nueva_foto_camara = st.camera_input("Tomar foto", key=f"cam_edit_{row['fid']}", label_visibility="collapsed")
 
             if actualizar_click:
