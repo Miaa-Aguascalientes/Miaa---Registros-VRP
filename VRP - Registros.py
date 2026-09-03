@@ -319,7 +319,7 @@ if st.session_state.active_tab == "📍 Registros":
             """
             st.markdown(card_html, unsafe_allow_html=True)
             
-            # Contenedor desplegable para el detalle con título simplificado
+            # Contenedor desplegable para el detalle con título simplificado solicitado
             with st.expander("🔍 Ver detalles completos"):
                 detalle_html = f"""
                     <span style="color: #94A3B8; font-size: 0.68rem; line-height: 1.4;">
@@ -492,6 +492,18 @@ elif st.session_state.active_tab == "⚙️ Editar":
         for idx, row in df_vprs.iterrows():
             st.markdown(f"<div style='padding: 0 2px;'><span style='color: #00E5FF; font-weight: bold;'>FID Registro: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span></div>", unsafe_allow_html=True)
             
+            # --- VISUALIZACIÓN DE FOTO ALMACENADA EN LA SECCIÓN DE EDITAR ---
+            foto_actual = row['fotos']
+            if foto_actual is not None and len(foto_actual) > 0:
+                try:
+                    st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 6px; margin-bottom: 2px;'>📸 Fotografía almacenada:</p>", unsafe_allow_html=True)
+                    if isinstance(foto_actual, bytes):
+                        st.image(foto_actual, caption=f"ID: {row['id']}", width=250)
+                    elif isinstance(foto_actual, str) and len(foto_actual) > 10:
+                        st.image(base64.b64decode(foto_actual), caption=f"ID: {row['id']}", width=250)
+                except:
+                    pass
+
             e_r1c1, e_r1c2 = st.columns(2)
             with e_r1c1: 
                 st.text_input("ID_0 (Bloqueado)", value=str(row['id_0'] or 0), disabled=True, key=f"id0_bloq_{row['fid']}")
@@ -534,16 +546,6 @@ elif st.session_state.active_tab == "⚙️ Editar":
             e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
             
             st.markdown("<br>", unsafe_allow_html=True)
-            
-            foto_actual = row['fotos']
-            if foto_actual is not None and len(foto_actual) > 0:
-                try:
-                    if isinstance(foto_actual, bytes):
-                        st.image(foto_actual, caption="Fotografía actual", width=200)
-                    elif isinstance(foto_actual, str) and len(foto_actual) > 10:
-                        st.image(base64.b64decode(foto_actual), caption="Fotografía actual", width=200)
-                except:
-                    pass
 
             st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem; padding: 0 2px;'>📸 Actualizar foto:</p>", unsafe_allow_html=True)
             
