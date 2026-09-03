@@ -53,7 +53,7 @@ def ejecutar_sql(query, params=None):
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
-# --- ESTILOS CSS ---
+# --- ESTILOS CSS CON ANCHO TOTAL AL 100% EN CUADROS Y CONTENEDORES ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
     .block-container {
@@ -72,18 +72,47 @@ st.write("""<style>
         overflow-x: hidden;
     }
     
-    /* Tarjetas de registros en una sola columna con ancho total */
-    .user-card-single {
+    /* REJILLA EXPANDIDA Y FORZADA A BORDE A BORDE */
+    .miaa-grid-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        margin-bottom: 3px !important;
+        padding: 0 !important;
+    }
+
+    /* Anular restricciones y paddings de Streamlit en bloques horizontales */
+    [data-testid="stHorizontalBlock"] {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1px !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    [data-testid="column"] {
+        width: 100% !important;
+        flex: unset !important;
+        min-width: unset !important;
+        max-width: 100% !important;
+        padding: 0 2px !important;
+        margin: 0 !important;
+    }
+
+    /* Tarjetas de registros con ancho total absoluto */
+    .user-card {
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
         border-left: 3px solid #00E5FF;
         border-radius: 2px;
-        padding: 8px 10px;
+        padding: 6px 4px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         word-break: break-word;
         box-sizing: border-box;
         width: 100% !important;
-        margin-bottom: 6px;
+        height: 100% !important;
     }
 
     /* Menú de navegación / Pestañas estilo tarjeta MIAA */
@@ -152,7 +181,7 @@ st.write("""<style>
         opacity: 0.95;
     }
 
-    /* ANCHO TOTAL EN CONTENEDORES DE ENTRADA Y TEXTO */
+    /* FORZAR ANCHO TOTAL EN TODOS LOS CONTENEDORES DE ENTRADA Y TEXTO */
     .stTextInput, .stNumberInput, .stSelectbox, .stDateInput, .stTextArea {
         width: 100% !important;
         max-width: 100% !important;
@@ -245,7 +274,7 @@ if st.session_state.active_tab == "📍 Registros":
             serie_texto = "" if (pd.isna(serie_val) or str(serie_val).strip().lower() in ["nan", "none", ""]) else f" | Serie: {serie_val}"
             
             card_html = f"""
-                <div class="user-card-single">
+                <div class="user-card" style="margin-bottom: 6px;">
                     <span style="font-size: 0.8rem; font-weight: bold; color: #F8FAFC;">ID: {row['id']}{serie_texto}</span><br>
                     <span style="color: #00E5FF; font-size: 0.7rem;">📍 {row['domicilio'] or 'Sin domicilio'}, Col. {row['colonia'] or 'Sin colonia'}</span><br>
                     <span style="color: #94A3B8; font-size: 0.63rem; line-height: 1.25;">
@@ -263,17 +292,17 @@ if st.session_state.active_tab == "📍 Registros":
             if foto_data is not None and len(foto_data) > 0:
                 try:
                     if isinstance(foto_data, bytes):
-                        st.image(foto_data, caption=f"ID: {row['id']}", width=200)
+                        st.image(foto_data, caption=f"ID: {row['id']}", width=250)
                     elif isinstance(foto_data, str) and len(foto_data) > 10:
-                        st.image(base64.b64decode(foto_data), caption=f"ID: {row['id']}", width=200)
+                        st.image(base64.b64decode(foto_data), caption=f"ID: {row['id']}", width=250)
                 except:
                     pass
-            st.markdown("<div style='margin-bottom: 6px;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='margin-bottom: 8px;'></div>", unsafe_allow_html=True)
     else:
         st.info("No se encontraron registros.")
 
 # ==========================================
-# SECCIÓN 2: AÑADIR NUEVA VÁLVULA (DOS COLUMNAS EN CAMPOS)
+# SECCIÓN 2: AÑADIR NUEVA VÁLVULA (MANTIENE 2 COLUMNAS)
 # ==========================================
 elif st.session_state.active_tab == "➕ Añadir":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">✨ Registrar nueva VPRS</h3>', unsafe_allow_html=True)
@@ -366,7 +395,7 @@ elif st.session_state.active_tab == "➕ Añadir":
             st.warning("El campo ID es obligatorio.")
 
 # ==========================================
-# SECCIÓN 3: EDITAR Y ELIMINAR (DOS COLUMNAS EN CAMPOS)
+# SECCIÓN 3: EDITAR Y ELIMINAR (MANTIENE 2 COLUMNAS)
 # ==========================================
 elif st.session_state.active_tab == "⚙️ Editar":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">🛠️ Modificar o Eliminar Válvula</h3>', unsafe_allow_html=True)
