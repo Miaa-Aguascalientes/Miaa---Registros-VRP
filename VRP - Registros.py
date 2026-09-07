@@ -5,6 +5,7 @@ from sqlalchemy import create_engine, text
 import time as t
 from zoneinfo import ZoneInfo
 import base64
+import datetime
 
 # Configuración de página
 st.set_page_config(layout="wide", page_title="Gestion VRP's - MIAA", page_icon="https://www.miaa.mx/favicon.ico")
@@ -102,9 +103,37 @@ def procesar_bytes_foto(foto_data):
             return None
     return None
 
+def parsear_fecha_segura(val_fecha):
+    if pd.isna(val_fecha) or val_fecha is None or str(val_fecha).strip() in ["", "nan", "None"]:
+        return datetime.date.today()
+    if isinstance(val_fecha, (datetime.date, datetime.datetime)):
+        return val_fecha if isinstance(val_fecha, datetime.date) else val_fecha.date()
+    try:
+        return pd.to_datetime(val_fecha).date()
+    except Exception:
+        return datetime.date.today()
+
 # --- ESTILOS CSS CON ANCHO TOTAL AL 100% Y OCULTAR HEADER / MENÚ DE STREAMLIT ---
 st.write("""<style>
-    #MainMenu, header, [data-testid="stHeader"] {visibility: hidden !important; display: none !important;} 
+    /* Ocultar únicamente la cabecera nativa de Streamlit sin afectar los headers del calendario BaseWeb */
+    #MainMenu, [data-testid="stHeader"] {visibility: hidden !important; display: none !important;} 
+    
+    /* REGLA CRÍTICA: Forzar visibilidad del header de mes y año en el calendario */
+    div[data-baseweb="calendar"] header,
+    div[data-baseweb="popover"] header {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        background-color: #0D1424 !important;
+        color: #00E5FF !important;
+    }
+    div[data-baseweb="calendar"] header button,
+    div[data-baseweb="calendar"] header div,
+    div[data-baseweb="calendar"] header svg {
+        color: #00E5FF !important;
+        fill: #00E5FF !important;
+    }
+
     .block-container {
         padding-top: 0rem !important; 
         padding-bottom: 2.5rem !important;
@@ -206,7 +235,7 @@ st.write("""<style>
     }
 
     /* Etiquetas de los inputs */
-    .stTextInput label, .stSelectbox label, .stNumberInput label, [data-testid="stWidgetLabel"] p {
+    .stTextInput label, .stSelectbox label, .stNumberInput label, .stDateInput label, [data-testid="stWidgetLabel"] p {
         color: #E2E8F0 !important;
         font-weight: 600 !important;
         font-size: 0.75rem !important;
@@ -485,7 +514,16 @@ elif st.session_state.active_tab == "➕ Añadir":
 
     r9c1, r9c2 = st.columns(2)
     with r9c1: val_cal_act_n = st.text_input("Cal Actual Noche (kg/cm)", key="add_cactn")
-    with r9c2: val_fecha = st.text_input("Fecha ultima actualización", key="add_fecha")
+    with r9c2: 
+        val_fecha_obj = st.date_input(
+            "Fecha última actualización", 
+            value=datetime.date.today(),
+            min_value=datetime.date(2000, 1, 1),
+            max_value=datetime.date(2035, 12, 31),
+            format="DD/MM/YYYY",
+            key="add_fecha"
+        )
+        val_fecha = val_fecha_obj.strftime("%d/%m/%Y")
 
     val_observ = st.text_input("Observaciones", key="add_obs")
 
@@ -601,7 +639,6 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             if es_operador:
                 # OCULTAR COMPLETAMENTE LOS CAMPOS DE INFRAESTRUCTURA PARA OPERADOR
-                # Preservar sus valores originales en variables para no perderlos al ejecutar SQL
                 e_id = row['id']
                 e_diametro = row['diametro']
                 e_cota = row['cota_terr']
@@ -612,7 +649,6 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 e_domicilio = row['domicilio']
                 e_colonia = row['colonia']
 
-                # Mostrar en pantalla únicamente los campos que el operador puede editar
                 e_r1c1, e_r1c2 = st.columns(2)
                 e_serie_val = "" if (pd.isna(row['serie']) or str(row['serie']).strip().lower() in ["nan", "none"]) else str(row['serie'])
                 with e_r1c1: 
@@ -636,7 +672,16 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 with e_r4c1: 
                     e_cal_act_n = st.text_input("Cal Actual Noche (kg/cm)", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
                 with e_r4c2: 
-                    e_fecha = st.text_input("Fecha ultima actualización", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
+                    fecha_def = parsear_fecha_segura(row['fecha_ult_'])
+                    e_fecha_obj = st.date_input(
+                        "Fecha última actualización", 
+                        value=fecha_def,
+                        min_value=datetime.date(2000, 1, 1),
+                        max_value=datetime.date(2035, 12, 31),
+                        format="DD/MM/YYYY",
+                        key=f"fec_{row['fid']}"
+                    )
+                    e_fecha = e_fecha_obj.strftime("%d/%m/%Y")
 
                 e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
 
@@ -695,7 +740,16 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 with e_r9c1: 
                     e_cal_act_n = st.text_input("Cal Actual Noche (kg/cm)", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
                 with e_r9c2: 
-                    e_fecha = st.text_input("Fecha ultima actualización", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
+                    fecha_def = parsear_fecha_segura(row['fecha_ult_'])
+                    e_fecha_obj = st.date_input(
+                        "Fecha última actualización", 
+                        value=fecha_def,
+                        min_value=datetime.date(2000, 1, 1),
+                        max_value=datetime.date(2035, 12, 31),
+                        format="DD/MM/YYYY",
+                        key=f"fec_{row['fid']}"
+                    )
+                    e_fecha = e_fecha_obj.strftime("%d/%m/%Y")
 
                 e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
             
