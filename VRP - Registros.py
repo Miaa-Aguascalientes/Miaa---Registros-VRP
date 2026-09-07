@@ -414,8 +414,8 @@ if st.session_state.active_tab == "📍 Registros":
                     <span style="color: #94A3B8; font-size: 0.68rem; line-height: 1.4;">
                         Diámetro: {row['diametro']} pulgadas | Marca: {row['marca_valv']} | Modelo: {row['model_valv']} | Trim: {row['marca_trim']} | Cota: {row['cota_terr']}<br>
                         Sector: {row['sector_hid']} | Estado: {row['estat_valv']} | Hora Cal: {row['hora_cal']} | Fecha: {row['fecha_ult_']}<br>
-                        Cal Ant Día: {row['cal_ant_d']} | Cal Ant Noche: {row['cal_ant_n']}<br>
-                        Cal Act Día: {row['cal_act_d']} | Cal Act Noche: {row['cal_act_n']}<br>
+                        Cal Ant Día (kg/cm): {row['cal_ant_d']} | Cal Ant Noche (kg/cm): {row['cal_ant_n']}<br>
+                        Cal Act Día (kg/cm): {row['cal_act_d']} | Cal Act Noche (kg/cm): {row['cal_act_n']}<br>
                         Obs: {row['observ']}
                     </span>
                 """
@@ -477,14 +477,14 @@ elif st.session_state.active_tab == "➕ Añadir":
 
     r7c1, r7c2 = st.columns(2)
     with r7c1: val_hora = st.text_input("Hora Calibración", key="add_hora")
-    with r7c2: val_cal_ant_d = st.text_input("Cal Anterior Día", key="add_cand")
+    with r7c2: val_cal_ant_d = st.text_input("Cal Anterior Día (kg/cm)", key="add_cand")
 
     r8c1, r8c2 = st.columns(2)
-    with r8c1: val_cal_ant_n = st.text_input("Cal Anterior Noche", key="add_cann")
-    with r8c2: val_cal_act_d = st.text_input("Cal Actual Día", key="add_cactd")
+    with r8c1: val_cal_ant_n = st.text_input("Cal Anterior Noche (kg/cm)", key="add_cann")
+    with r8c2: val_cal_act_d = st.text_input("Cal Actual Día (kg/cm)", key="add_cactd")
 
     r9c1, r9c2 = st.columns(2)
-    with r9c1: val_cal_act_n = st.text_input("Cal Actual Noche", key="add_cactn")
+    with r9c1: val_cal_act_n = st.text_input("Cal Actual Noche (kg/cm)", key="add_cactn")
     with r9c2: val_fecha = st.text_input("Fecha Última", key="add_fecha")
 
     val_observ = st.text_input("Observaciones", key="add_obs")
@@ -624,17 +624,17 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 with e_r2c1: 
                     e_hora = st.text_input("Hora Cal", value=str(row['hora_cal'] or ""), key=f"hora_{row['fid']}")
                 with e_r2c2: 
-                    e_cal_ant_d = st.text_input("Cal Anterior Día", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")
+                    e_cal_ant_d = st.text_input("Cal Anterior Día (kg/cm)", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")
 
                 e_r3c1, e_r3c2 = st.columns(2)
                 with e_r3c1: 
-                    e_cal_ant_n = st.text_input("Cal Anterior Noche", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")
+                    e_cal_ant_n = st.text_input("Cal Anterior Noche (kg/cm)", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")
                 with e_r3c2: 
-                    e_cal_act_d = st.text_input("Cal Actual Día", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")
+                    e_cal_act_d = st.text_input("Cal Actual Día (kg/cm)", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")
 
                 e_r4c1, e_r4c2 = st.columns(2)
                 with e_r4c1: 
-                    e_cal_act_n = st.text_input("Cal Actual Noche", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
+                    e_cal_act_n = st.text_input("Cal Actual Noche (kg/cm)", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
                 with e_r4c2: 
                     e_fecha = st.text_input("Fecha Ult", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
 
@@ -683,17 +683,17 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 with e_r7c1: 
                     e_hora = st.text_input("Hora Cal", value=str(row['hora_cal'] or ""), key=f"hora_{row['fid']}")
                 with e_r7c2: 
-                    e_cal_ant_d = st.text_input("Cal Anterior Día", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")
+                    e_cal_ant_d = st.text_input("Cal Anterior Día (kg/cm)", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")
 
                 e_r8c1, e_r8c2 = st.columns(2)
                 with e_r8c1: 
-                    e_cal_ant_n = st.text_input("Cal Anterior Noche", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")
+                    e_cal_ant_n = st.text_input("Cal Anterior Noche (kg/cm)", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")
                 with e_r8c2: 
-                    e_cal_act_d = st.text_input("Cal Actual Día", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")
+                    e_cal_act_d = st.text_input("Cal Actual Día (kg/cm)", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")
 
                 e_r9c1, e_r9c2 = st.columns(2)
                 with e_r9c1: 
-                    e_cal_act_n = st.text_input("Cal Actual Noche", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
+                    e_cal_act_n = st.text_input("Cal Actual Noche (kg/cm)", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
                 with e_r9c2: 
                     e_fecha = st.text_input("Fecha Ult", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
 
