@@ -329,7 +329,7 @@ st.write("""<style>
 if not st.session_state.autenticado:
     st.markdown("""
         <div style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-bottom: 20px; margin-top: 40px;">
-            <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 100px; height: auto;" />
+            <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 140px; height: auto;" />
         </div>
     """, unsafe_allow_html=True)
     
@@ -365,9 +365,9 @@ if not st.session_state.autenticado:
 
 # --- CABECERA ---
 st.markdown("""
-    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px; padding: 0 2px;">
-        <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 85px; height: auto; flex-shrink: 0;" />
-        <div>
+    <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin-bottom: 4px; padding: 0 2px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 140px; height: auto; flex-shrink: 0;" />
             <h2 style="color: #00E5FF; margin: 0; font-size: 1.1rem; font-weight: 800; line-height: 1.2;">Gestion VRP's</h2>
         </div>
     </div>
