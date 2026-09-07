@@ -124,7 +124,7 @@ def parsear_fecha_segura(val_fecha):
     except Exception:
         return datetime.date.today()
 
-# --- ESTILOS CSS CON SOPORTE DE PANTALLA COMPLETA Y MÁXIMA ALTURA ---
+# --- ESTILOS CSS CON MODO PANTALLA COMPLETA NATIVA OPTIMIZADA PARA MÓVIL ---
 st.write("""<style>
     #MainMenu, [data-testid="stHeader"] {visibility: hidden !important; display: none !important;} 
     
@@ -307,82 +307,55 @@ st.write("""<style>
         display: none !important;
     }
     
-    /* CÁMARA EXPANDIDA MÁXIMA EN PANTALLA COMPLETA */
+    /* --- PANTALLA COMPLETA ABSOLUTA PARA LA CÁMARA MÓVIL --- */
     [data-testid="stCameraInput"] {
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-    [data-testid="stCameraInput"] > div {
-        width: 100% !important;
-        max-width: 100% !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        z-index: 999999 !important;
+        background-color: #000000 !important;
         display: flex !important;
         flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 10px !important;
+        box-sizing: border-box !important;
+    }
+    
+    [data-testid="stCameraInput"] > div {
+        width: 100% !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
         align-items: center !important;
     }
-    /* Alturas maximizadas para ocupar casi toda la pantalla del celular */
+
+    /* El video se expande cubriendo toda la pantalla del teléfono */
     [data-testid="stCameraInput"] video, 
     [data-testid="stCameraInput"] img {
         width: 100% !important;
-        max-width: 100% !important;
-        height: auto !important;
-        min-height: 72vh !important; 
-        max-height: 85vh !important; 
+        height: 78vh !important;
         object-fit: cover !important;   
-        border-radius: 6px !important;
-        position: relative !important;
+        border-radius: 8px !important;
     }
+
+    /* Botón de captura estilizado grande en pantalla completa */
     [data-testid="stCameraInput"] button {
-        width: 100% !important;
-        margin-top: 10px !important;
-        position: relative !important;
-        z-index: 5 !important;
+        width: 90% !important;
+        background: linear-gradient(135deg, #0077b6 0%, #00b4d8 100%) !important;
+        color: #ffffff !important;
+        font-size: 1.1rem !important;
+        font-weight: bold !important;
+        padding: 14px !important;
+        border-radius: 8px !important;
+        border: 2px solid #00E5FF !important;
+        box-shadow: 0 0 20px rgba(0,229,255,0.5) !important;
+        margin-bottom: 20px !important;
     }
 </style>""", unsafe_allow_html=True)
-
-# --- SCRIPT JAVASCRIPT PARA PANTALLA COMPLETA (FULLSCREEN) ---
-def render_fullscreen_script(element_id_key):
-    import streamlit.components.v1 as components
-    components.html(f"""
-        <div style="display: flex; justify-content: center; margin-bottom: 8px;">
-            <button id="fs-btn-{element_id_key}" onclick="toggleFullScreen()" style="
-                background: linear-gradient(135deg, #0077b6 0%, #00b4d8 100%);
-                color: white;
-                border: 1px solid #00E5FF;
-                padding: 10px 16px;
-                font-size: 14px;
-                font-weight: bold;
-                border-radius: 6px;
-                cursor: pointer;
-                width: 100%;
-                box-shadow: 0 4px 10px rgba(0,229,255,0.3);
-            ">🔲 Pantalla Completa (Maximizar Cámara)</button>
-        </div>
-        <script>
-            function toggleFullScreen() {{
-                // Busca el contenedor de la cámara de Streamlit en el documento principal padre
-                const doc = window.parent.document;
-                const cameraContainer = doc.querySelector('[data-testid="stCameraInput"]');
-                
-                if (cameraContainer) {{
-                    if (!doc.fullscreenElement && !doc.webkitFullscreenElement) {{
-                        if (cameraContainer.requestFullscreen) {{
-                            cameraContainer.requestFullscreen();
-                        }} else if (cameraContainer.webkitRequestFullscreen) {{
-                            cameraContainer.webkitRequestFullscreen();
-                        }}
-                    }} else {{
-                        if (doc.exitFullscreen) {{
-                            doc.exitFullscreen();
-                        }} else if (doc.webkitExitFullscreen) {{
-                            doc.webkitExitFullscreen();
-                        }}
-                    }}
-                }} else {{
-                    alert("Activa primero la cámara para usar la pantalla completa.");
-                }}
-            }}
-        </script>
-    """, height=45)
 
 # --- SISTEMA DE LOGIN CONECTADO A MYSQL ---
 if not st.session_state.autenticado:
@@ -631,7 +604,6 @@ elif st.session_state.active_tab == "➕ Añadir":
 
     foto_camara = None
     if st.session_state[cam_key_nuevo]:
-        render_fullscreen_script("nuevo_1")
         foto_camara = st.camera_input("Capturar 1", key="camara_nuevo", label_visibility="collapsed")
 
     st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.8rem; padding: 0 2px; margin-top: 10px;'>📸 Fotografía 2:</p>", unsafe_allow_html=True)
@@ -651,7 +623,6 @@ elif st.session_state.active_tab == "➕ Añadir":
 
     foto_camara_2 = None
     if st.session_state[cam_key_nuevo_2]:
-        render_fullscreen_script("nuevo_2")
         foto_camara_2 = st.camera_input("Capturar 2", key="camara_nuevo_2", label_visibility="collapsed")
 
     if st.button("💾 Guardar Registro", key="btn_guardar_nuevo", use_container_width=True):
@@ -869,7 +840,6 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             nueva_foto_camara = None
             if st.session_state.get(f"cam_open_edit_{row['fid']}", False):
-                render_fullscreen_script(f"edit_1_{row['fid']}")
                 nueva_foto_camara = st.camera_input("Tomar foto 1", key=f"cam_edit_{row['fid']}", label_visibility="collapsed")
 
             # --- FOTO 2 ---
@@ -898,7 +868,6 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             nueva_foto_camara_2 = None
             if st.session_state.get(f"cam_open_edit_2_{row['fid']}", False):
-                render_fullscreen_script(f"edit_2_{row['fid']}")
                 nueva_foto_camara_2 = st.camera_input("Tomar foto 2", key=f"cam_edit_2_{row['fid']}", label_visibility="collapsed")
 
             st.markdown("<br>", unsafe_allow_html=True)
