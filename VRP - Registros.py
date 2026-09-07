@@ -364,20 +364,29 @@ if not st.session_state.autenticado:
     st.stop()
 
 # --- CABECERA ---
-st.markdown("""
-    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 5px; padding: 0 2px;">
-        <div style="display: flex; align-items: center; gap: 8px;">
+col_cab1, col_cab2, col_cab3 = st.columns([0.55, 0.25, 0.2])
+
+with col_cab1:
+    st.markdown("""
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px; padding: 0 2px;">
             <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 85px; height: auto; flex-shrink: 0;" />
             <div>
                 <h2 style="color: #00E5FF; margin: 0; font-size: 1.1rem; font-weight: 800; line-height: 1.2;">Gestion VRP's</h2>
             </div>
         </div>
-    </div>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
-if st.button("Cerrar Sesión", key="btn_logout"):
-    st.session_state.autenticado = False
-    st.rerun()
+with col_cab2:
+    st.markdown(f"""
+        <div style="display: flex; justify-content: flex-end; align-items: center; height: 100%; margin-top: 10px;">
+            <span style="color: #00E5FF; font-weight: 700; font-size: 0.85rem;">👤 {st.session_state.usuario_actual}</span>
+        </div>
+    """, unsafe_allow_html=True)
+
+with col_cab3:
+    if st.button("Cerrar Sesión", key="btn_logout"):
+        st.session_state.autenticado = False
+        st.rerun()
 
 # --- DETERMINAR ROL DEL USUARIO ---
 es_operador = (st.session_state.get('tipo_usuario', '') == 'operador')
