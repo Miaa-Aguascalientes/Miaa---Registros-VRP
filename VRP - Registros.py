@@ -307,7 +307,7 @@ st.write("""<style>
         display: none !important;
     }
     
-    /* CORRECCIÓN DE CÁMARA CON MAYOR ALTURA Y ORDEN FLEX VERTICAL */
+    /* CORRECCIÓN DE CÁMARA CON MÁXIMA ALTURA VERTICAL Y ORDEN FLEX */
     [data-testid="stCameraInput"] {
         width: 100% !important;
         max-width: 100% !important;
@@ -319,19 +319,19 @@ st.write("""<style>
         flex-direction: column !important;
         align-items: center !important;
     }
-    /* Visor de video/imagen con mayor altura vertical */
+    /* Visor de video/imagen con altura extra incrementada */
     [data-testid="stCameraInput"] video, 
     [data-testid="stCameraInput"] img {
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        min-height: 500px !important; /* Incrementado para mayor altura */
-        max-height: 650px !important; /* Incrementado para mayor altura */
-        object-fit: cover !important;   /* Rellena perfectamente el cuadro vertical */
+        min-height: 650px !important; /* Altura aumentada significativamente */
+        max-height: 850px !important; /* Altura aumentada significativamente */
+        object-fit: cover !important;   /* Llena de forma perfecta el espacio vertical */
         border-radius: 6px !important;
         position: relative !important;
     }
-    /* Botón de captura ubicado ordenadamente debajo */
+    /* Botón de captura colocado ordenadamente justo debajo */
     [data-testid="stCameraInput"] button {
         width: 100% !important;
         margin-top: 10px !important;
