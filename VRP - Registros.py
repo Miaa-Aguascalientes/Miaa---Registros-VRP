@@ -124,12 +124,10 @@ def parsear_fecha_segura(val_fecha):
     except Exception:
         return datetime.date.today()
 
-# --- ESTILOS CSS CON ANCHO TOTAL Y CORRECCIÓN DE POSICIONAMIENTO EN CÁMARA ---
+# --- ESTILOS CSS CON ANCHO TOTAL Y MAYOR ALTURA EN CÁMARA ---
 st.write("""<style>
-    /* Ocultar únicamente la cabecera nativa de Streamlit sin afectar los headers del calendario BaseWeb */
     #MainMenu, [data-testid="stHeader"] {visibility: hidden !important; display: none !important;} 
     
-    /* REGLA CRÍTICA: Forzar visibilidad del header de mes y año en el calendario */
     div[data-baseweb="calendar"] header,
     div[data-baseweb="popover"] header {
         display: flex !important;
@@ -161,7 +159,6 @@ st.write("""<style>
         overflow-x: hidden;
     }
     
-    /* REJILLA EXPANDIDA Y FORZADA A BORDE A BORDE */
     .miaa-grid-container {
         display: grid;
         grid-template-columns: repeat(2, 1fr) !important;
@@ -172,7 +169,6 @@ st.write("""<style>
         padding: 0 !important;
     }
 
-    /* Anular restricciones y paddings de Streamlit en bloques horizontales */
     [data-testid="stHorizontalBlock"] {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
@@ -190,7 +186,6 @@ st.write("""<style>
         margin: 0 !important;
     }
 
-    /* Tarjetas de registros con ancho total absoluto */
     .user-card {
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
@@ -204,7 +199,6 @@ st.write("""<style>
         height: 100% !important;
     }
 
-    /* Menú de navegación / Pestañas estilo tarjeta MIAA */
     div.row-widget.stRadio > div {
         display: flex;
         flex-direction: row;
@@ -245,7 +239,6 @@ st.write("""<style>
         font-weight: 700 !important;
     }
 
-    /* Etiquetas de los inputs */
     .stTextInput label, .stSelectbox label, .stNumberInput label, .stDateInput label, [data-testid="stWidgetLabel"] p {
         color: #E2E8F0 !important;
         font-weight: 600 !important;
@@ -255,7 +248,6 @@ st.write("""<style>
         text-overflow: ellipsis !important;
     }
 
-    /* Botones principales */
     .stButton>button {
         background: linear-gradient(135deg, #023e8a 0%, #0077b6 100%) !important;
         color: #FFFFFF !important;
@@ -274,7 +266,6 @@ st.write("""<style>
         opacity: 1;
     }
 
-    /* FORZAR ANCHO TOTAL Y MAYOR EXPANSIÓN LATERAL EN TODOS LOS CUADROS DE TEXTO Y ENTRADAS */
     .stTextInput, .stNumberInput, .stSelectbox, .stDateInput, .stTextArea {
         width: 100% !important;
         max-width: 100% !important;
@@ -299,7 +290,6 @@ st.write("""<style>
         width: 100% !important;
     }
 
-    /* ESTILO PARA EL EXPANDER DENTRO DE LOS REGISTROS */
     [data-testid="stExpander"] {
         background-color: #080C14 !important;
         border: 1px solid rgba(0, 229, 255, 0.15) !important;
@@ -317,7 +307,7 @@ st.write("""<style>
         display: none !important;
     }
     
-    /* CORRECCIÓN DE CÁMARA: ESTRUCTURA FLEX PARA EVITAR SOLAPAMIENTO DEL BOTÓN */
+    /* CORRECCIÓN DE CÁMARA CON MAYOR ALTURA Y ORDEN FLEX VERTICAL */
     [data-testid="stCameraInput"] {
         width: 100% !important;
         max-width: 100% !important;
@@ -329,22 +319,22 @@ st.write("""<style>
         flex-direction: column !important;
         align-items: center !important;
     }
-    /* Contenedor del video/imagen para que no colapse con el botón */
+    /* Visor de video/imagen con mayor altura vertical */
     [data-testid="stCameraInput"] video, 
     [data-testid="stCameraInput"] img {
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        min-height: 350px !important;
-        max-height: 450px !important;
-        object-fit: contain !important; /* Mantiene la proporción sin recortar de más */
+        min-height: 500px !important; /* Incrementado para mayor altura */
+        max-height: 650px !important; /* Incrementado para mayor altura */
+        object-fit: cover !important;   /* Rellena perfectamente el cuadro vertical */
         border-radius: 6px !important;
         position: relative !important;
     }
-    /* Estilo del botón de captura para que se ubique ordenadamente debajo de la imagen */
+    /* Botón de captura ubicado ordenadamente debajo */
     [data-testid="stCameraInput"] button {
         width: 100% !important;
-        margin-top: 8px !important;
+        margin-top: 10px !important;
         position: relative !important;
         z-index: 5 !important;
     }
@@ -688,14 +678,12 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             e_id_0 = row['id_0']
 
-            # Calcular el índice por defecto para Estado de la Válvula
             estado_actual = str(row['estat_valv'] or "").strip()
             idx_estado = 0
             if estado_actual in OPCIONES_ESTADO_VALVULA:
                 idx_estado = OPCIONES_ESTADO_VALVULA.index(estado_actual)
 
             if es_operador:
-                # OCULTAR COMPLETAMENTE LOS CAMPOS DE INFRAESTRUCTURA PARA OPERADOR
                 e_id = row['id']
                 e_diametro = row['diametro']
                 e_cota = row['cota_terr']
@@ -743,7 +731,6 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
 
             else:
-                # VISTA COMPLETA (ADMINISTRADOR / OTROS ROLES)
                 e_r1c1, e_r1c2 = st.columns(2)
                 with e_r1c1: 
                     st.text_input("ID_0 (Bloqueado)", value=str(row['id_0'] or 0), disabled=True, key=f"id0_bloq_{row['fid']}")
