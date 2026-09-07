@@ -9,6 +9,9 @@ import base64
 # Configuración de página
 st.set_page_config(layout="wide", page_title="Gestion VRP's - MIAA", page_icon="https://www.miaa.mx/favicon.ico")
 
+# Opciones predefinidas para Estado de la Válvula
+OPCIONES_ESTADO_VALVULA = ["No opera", "Calibrada", "Abierta", "Habilitada", "Pendiente", "Dañada"]
+
 # --- ESTADO DE SESIÓN ---
 if 'registro_to_delete' not in st.session_state: st.session_state.registro_to_delete = None
 if 'active_tab' not in st.session_state: st.session_state.active_tab = "📍 Registros"
@@ -473,7 +476,7 @@ elif st.session_state.active_tab == "➕ Añadir":
 
     r6c1, r6c2 = st.columns(2)
     with r6c1: val_colonia = st.text_input("Colonia", key="add_col")
-    with r6c2: val_estat = st.text_input("Estado Válvula", key="add_estat")
+    with r6c2: val_estat = st.selectbox("Estado de la Válvula", options=OPCIONES_ESTADO_VALVULA, key="add_estat")
 
     r7c1, r7c2 = st.columns(2)
     with r7c1: val_hora = st.text_input("Hora Calibración", key="add_hora")
@@ -599,6 +602,10 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             e_id_0 = row['id_0']
 
+            # Determinar índice del estado actual para el selectbox
+            val_estat_actual = str(row['estat_valv'] or "").strip()
+            idx_estat = OPCIONES_ESTADO_VALVULA.index(val_estat_actual) if val_estat_actual in OPCIONES_ESTADO_VALVULA else 0
+
             if es_operador:
                 # OCULTAR COMPLETAMENTE LOS CAMPOS DE INFRAESTRUCTURA PARA OPERADOR
                 # Preservar sus valores originales en variables para no perderlos al ejecutar SQL
@@ -618,7 +625,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 with e_r1c1: 
                     e_serie = st.text_input("Serie", value=e_serie_val, key=f"serie_{row['fid']}")
                 with e_r1c2: 
-                    e_estat = st.text_input("Estado Valv", value=str(row['estat_valv'] or ""), key=f"est_{row['fid']}")
+                    e_estat = st.selectbox("Estado de la Válvula", options=OPCIONES_ESTADO_VALVULA, index=idx_estat, key=f"est_{row['fid']}")
 
                 e_r2c1, e_r2c2 = st.columns(2)
                 with e_r2c1: 
@@ -677,7 +684,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 with e_r6c1: 
                     e_colonia = st.text_input("Colonia", value=str(row['colonia'] or ""), key=f"col_{row['fid']}")
                 with e_r6c2: 
-                    e_estat = st.text_input("Estado Valv", value=str(row['estat_valv'] or ""), key=f"est_{row['fid']}")
+                    e_estat = st.selectbox("Estado de la Válvula", options=OPCIONES_ESTADO_VALVULA, index=idx_estat, key=f"est_{row['fid']}")
 
                 e_r7c1, e_r7c2 = st.columns(2)
                 with e_r7c1: 
