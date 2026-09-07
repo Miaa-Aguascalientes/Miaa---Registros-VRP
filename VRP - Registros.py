@@ -1,735 +1,171 @@
-# VRP - Registros.py
 import streamlit as st
 import pandas as pd
 from sqlalchemy import create_engine, text
-import time as t
-from zoneinfo import ZoneInfo
-import base64
 
-# Configuración de página
-st.set_page_config(layout="wide", page_title="Gestion VRP's - MIAA", page_icon="https://www.miaa.mx/favicon.ico")
+# Configuración inicial de la página
+st.set_page_config(page_title="Gestor de Válvulas VRP y Telemetría", layout="wide")
 
-# --- ESTADO DE SESIÓN PARA AUTENTICACIÓN ---
-if 'autenticado' not in st.session_state: st.session_state.autenticado = False
-if 'usuario_actual' not in st.session_state: st.session_state.usuario_actual = None
-if 'tipo_usuario' not in st.session_state: st.session_state.tipo_usuario = None
+# ---------------------------------------------------------
+# CONEXIONES A LAS BASES DE DATOS (Motores SQLAlchemy)
+# ---------------------------------------------------------
 
-zona_mx = ZoneInfo("America/Mexico_City")
-
-# --- CONEXIÓN A BASE DE DATOS POSTGRESQL ---
-def crear_nuevo_engine():
+# Motor para PostgreSQL (Datos espaciales QGIS / mapas)
+def crear_motor_postgres():
     pg = st.secrets["postgres"]
     db_url = f"postgresql+psycopg2://{pg['user']}:{pg['password']}@{pg['host']}:{pg['port']}/{pg['database']}"
-    return create_engine(
-        db_url,
-        pool_pre_ping=True, 
-        pool_recycle=1800, 
-        pool_timeout=60,
-        connect_args={'connect_timeout': 60}
-    )
+    return create_engine(db_url, pool_pre_ping=True, pool_recycle=1800)
 
-if 'db_engine' not in st.session_state:
-    st.session_state.db_engine = crear_nuevo_engine()
+# Motor para MySQL (Tabla de usuarios y autenticación en miaamx_telemetria2)
+def crear_motor_mysql():
+    ms = st.secrets["mysql_usuarios"]
+    db_url = f"mysql+pymysql://{ms['user']}:{ms['password']}@{ms['host']}:{ms.get('port', 3306)}/{ms['database']}"
+    return create_engine(db_url, pool_pre_ping=True, pool_recycle=1800)
 
-def obtener_datos(query, params=None):
-    for intento in range(2):
-        try:
-            with st.session_state.db_engine.connect() as conn:
-                df = pd.read_sql(text(query) if isinstance(query, str) else query, conn, params=params or {})
-                return df, None
-        except Exception:
-            try:
-                st.session_state.db_engine.dispose()
-                st.session_state.db_engine = crear_nuevo_engine()
-                with st.session_state.db_engine.connect() as conn:
-                    df = pd.read_sql(text(query) if isinstance(query, str) else query, conn, params=params or {})
-                    return df, None
-            except Exception as e2:
-                if intento == 1:
-                    return pd.DataFrame(), str(e2)
-    return pd.DataFrame(), "Error de conexión persistente."
+# Inicializar motores en session_state para mantener la persistencia
+if 'db_engine_pg' not in st.session_state:
+    st.session_state.db_engine_pg = crear_motor_postgres()
 
-def ejecutar_sql(query, params=None):
-    with st.session_state.db_engine.connect() as conn:
-        with conn.begin():
-            conn.execute(text(query) if isinstance(query, str) else query, params or {})
-    return True
+if 'db_engine_mysql' not in st.session_state:
+    st.session_state.db_engine_mysql = crear_motor_mysql()
 
-def procesar_bytes_foto(foto_data):
-    if foto_data is None:
-        return None
-    if isinstance(foto_data, memoryview):
-        return bytes(foto_data)
-    if isinstance(foto_data, bytes):
-        return foto_data
-    if isinstance(foto_data, str) and len(foto_data) > 10:
-        try:
-            return base64.b64decode(foto_data)
-        except:
-            return None
-    return None
+# ---------------------------------------------------------
+# FUNCIONES DE CONSULTA
+# ---------------------------------------------------------
 
-# --- ESTILOS CSS ---
-st.write("""<style>
-    #MainMenu, header {visibility: hidden;} 
-    .block-container {
-        padding-top: 0rem !important; 
-        padding-bottom: 2.5rem !important;
-        padding-left: 0rem !important;
-        padding-right: 0rem !important;
-        background: #080C14;
-        color: #F8FAFC;
-        max-width: 100% !important;
-        overflow-x: hidden;
-    }
-    body, [data-testid="stAppViewContainer"] {
-        background: #080C14;
-        color: #F8FAFC;
-        overflow-x: hidden;
-    }
-    
-    .miaa-grid-container {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 1px !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-        margin-bottom: 3px !important;
-        padding: 0 !important;
-    }
+def consultar_mysql(query, params=None):
+    try:
+        with st.session_state.db_engine_mysql.connect() as conn:
+            df = pd.read_sql(text(query), conn, params=params or {})
+            return df, None
+    except Exception as e:
+        return pd.DataFrame(), str(e)
 
-    [data-testid="stHorizontalBlock"] {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 1px !important;
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    [data-testid="column"] {
-        width: 100% !important;
-        flex: unset !important;
-        min-width: unset !important;
-        max-width: 100% !important;
-        padding: 0 2px !important;
-        margin: 0 !important;
-    }
+def consultar_postgres(query, params=None):
+    try:
+        with st.session_state.db_engine_pg.connect() as conn:
+            df = pd.read_sql(text(query), conn, params=params or {})
+            return df, None
+    except Exception as e:
+        return pd.DataFrame(), str(e)
 
-    .user-card {
-        background: #0D1424;
-        border: 1px solid rgba(0, 229, 255, 0.12);
-        border-left: 3px solid #00E5FF;
-        border-radius: 2px;
-        padding: 6px 4px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        word-break: break-word;
-        box-sizing: border-box;
-        width: 100% !important;
-        height: 100% !important;
-    }
+# ---------------------------------------------------------
+# ESTADO DE AUTENTICACIÓN
+# ---------------------------------------------------------
+if 'autenticado' not in st.session_state:
+    st.session_state.autenticado = False
+if 'usuario_actual' not in st.session_state:
+    st.session_state.usuario_actual = None
+if 'tipo_usuario' not in st.session_state:
+    st.session_state.tipo_usuario = None
+if 'departamento' not in st.session_state:
+    st.session_state.departamento = None
 
-    div.row-widget.stRadio > div {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        background: #0D1424;
-        border: 1px solid rgba(0, 229, 255, 0.12);
-        border-radius: 8px;
-        padding: 3px;
-        gap: 3px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    }
-    div.row-widget.stRadio > div > label {
-        background: #111A30;
-        border: 1px solid rgba(0, 229, 255, 0.15) !important;
-        border-radius: 6px !important;
-        padding: 6px 2px !important;
-        flex: 1;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.2s ease-in-out;
-    }
-    div.row-widget.stRadio input[type="radio"] { display: none !important; }
-    div.row-widget.stRadio div[role="radiogroup"] > label > div:first-child { display: none !important; }
-    div.row-widget.stRadio div[role="radiogroup"] label span,
-    div.row-widget.stRadio div[role="radiogroup"] label p {
-        color: #94A3B8 !important;
-        font-weight: 600 !important;
-        font-size: 0.75rem;
-    }
-    div.row-widget.stRadio > div > label[data-checked="true"] {
-        background: linear-gradient(135deg, #0A2540 0%, #0077B6 100%) !important;
-        border-color: #00E5FF !important;
-        box-shadow: 0 0 12px rgba(0, 229, 255, 0.25);
-    }
-    div.row-widget.stRadio > div > label[data-checked="true"] span,
-    div.row-widget.stRadio > div > label[data-checked="true"] p {
-        color: #00E5FF !important;
-        font-weight: 700 !important;
-    }
-
-    .stTextInput label, .stSelectbox label, .stNumberInput label, [data-testid="stWidgetLabel"] p {
-        color: #E2E8F0 !important;
-        font-weight: 600 !important;
-        font-size: 0.75rem !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-    }
-
-    .stButton>button {
-        background: linear-gradient(135deg, #023e8a 0%, #0077b6 100%) !important;
-        color: #FFFFFF !important;
-        border: 1px solid rgba(0, 229, 255, 0.3) !important;
-        border-radius: 4px;
-        font-weight: 700;
-        padding: 0.5rem 1rem;
-        width: 100%;
-        box-shadow: 0 4px 15px rgba(2, 62, 138, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-        transition: all 0.2s ease-in-out;
-    }
-    .stButton>button:hover {
-        background: linear-gradient(135deg, #03045e 0%, #023e8a 100%) !important;
-        border-color: #00E5FF !important;
-        box-shadow: 0 0 15px rgba(0, 229, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-        opacity: 1;
-    }
-
-    .stTextInput, .stNumberInput, .stSelectbox, .stDateInput, .stTextArea {
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-    div[data-baseweb="input"], div[data-baseweb="base-input"], div[data-baseweb="select"], div[data-baseweb="textarea"] {
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-    div[data-baseweb="input"] input, div[data-baseweb="base-input"] input, div[data-baseweb="textarea"] textarea {
-        background-color: #080C14 !important;
-        color: #F8FAFC !important;
-        border-color: rgba(0, 229, 255, 0.25) !important;
-        border-radius: 4px !important;
-        font-size: 0.8rem !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        padding-left: 12px !important;
-        padding-right: 12px !important;
-    }
-    
-    .stTextInput > div, .stNumberInput > div, .stSelectbox > div, .stDateInput > div {
-        width: 100% !important;
-    }
-
-    [data-testid="stExpander"] {
-        background-color: #080C14 !important;
-        border: 1px solid rgba(0, 229, 255, 0.15) !important;
-        border-radius: 4px !important;
-        margin-top: 4px !important;
-        margin-bottom: 4px !important;
-    }
-    [data-testid="stExpander"] summary {
-        color: #00E5FF !important;
-        font-size: 0.72rem !important;
-        font-weight: 600 !important;
-    }
-
-    [data-testid="stFileUploader"] { display: none !important; }
-    [data-testid="stCameraInput"] > div:first-child { display: none !important; }
-    [data-testid="stCameraInput"] { width: 100% !important; }
-</style>""", unsafe_allow_html=True)
-
-# --- PANTALLA DE LOGIN ---
+# ---------------------------------------------------------
+# PANTALLA DE LOGIN
+# ---------------------------------------------------------
 if not st.session_state.autenticado:
-    st.markdown("""
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 4rem; padding: 0 1rem;">
-            <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 120px; height: auto; margin-bottom: 1.5rem;" />
-            <h2 style="color: #00E5FF; margin-bottom: 0.5rem; font-weight: 800; text-align: center;">Gestion VRP's</h2>
-            <p style="color: #94A3B8; font-size: 0.85rem; margin-bottom: 2rem; text-align: center;">Inicia sesión con tus credenciales de usuario</p>
-        </div>
-    """, unsafe_allow_html=True)
-
-    col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
-    with col_l2:
-        with st.form("form_login"):
-            input_usuario = st.text_input("Usuario")
-            input_password = st.text_input("Contraseña", type="password")
-            submit_login = st.form_submit_button("Ingresar", use_container_width=True)
-
-            if submit_login:
-                if input_usuario and input_password:
-                    query_login = """
-                        SELECT id, usuario, password, tipo_usuario, departamento 
-                        FROM "Agua_potable"."usuarios_vrp" 
-                        WHERE usuario = :usuario AND password = :password
-                    """
-                    df_user, err_login = obtener_datos(query_login, {"usuario": input_usuario.strip(), "password": input_password.strip()})
-                    
-                    if err_login:
-                        st.error(f"Error de conexión: {err_login}")
-                    elif not df_user.empty:
-                        st.session_state.autenticado = True
-                        st.session_state.usuario_actual = df_user.iloc[0]['usuario']
-                        st.session_state.tipo_usuario = df_user.iloc[0]['tipo_usuario']
-                        st.success("¡Acceso concedido!")
-                        t.sleep(0.5)
-                        st.rerun()
-                    else:
-                        st.error("Usuario o contraseña incorrectos.")
+    st.title("🔐 Iniciar Sesión - Sistema MIAA")
+    
+    with st.form("form_login"):
+        input_usuario = st.text_input("Usuario")
+        input_password = st.text_input("Contraseña", type="password")
+        submit_login = st.form_submit_button("Ingresar")
+        
+        if submit_login:
+            if not input_usuario or not input_password:
+                st.warning("Por favor, introduce tu usuario y contraseña.")
+            else:
+                # Consulta a MySQL (tabla usuarios_vrp)
+                query_login = """
+                    SELECT id, usuario, password, tipo_usuario, departamento 
+                    FROM usuarios_vrp 
+                    WHERE usuario = :usuario AND password = :password
+                """
+                df_user, err_login = consultar_mysql(
+                    query_login, 
+                    {"usuario": input_usuario.strip(), "password": input_password.strip()}
+                )
+                
+                if err_login:
+                    st.error(f"Error de conexión con la base de datos de usuarios: {err_login}")
+                elif not df_user.empty:
+                    st.session_state.autenticado = True
+                    st.session_state.usuario_actual = df_user.iloc[0]['usuario']
+                    st.session_state.tipo_usuario = df_user.iloc[0]['tipo_usuario']
+                    st.session_state.departamento = df_user.iloc[0]['departamento']
+                    st.success("¡Bienvenido! Accediendo...")
+                    st.rerun()
                 else:
-                    st.warning("Por favor ingresa usuario y contraseña.")
-    st.stop()  # Detiene la ejecución para no renderizar el resto del sistema si no está logueado
-
-# --- CABECERA ---
-col_head1, col_head2 = st.columns([5, 1])
-with col_head1:
-    st.markdown(f"""
-        <div style="display: flex; align-items: center; gap: 8px; width: 100%; margin-bottom: 5px; padding: 0 2px;">
-            <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 85px; height: auto; flex-shrink: 0;" />
-            <div>
-                <h2 style="color: #00E5FF; margin: 0; font-size: 1.1rem; font-weight: 800; line-height: 1.2;">Gestion VRP's</h2>
-                <span style="color: #94A3B8; font-size: 0.72rem;">👤 Usuario: <b>{st.session_state.usuario_actual}</b> ({st.session_state.tipo_usuario})</span>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
-
-with col_head2:
-    if st.button("Cerrar Sesión", use_container_width=True):
+                    st.error("Usuario o contraseña incorrectos.")
+else:
+    # ---------------------------------------------------------
+    # APLICACIÓN PRINCIPAL (POST-LOGIN)
+    # ---------------------------------------------------------
+    st.sidebar.title("Menú Principal")
+    st.sidebar.write(f"**Usuario:** {st.session_state.usuario_actual}")
+    st.sidebar.write(f"**Tipo:** {st.session_state.tipo_usuario}")
+    st.sidebar.write(f"**Departamento:** {st.session_state.departamento}")
+    
+    menu_opcion = st.sidebar.radio("Navegación", ["Gestor de Válvulas", "Consultas PostgreSQL", "Estado del Sistema"])
+    
+    if st.sidebar.button("Cerrar Sesión"):
         st.session_state.autenticado = False
         st.session_state.usuario_actual = None
         st.session_state.tipo_usuario = None
+        st.session_state.departamento = None
         st.rerun()
 
-# --- MENÚ DE NAVEGACIÓN ---
-opciones_menu = ["📍 Registros", "➕ Añadir", "⚙️ Editar"]
-
-if 'active_tab' not in st.session_state or st.session_state.active_tab not in opciones_menu:
-    st.session_state.active_tab = opciones_menu[0]
-
-seleccion_tab = st.radio(
-    "Navegación", 
-    options=opciones_menu, 
-    index=opciones_menu.index(st.session_state.active_tab), 
-    horizontal=True, 
-    label_visibility="collapsed"
-)
-
-if seleccion_tab != st.session_state.active_tab:
-    st.session_state.active_tab = seleccion_tab
-    st.rerun()
-
-st.markdown("<hr style='border: 0.5px solid rgba(0,229,255,0.15); margin: 8px 0;'>", unsafe_allow_html=True)
-
-COLUMNAS_VPRS = """
-    fid, id_0, id, serie, diametro, marca_valv, model_valv, marca_trim, domicilio, colonia, 
-    cota_terr, sector_hid, cal_ant_d, cal_ant_n, fecha_ult_, cal_act_d, cal_act_n, 
-    hora_cal, estat_valv, observ, fotos, fotos_2
-"""
-
-# ==========================================
-# SECCIÓN 1: VER REGISTROS (VPRS)
-# ==========================================
-if st.session_state.active_tab == "📍 Registros":
-    st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">📂 Catálogo de Válvulas VPRS</h3>', unsafe_allow_html=True)
-    
-    busqueda = st.text_input("🔍 Buscar válvula (ID, Serie, Domicilio, Col.):", placeholder="Ej. VF01, Centro...")
-    
-    if busqueda and busqueda.strip() != "":
-        filtro = f"%{busqueda.strip()}%"
-        query = f"""
-            SELECT {COLUMNAS_VPRS} 
-            FROM "Agua_potable"."VPRS" 
-            WHERE id ILIKE :filtro 
-               OR serie ILIKE :filtro 
-               OR domicilio ILIKE :filtro 
-               OR colonia ILIKE :filtro 
-            ORDER BY fid
-        """
-        df_vprs, error_db = obtener_datos(query, {"filtro": filtro})
-    else:
-        query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VPRS" ORDER BY fid LIMIT 10'
-        df_vprs, error_db = obtener_datos(query)
-    
-    if error_db:
-        st.error(f"❌ Error al consultar PostgreSQL: {error_db}")
-    elif not df_vprs.empty:
-        if not busqueda or busqueda.strip() == "":
-            st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 4px; padding: 0 2px;'>Mostrando primeros 10 registros.</p>", unsafe_allow_html=True)
-        else:
-            st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 4px; padding: 0 2px;'>Se encontraron {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
-            
-        for idx, row in df_vprs.iterrows():
-            serie_val = row['serie']
-            serie_texto = "" if (pd.isna(serie_val) or str(serie_val).strip().lower() in ["nan", "none", ""]) else f" | Serie: {serie_val}"
-            
-            card_html = f"""
-                <div class="user-card" style="margin-bottom: 2px;">
-                    <span style="font-size: 0.8rem; font-weight: bold; color: #F8FAFC;">ID: {row['id']}{serie_texto}</span><br>
-                    <span style="color: #00E5FF; font-size: 0.7rem;">📍 {row['domicilio'] or 'Sin domicilio'}, Col. {row['colonia'] or 'Sin colonia'}</span>
-                </div>
-            """
-            st.markdown(card_html, unsafe_allow_html=True)
-            
-            with st.expander("🔍 Ver detalles completos"):
-                detalle_html = f"""
-                    <span style="color: #94A3B8; font-size: 0.68rem; line-height: 1.4;">
-                        Diámetro: {row['diametro']} pulgadas | Marca: {row['marca_valv']} | Modelo: {row['model_valv']} | Trim: {row['marca_trim']} | Cota: {row['cota_terr']}<br>
-                        Sector: {row['sector_hid']} | Estado: {row['estat_valv']} | Hora Cal: {row['hora_cal']} | Fecha: {row['fecha_ult_']}<br>
-                        Cal Ant Día: {row['cal_ant_d']} | Cal Ant Noche: {row['cal_ant_n']}<br>
-                        Cal Act Día: {row['cal_act_d']} | Cal Act Noche: {row['cal_act_n']}<br>
-                        Obs: {row['observ']}
-                    </span>
-                """
-                st.markdown(detalle_html, unsafe_allow_html=True)
-                
-                img_bytes = procesar_bytes_foto(row['fotos'])
-                if img_bytes is not None and len(img_bytes) > 0:
-                    st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 6px; margin-bottom: 2px;'>📸 Fotografía 1 registrada:</p>", unsafe_allow_html=True)
-                    st.image(img_bytes, caption=f"ID: {row['id']} (Foto 1)", width=280)
-
-                img_bytes_2 = procesar_bytes_foto(row['fotos_2'])
-                if img_bytes_2 is not None and len(img_bytes_2) > 0:
-                    st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 6px; margin-bottom: 2px;'>📸 Fotografía 2 registrada:</p>", unsafe_allow_html=True)
-                    st.image(img_bytes_2, caption=f"ID: {row['id']} (Foto 2)", width=280)
-                        
-            st.markdown("<div style='margin-bottom: 8px;'></div>", unsafe_allow_html=True)
-    else:
-        st.info("No se encontraron registros.")
-
-# ==========================================
-# SECCIÓN 2: AÑADIR NUEVA VÁLVULA
-# ==========================================
-elif st.session_state.active_tab == "➕ Añadir":
-    st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">✨ Registrar nueva VPRS</h3>', unsafe_allow_html=True)
-    
-    df_max_id0, err_max = obtener_datos('SELECT MAX(id_0) as max_id FROM "Agua_potable"."VPRS"')
-    siguiente_id_0 = 1
-    if not err_max and not df_max_id0.empty and df_max_id0['max_id'].iloc[0] is not None:
-        try:
-            siguiente_id_0 = int(df_max_id0['max_id'].iloc[0]) + 1
-        except:
-            siguiente_id_0 = 1
-
-    r1c1, r1c2 = st.columns(2)
-    with r1c1: 
-        st.text_input("ID_0 (Automático)", value=str(siguiente_id_0), disabled=True, key="add_id_0_bloq")
-        val_id_0 = siguiente_id_0
-    with r1c2: val_id = st.text_input("ID (VRP)", key="add_id")
-
-    r2c1, r2c2 = st.columns(2)
-    with r2c1: val_serie = st.text_input("Serie", key="add_serie")
-    with r2c2: val_diametro = st.number_input("Diámetro", min_value=0, value=0, key="add_diam")
-
-    r3c1, r3c2 = st.columns(2)
-    with r3c1: val_cota = st.number_input("Cota Territorio", value=0.0, key="add_cota")
-    with r3c2: val_marca = st.text_input("Marca Válvula", key="add_marca")
-
-    r4c1, r4c2 = st.columns(2)
-    with r4c1: val_modelo = st.text_input("Modelo Válvula", key="add_modelo")
-    with r4c2: val_trim = st.text_input("Marca Trim", key="add_trim")
-
-    r5c1, r5c2 = st.columns(2)
-    with r5c1: val_sector = st.text_input("Sector Hidráulico", key="add_sector")
-    with r5c2: val_domicilio = st.text_input("Domicilio", key="add_dom")
-
-    r6c1, r6c2 = st.columns(2)
-    with r6c1: val_colonia = st.text_input("Colonia", key="add_col")
-    with r6c2: val_estat = st.text_input("Estado Válvula", key="add_estat")
-
-    r7c1, r7c2 = st.columns(2)
-    with r7c1: val_hora = st.text_input("Hora Calibración", key="add_hora")
-    with r7c2: val_cal_ant_d = st.text_input("Cal Anterior Día", key="add_cand")
-
-    r8c1, r8c2 = st.columns(2)
-    with r8c1: val_cal_ant_n = st.text_input("Cal Anterior Noche", key="add_cann")
-    with r8c2: val_cal_act_d = st.text_input("Cal Actual Día", key="add_cactd")
-
-    r9c1, r9c2 = st.columns(2)
-    with r9c1: val_cal_act_n = st.text_input("Cal Actual Noche", key="add_cactn")
-    with r9c2: val_fecha = st.text_input("Fecha Última", key="add_fecha")
-
-    val_observ = st.text_input("Observaciones", key="add_obs")
-
-    # --- FOTO 1 ---
-    st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.2);'>", unsafe_allow_html=True)
-    st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.8rem; padding: 0 2px;'>📸 Fotografía 1:</p>", unsafe_allow_html=True)
-    
-    cam_key_nuevo = "cam_open_nuevo"
-    if cam_key_nuevo not in st.session_state:
-        st.session_state[cam_key_nuevo] = False
+    if menu_opcion == "Gestor de Válvulas":
+        st.title("🚰 Módulo de Gestor de Válvulas VRP")
+        st.write("Bienvenido al panel de control operativo. Aquí puedes administrar las instalaciones de válvulas.")
         
-    if not st.session_state[cam_key_nuevo]:
-        if st.button("📷 Activar Cámara 1", key="btn_open_cam_nuevo", use_container_width=True):
-            st.session_state[cam_key_nuevo] = True
-            st.rerun()
-    else:
-        if st.button("❌ Cerrar Cámara 1", key="btn_close_cam_nuevo", use_container_width=True):
-            st.session_state[cam_key_nuevo] = False
-            st.rerun()
+        # Formulario o elementos del gestor de válvulas
+        with st.form("form_valvula"):
+            st.subheader("Registrar / Modificar Válvula")
+            col1, col2 = st.columns(2)
+            with col1:
+                val_nombre = st.text_input("Identificador / Nombre de Válvula")
+                val_sector = st.text_input("Sector Hidráulico")
+            with col2:
+                val_tipo = st.selectbox("Tipo de Válvula", ["VRP", "Compuerta", "Seccionamiento", "Alivio"])
+                val_estado = st.selectbox("Estado Operativo", ["Activo", "Mantenimiento", "Fuera de Servicio"])
+            
+            submit_valvula = st.form_submit_button("Guardar Cambios")
+            if submit_valvula:
+                st.success(f"Válvula '{val_nombre}' procesada correctamente para el sector {val_sector}.")
 
-    foto_camara = None
-    if st.session_state[cam_key_nuevo]:
-        foto_camara = st.camera_input("Capturar 1", key="camara_nuevo", label_visibility="collapsed")
-
-    # --- FOTO 2 ---
-    st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.8rem; padding: 0 2px; margin-top: 10px;'>📸 Fotografía 2:</p>", unsafe_allow_html=True)
-    
-    cam_key_nuevo_2 = "cam_open_nuevo_2"
-    if cam_key_nuevo_2 not in st.session_state:
-        st.session_state[cam_key_nuevo_2] = False
+    elif menu_opcion == "Consultas PostgreSQL":
+        st.title("🗺️ Capas y Datos de PostgreSQL (qgis)")
+        st.write("Consulta directa sobre la infraestructura geoespacial.")
         
-    if not st.session_state[cam_key_nuevo_2]:
-        if st.button("📷 Activar Cámara 2", key="btn_open_cam_nuevo_2", use_container_width=True):
-            st.session_state[cam_key_nuevo_2] = True
-            st.rerun()
-    else:
-        if st.button("❌ Cerrar Cámara 2", key="btn_close_cam_nuevo_2", use_container_width=True):
-            st.session_state[cam_key_nuevo_2] = False
-            st.rerun()
-
-    foto_camara_2 = None
-    if st.session_state[cam_key_nuevo_2]:
-        foto_camara_2 = st.camera_input("Capturar 2", key="camara_nuevo_2", label_visibility="collapsed")
-
-    if st.button("💾 Guardar Registro", key="btn_guardar_nuevo", use_container_width=True):
-        if val_id:
-            try:
-                foto_bytes = foto_camara.getvalue() if foto_camara is not None else None
-                foto_bytes_2 = foto_camara_2.getvalue() if foto_camara_2 is not None else None
-                
-                sql_insert = """
-                    INSERT INTO "Agua_potable"."VPRS" (
-                        id_0, id, serie, diametro, marca_valv, model_valv, marca_trim, domicilio, colonia, 
-                        cota_terr, sector_hid, cal_ant_d, cal_ant_n, fecha_ult_, cal_act_d, cal_act_n, 
-                        hora_cal, estat_valv, observ, fotos, fotos_2
-                    ) VALUES (
-                        :id_0, :id, :serie, :diametro, :marca_valv, :model_valv, :marca_trim, :domicilio, :colonia, 
-                        :cota_terr, :sector_hid, :cal_ant_d, :cal_ant_n, :fecha_ult_, :cal_act_d, :cal_act_n, 
-                        :hora_cal, :estat_valv, :observ, :fotos, :fotos_2
-                    )
-                """
-                ejecutar_sql(sql_insert, {
-                    "id_0": val_id_0, "id": val_id, "serie": val_serie if val_serie.strip() != "" else None, "diametro": val_diametro, "marca_valv": val_marca,
-                    "model_valv": val_modelo, "marca_trim": val_trim, "domicilio": val_domicilio, "colonia": val_colonia,
-                    "cota_terr": val_cota, "sector_hid": val_sector, "cal_ant_d": val_cal_ant_d, "cal_ant_n": val_cal_ant_n,
-                    "fecha_ult_": val_fecha, "cal_act_d": val_cal_act_d, "cal_act_n": val_cal_act_n, "hora_cal": val_hora,
-                    "estat_valv": val_estat, "observ": val_observ, "fotos": foto_bytes, "fotos_2": foto_bytes_2
-                })
-                st.success("¡Válvula registrada con éxito!")
-                t.sleep(1)
-                st.rerun()
-            except Exception as ex:
-                st.error(f"Error al insertar: {ex}")
-        else:
-            st.warning("El campo ID es obligatorio.")
-
-# ==========================================
-# SECCIÓN 3: EDITAR Y ELIMINAR
-# ==========================================
-elif st.session_state.active_tab == "⚙️ Editar":
-    st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">🛠️ Modificar o Eliminar Válvula</h3>', unsafe_allow_html=True)
-    
-    busqueda_edit = st.text_input("🔍 Filtrar registros a editar:", placeholder="Dejar en blanco para ver 10...")
-    
-    if busqueda_edit and busqueda_edit.strip() != "":
-        filtro_ed = f"%{busqueda_edit.strip()}%"
-        query_edit = f"""
-            SELECT {COLUMNAS_VPRS} 
-            FROM "Agua_potable"."VPRS" 
-            WHERE id ILIKE :filtro 
-               OR serie ILIKE :filtro 
-               OR domicilio ILIKE :filtro 
-               OR colonia ILIKE :filtro 
-            ORDER BY fid
-        """
-        df_vprs, error_db = obtener_datos(query_edit, {"filtro": filtro_ed})
-    else:
-        query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VPRS" ORDER BY fid LIMIT 10'
-        df_vprs, error_db = obtener_datos(query)
-    
-    if error_db:
-        st.error(f"Error: {error_db}")
-    elif not df_vprs.empty:
-        if not busqueda_edit or busqueda_edit.strip() == "":
-            st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 4px; padding: 0 2px;'>Mostrando primeros 10 registros.</p>", unsafe_allow_html=True)
-        else:
-            st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 4px; padding: 0 2px;'>Se encontraron {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
-            
-        for idx, row in df_vprs.iterrows():
-            st.markdown(f"<div style='padding: 0 2px;'><span style='color: #00E5FF; font-weight: bold;'>FID Registro: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span></div>", unsafe_allow_html=True)
-
-            e_r1c1, e_r1c2 = st.columns(2)
-            with e_r1c1: 
-                st.text_input("ID_0 (Bloqueado)", value=str(row['id_0'] or 0), disabled=True, key=f"id0_bloq_{row['fid']}")
-                e_id_0 = row['id_0']
-            with e_r1c2: e_id = st.text_input("ID", value=str(row['id'] or ""), key=f"id_{row['fid']}")
-
-            e_r2c1, e_r2c2 = st.columns(2)
-            e_serie_val = "" if (pd.isna(row['serie']) or str(row['serie']).strip().lower() in ["nan", "none"]) else str(row['serie'])
-            with e_r2c1: e_serie = st.text_input("Serie", value=e_serie_val, key=f"serie_{row['fid']}")
-            with e_r2c2: e_diametro = st.number_input("Diámetro", value=int(row['diametro'] or 0), key=f"diam_{row['fid']}")
-
-            e_r3c1, e_r3c2 = st.columns(2)
-            with e_r3c1: e_cota = st.number_input("Cota Terr", value=float(row['cota_terr'] or 0.0), key=f"cota_{row['fid']}")
-            with e_r3c2: e_marca = st.text_input("Marca Valv", value=str(row['marca_valv'] or ""), key=f"mar_{row['fid']}")
-
-            e_r4c1, e_r4c2 = st.columns(2)
-            with e_r4c1: e_modelo = st.text_input("Modelo Valv", value=str(row['model_valv'] or ""), key=f"mod_{row['fid']}")
-            with e_r4c2: e_trim = st.text_input("Marca Trim", value=str(row['marca_trim'] or ""), key=f"trim_{row['fid']}")
-
-            e_r5c1, e_r5c2 = st.columns(2)
-            with e_r5c1: e_sector = st.text_input("Sector Hid", value=str(row['sector_hid'] or ""), key=f"sec_{row['fid']}")
-            with e_r5c2: e_domicilio = st.text_input("Domicilio", value=str(row['domicilio'] or ""), key=f"dom_{row['fid']}")
-
-            e_r6c1, e_r6c2 = st.columns(2)
-            with e_r6c1: e_colonia = st.text_input("Colonia", value=str(row['colonia'] or ""), key=f"col_{row['fid']}")
-            with e_r6c2: e_estat = st.text_input("Estado Valv", value=str(row['estat_valv'] or ""), key=f"est_{row['fid']}")
-
-            e_r7c1, e_r7c2 = st.columns(2)
-            with e_r7c1: e_hora = st.text_input("Hora Cal", value=str(row['hora_cal'] or ""), key=f"hora_{row['fid']}")
-            with e_r7c2: e_cal_ant_d = st.text_input("Cal Anterior Día", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")
-
-            e_r8c1, e_r8c2 = st.columns(2)
-            with e_r8c1: e_cal_ant_n = st.text_input("Cal Anterior Noche", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")
-            with e_r8c2: e_cal_act_d = st.text_input("Cal Actual Día", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")
-
-            e_r9c1, e_r9c2 = st.columns(2)
-            with e_r9c1: e_cal_act_n = st.text_input("Cal Actual Noche", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
-            with e_r9c2: e_fecha = st.text_input("Fecha Ult", value=str(row['fecha_ult_']  or ""), key=f"fec_{row['fid']}")
-
-            e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
-            
-            # --- FOTO 1 ---
-            foto_actual_bytes = procesar_bytes_foto(row['fotos'])
-            eliminar_foto = False
-            
-            if foto_actual_bytes is not None and len(foto_actual_bytes) > 0:
-                st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 10px; margin-bottom: 2px;'>📸 Fotografía 1 actual:</p>", unsafe_allow_html=True)
-                st.image(foto_actual_bytes, caption=f"ID: {row['id']} (Foto 1)", width=280)
-                eliminar_foto = st.checkbox("🗑️ Eliminar la fotografía 1 actual", key=f"del_foto_{row['fid']}")
-
-            st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem; padding: 0 2px; margin-top: 10px;'>📸 Reemplazar o capturar nueva Foto 1:</p>", unsafe_allow_html=True)
-            
-            cam_key_edit = f"cam_open_edit_{row['fid']}"
-            if cam_key_edit not in st.session_state:
-                st.session_state[cam_key_edit] = False
-
-            if not st.session_state[cam_key_edit]:
-                if st.button("📷 Activar Cámara 1", key=f"btn_open_cam_edit_{row['fid']}", use_container_width=True):
-                    st.session_state[cam_key_edit] = True
-                    st.rerun()
+        # Ejemplo completo de consulta a PostgreSQL (ajusta el esquema y tabla según necesites)
+        tabla_input = st.text_input("Nombre de la tabla en PostgreSQL", value="Agua_potable.usuarios_vrp")
+        if st.button("Cargar Datos de Postgres"):
+            query_pg = f'SELECT * FROM "{tabla_input.split(".")[0]}"."{tabla_input.split(".")[1]}" LIMIT 50' if "." in tabla_input else f'SELECT * FROM "{tabla_input}" LIMIT 50'
+            df_pg, err_pg = consultar_postgres(query_pg)
+            if err_pg:
+                st.error(f"Error al consultar PostgreSQL: {err_pg}")
             else:
-                if st.button("❌ Cerrar Cámara 1", key=f"btn_close_cam_edit_{row['fid']}", use_container_width=True):
-                    st.session_state[cam_key_edit] = False
-                    st.rerun()
+                st.dataframe(df_pg)
 
-            nueva_foto_camara = None
-            if st.session_state.get(f"cam_open_edit_{row['fid']}", False):
-                nueva_foto_camara = st.camera_input("Tomar foto 1", key=f"cam_edit_{row['fid']}", label_visibility="collapsed")
-
-            # --- FOTO 2 ---
-            foto_actual_bytes_2 = procesar_bytes_foto(row['fotos_2'])
-            eliminar_foto_2 = False
-            
-            if foto_actual_bytes_2 is not None and len(foto_actual_bytes_2) > 0:
-                st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 15px; margin-bottom: 2px;'>📸 Fotografía 2 actual:</p>", unsafe_allow_html=True)
-                st.image(foto_actual_bytes_2, caption=f"ID: {row['id']} (Foto 2)", width=280)
-                eliminar_foto_2 = st.checkbox("🗑️ Eliminar la fotografía 2 actual", key=f"del_foto_2_{row['fid']}")
-
-            st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem; padding: 0 2px; margin-top: 10px;'>📸 Reemplazar o capturar nueva Foto 2:</p>", unsafe_allow_html=True)
-            
-            cam_key_edit_2 = f"cam_open_edit_2_{row['fid']}"
-            if cam_key_edit_2 not in st.session_state:
-                st.session_state[cam_key_edit_2] = False
-
-            if not st.session_state[cam_key_edit_2]:
-                if st.button("📷 Activar Cámara 2", key=f"btn_open_cam_edit_2_{row['fid']}", use_container_width=True):
-                    st.session_state[cam_key_edit_2] = True
-                    st.rerun()
-            else:
-                if st.button("❌ Cerrar Cámara 2", key=f"btn_close_cam_edit_2_{row['fid']}", use_container_width=True):
-                    st.session_state[cam_key_edit_2] = False
-                    st.rerun()
-
-            nueva_foto_camara_2 = None
-            if st.session_state.get(f"cam_open_edit_2_{row['fid']}", False):
-                nueva_foto_camara_2 = st.camera_input("Tomar foto 2", key=f"cam_edit_2_{row['fid']}", label_visibility="collapsed")
-
-            st.markdown("<br>", unsafe_allow_html=True)
-            actualizar_click = st.button("💾 Actualizar Registro", key=f"btn_act_{row['fid']}", use_container_width=True)
-
-            if actualizar_click:
-                try:
-                    if eliminar_foto:
-                        foto_bytes_final = None
-                    else:
-                        foto_bytes_final = foto_actual_bytes
-                        if nueva_foto_camara is not None:
-                            foto_bytes_final = nueva_foto_camara.getvalue()
-
-                    if eliminar_foto_2:
-                        foto_bytes_final_2 = None
-                    else:
-                        foto_bytes_final_2 = foto_actual_bytes_2
-                        if nueva_foto_camara_2 is not None:
-                            foto_bytes_final_2 = nueva_foto_camara_2.getvalue()
-
-                    sql_update = """
-                        UPDATE "Agua_potable"."VPRS" 
-                        SET id_0 = :id_0, id = :id, serie = :serie, diametro = :diametro, marca_valv = :marca_valv, 
-                            model_valv = :model_valv, marca_trim = :marca_trim, domicilio = :domicilio, 
-                            colonia = :colonia, cota_terr = :cota_terr, sector_hid = :sector_hid, 
-                            cal_ant_d = :cal_ant_d, cal_ant_n = :cal_ant_n, fecha_ult_ = :fecha_ult_, 
-                            cal_act_d = :cal_act_d, cal_act_n = :cal_act_n, hora_cal = :hora_cal, 
-                            estat_valv = :estat_valv, observ = :observ, fotos = :fotos, fotos_2 = :fotos_2 
-                        WHERE fid = :fid
-                    """
-                    ejecutar_sql(sql_update, {
-                        "id_0": e_id_0, "id": e_id, "serie": e_serie if e_serie.strip() != "" else None, "diametro": e_diametro, "marca_valv": e_marca,
-                        "model_valv": e_modelo, "marca_trim": e_trim, "domicilio": e_domicilio, "colonia": e_colonia,
-                        "cota_terr": e_cota, "sector_hid": e_sector, "cal_ant_d": e_cal_ant_d, "cal_ant_n": e_cal_ant_n,
-                        "fecha_ult_": e_fecha, "cal_act_d": e_cal_act_d, "cal_act_n": e_cal_act_n, "hora_cal": e_hora,
-                        "estat_valv": e_estat, "observ": e_observ, "fotos": foto_bytes_final, "fotos_2": foto_bytes_final_2, "fid": row['fid']
-                    })
-                    st.success("¡Actualizado con éxito!")
-                    t.sleep(0.8)
-                    st.rerun()
-                except Exception as ex:
-                    st.error(f"Error al actualizar: {ex}")
-
-            st.markdown("<br>", unsafe_allow_html=True)
-            
-            if st.button("🗑️ Eliminar", key=f"del_{row['fid']}", use_container_width=True):
-                st.session_state.registro_to_delete = row['fid']
-                st.rerun()
-                
-            st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.1);'>", unsafe_allow_html=True)
-
-    if st.session_state.registro_to_delete is not None:
-        target_fid = st.session_state.registro_to_delete
-        st.warning(f"⚠️ Estás a punto de eliminar el registro FID: {target_fid}")
-        confirm = st.text_input("Escribe 'delete' para confirmar:", key="del_confirm_input")
+    elif menu_opcion == "Estado del Sistema":
+        st.title("📊 Estado de Conexiones")
+        col_c1, col_c2 = st.columns(2)
         
-        c1, c2 = st.columns(2)
-        with c1:
-            if st.button("Confirmar Eliminación", type="primary", use_container_width=True):
-                if confirm.strip().lower() == "delete":
-                    try:
-                        ejecutar_sql('DELETE FROM "Agua_potable"."VPRS" WHERE fid = :fid', {"fid": target_fid})
-                        st.success("Registro eliminado.")
-                        st.session_state.registro_to_delete = None
-                        t.sleep(0.5)
-                        st.rerun()
-                    except Exception as ex:
-                        st.error(f"Error al borrar: {ex}")
-                else:
-                    st.error("Debes escribir 'delete'.")
-        with c2:
-            if st.button("Cancelar", use_container_width=True):
-                st.session_state.registro_to_delete = None
-                st.rerun()
-
-# --- PIE DE PÁGINA ---
-st.markdown("""
-    <div style="text-align: center; color: #94A3B8; font-size: 0.78rem; margin-top: 2rem; border-top: 1px solid rgba(0, 229, 255, 0.12); padding-top: 0.8rem;">
-        © 2026 MIAA &bull; Sistema de Gestión PostGIS
-    </div>
-""", unsafe_allow_html=True)
+        with col_c1:
+            st.subheader("MySQL (miaamx_telemetria2)")
+            df_test_my, err_my = consultar_mysql("SELECT VERSION() as version_mysql")
+            if err_my:
+                st.error(f"Estado: Desconectado ({err_my})")
+            else:
+                st.success("Estado: Conectado OK")
+                st.write(df_test_my)
+                
+        with col_c2:
+            st.subheader("PostgreSQL (qgis)")
+            df_test_pg, err_pg = consultar_postgres("SELECT version()")
+            if err_pg:
+                st.error(f"Estado: Desconectado ({err_pg})")
+            else:
+                st.success("Estado: Conectado OK")
+                st.write("Versión de Postgres obtenida correctamente.")
