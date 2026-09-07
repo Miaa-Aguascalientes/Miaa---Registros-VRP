@@ -881,18 +881,23 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 st.markdown("<hr style='border: 0.5px solid rgba(255,0,0,0.2); margin: 15px 0;'>", unsafe_allow_html=True)
                 
                 if st.session_state.registro_to_delete == row['fid']:
-                    st.markdown(f"<p style='color: #ff4d4d; font-size: 0.8rem; font-weight: bold;'>¿Estás seguro de eliminar el registro FID {row['fid']} (ID: {row['id']})?</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='color: #ff4d4d; font-size: 0.8rem; font-weight: bold;'>Para eliminar el registro FID {row['fid']} (ID: {row['id']}), escribe la palabra 'delete':</p>", unsafe_allow_html=True)
+                    confirm_text = st.text_input("Confirmación de eliminación", key=f"input_del_text_{row['fid']}")
+                    
                     col_y, col_n = st.columns(2)
                     with col_y:
                         if st.button("Sí, eliminar", key=f"confirm_del_{row['fid']}", use_container_width=True):
-                            try:
-                                ejecutar_sql('DELETE FROM "Agua_potable"."VPRS" WHERE fid = :fid', {"fid": row['fid']})
-                                st.session_state.registro_to_delete = None
-                                st.success("Registro eliminado correctamente.")
-                                t.sleep(1)
-                                st.rerun()
-                            except Exception as ex_del:
-                                st.error(f"Error al eliminar: {ex_del}")
+                            if confirm_text.strip() == "delete":
+                                try:
+                                    ejecutar_sql('DELETE FROM "Agua_potable"."VPRS" WHERE fid = :fid', {"fid": row['fid']})
+                                    st.session_state.registro_to_delete = None
+                                    st.success("Registro eliminado correctamente.")
+                                    t.sleep(1)
+                                    st.rerun()
+                                except Exception as ex_del:
+                                    st.error(f"Error al eliminar: {ex_del}")
+                            else:
+                                st.error("Debes escribir exactamente la palabra 'delete' para confirmar.")
                     with col_n:
                         if st.button("Cancelar", key=f"cancel_del_{row['fid']}", use_container_width=True):
                             st.session_state.registro_to_delete = None
