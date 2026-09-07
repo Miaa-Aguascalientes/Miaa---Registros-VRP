@@ -342,8 +342,13 @@ if st.button("Cerrar Sesión", key="btn_logout"):
     st.session_state.autenticado = False
     st.rerun()
 
-# --- MENÚ DE NAVEGACIÓN ---
-opciones_menu = ["📍 Registros", "➕ Añadir", "⚙️ Editar"]
+# --- EVALUAR ROL Y CONFIGURAR MENÚ DE NAVEGACIÓN ---
+es_operador = (st.session_state.get('tipo_usuario', '') == 'operador')
+
+if es_operador:
+    opciones_menu = ["📍 Registros", "⚙️ Editar"]
+else:
+    opciones_menu = ["📍 Registros", "➕ Añadir", "⚙️ Editar"]
 
 if 'active_tab' not in st.session_state or st.session_state.active_tab not in opciones_menu:
     st.session_state.active_tab = opciones_menu[0]
@@ -439,9 +444,9 @@ if st.session_state.active_tab == "📍 Registros":
         st.info("No se encontraron registros.")
 
 # ==========================================
-# SECCIÓN 2: AÑADIR NUEVA VÁLVULA
+# SECCIÓN 2: AÑADIR NUEVA VÁLVULA (Solo Admins)
 # ==========================================
-elif st.session_state.active_tab == "➕ Añadir":
+elif st.session_state.active_tab == "➕ Añadir" and not es_operador:
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">✨ Registrar nueva VPRS</h3>', unsafe_allow_html=True)
     
     df_max_id0, err_max = obtener_datos('SELECT MAX(id_0) as max_id FROM "Agua_potable"."VPRS"')
@@ -568,8 +573,6 @@ elif st.session_state.active_tab == "➕ Añadir":
 # ==========================================
 elif st.session_state.active_tab == "⚙️ Editar":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">🛠️ Modificar o Eliminar Válvula</h3>', unsafe_allow_html=True)
-    
-    es_operador = (st.session_state.get('tipo_usuario', '') == 'operador')
     
     busqueda_edit = st.text_input("🔍 Filtrar registros a editar:", placeholder="Dejar en blanco para ver 10...")
     
