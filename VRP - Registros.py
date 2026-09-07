@@ -150,7 +150,7 @@ st.write("""<style>
         margin: 0 !important;
     }
 
-    /* Tarjetas de registros con ancho total absoluto y cuadros de texto más anchos */
+    /* Tarjetas de registros con ancho total absoluto */
     .user-card {
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
@@ -215,7 +215,7 @@ st.write("""<style>
         text-overflow: ellipsis !important;
     }
 
-    /* Botones principales con tono azul más obscuro y con vida */
+    /* Botones principales */
     .stButton>button {
         background: linear-gradient(135deg, #023e8a 0%, #0077b6 100%) !important;
         color: #FFFFFF !important;
@@ -273,12 +273,10 @@ st.write("""<style>
         font-weight: 600 !important;
     }
 
-    /* ELIMINAR COMPLETAMENTE EL RECUADRO Y CONTENIDOS DEL FILE UPLOADER Y BOTÓN "SIN ARCHIVOS SELECCIONADOS" */
     [data-testid="stFileUploader"] {
         display: none !important;
     }
     
-    /* OCULTAR EL CONTENEDOR DE VISTA PREVIA / CUADRO VACÍO DEL CAMERA_INPUT */
     [data-testid="stCameraInput"] > div:first-child {
         display: none !important;
     }
@@ -337,7 +335,6 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# Botón de cerrar sesión discretamente ubicado arriba
 if st.button("Cerrar Sesión", key="btn_logout"):
     st.session_state.autenticado = False
     st.rerun()
@@ -369,7 +366,7 @@ COLUMNAS_VPRS = """
 """
 
 # ==========================================
-# SECCIÓN 1: VER REGISTROS (VPRS) - UNA SOLA COLUMNA
+# SECCIÓN 1: VER REGISTROS (VPRS)
 # ==========================================
 if st.session_state.active_tab == "📍 Registros":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">📂 Catálogo de Válvulas VPRS</h3>', unsafe_allow_html=True)
@@ -412,7 +409,6 @@ if st.session_state.active_tab == "📍 Registros":
             """
             st.markdown(card_html, unsafe_allow_html=True)
             
-            # Contenedor desplegable para el detalle con título simplificado
             with st.expander("🔍 Ver detalles completos"):
                 detalle_html = f"""
                     <span style="color: #94A3B8; font-size: 0.68rem; line-height: 1.4;">
@@ -425,13 +421,11 @@ if st.session_state.active_tab == "📍 Registros":
                 """
                 st.markdown(detalle_html, unsafe_allow_html=True)
                 
-                # Visualización de la foto 1 almacenada
                 img_bytes = procesar_bytes_foto(row['fotos'])
                 if img_bytes is not None and len(img_bytes) > 0:
                     st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 6px; margin-bottom: 2px;'>📸 Fotografía 1 registrada:</p>", unsafe_allow_html=True)
                     st.image(img_bytes, caption=f"ID: {row['id']} (Foto 1)", width=280)
 
-                # Visualización de la foto 2 almacenada
                 img_bytes_2 = procesar_bytes_foto(row['fotos_2'])
                 if img_bytes_2 is not None and len(img_bytes_2) > 0:
                     st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 6px; margin-bottom: 2px;'>📸 Fotografía 2 registrada:</p>", unsafe_allow_html=True)
@@ -495,7 +489,6 @@ elif st.session_state.active_tab == "➕ Añadir":
 
     val_observ = st.text_input("Observaciones", key="add_obs")
 
-    # --- FOTO 1 ---
     st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.2);'>", unsafe_allow_html=True)
     st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.8rem; padding: 0 2px;'>📸 Fotografía 1:</p>", unsafe_allow_html=True)
     
@@ -516,7 +509,6 @@ elif st.session_state.active_tab == "➕ Añadir":
     if st.session_state[cam_key_nuevo]:
         foto_camara = st.camera_input("Capturar 1", key="camara_nuevo", label_visibility="collapsed")
 
-    # --- FOTO 2 ---
     st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.8rem; padding: 0 2px; margin-top: 10px;'>📸 Fotografía 2:</p>", unsafe_allow_html=True)
     
     cam_key_nuevo_2 = "cam_open_nuevo_2"
@@ -574,7 +566,6 @@ elif st.session_state.active_tab == "➕ Añadir":
 elif st.session_state.active_tab == "⚙️ Editar":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">🛠️ Modificar o Eliminar Válvula</h3>', unsafe_allow_html=True)
     
-    # Evaluar si el usuario actual es de rol operador
     es_operador = (st.session_state.get('tipo_usuario', '') == 'operador')
     
     busqueda_edit = st.text_input("🔍 Filtrar registros a editar:", placeholder="Dejar en blanco para ver 10...")
@@ -606,64 +597,107 @@ elif st.session_state.active_tab == "⚙️ Editar":
         for idx, row in df_vprs.iterrows():
             st.markdown(f"<div style='padding: 0 2px;'><span style='color: #00E5FF; font-weight: bold;'>FID Registro: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span></div>", unsafe_allow_html=True)
 
-            # CAMPOS BLOQUEADOS PARA OPERADOR vs EDICIÓN LIBRE
-            e_r1c1, e_r1c2 = st.columns(2)
-            with e_r1c1: 
-                st.text_input("ID_0 (Bloqueado)", value=str(row['id_0'] or 0), disabled=True, key=f"id0_bloq_{row['fid']}")
-                e_id_0 = row['id_0']
-            with e_r1c2: 
-                e_id = st.text_input("ID", value=str(row['id'] or ""), disabled=es_operador, key=f"id_{row['fid']}")
+            e_id_0 = row['id_0']
 
-            e_r2c1, e_r2c2 = st.columns(2)
-            e_serie_val = "" if (pd.isna(row['serie']) or str(row['serie']).strip().lower() in ["nan", "none"]) else str(row['serie'])
-            with e_r2c1: 
-                e_serie = st.text_input("Serie", value=e_serie_val, key=f"serie_{row['fid']}")  # HABILITADO
-            with e_r2c2: 
-                e_diametro = st.number_input("Diámetro", value=int(row['diametro'] or 0), disabled=es_operador, key=f"diam_{row['fid']}")
+            if es_operador:
+                # OCULTAR COMPLETAMENTE LOS CAMPOS DE INFRAESTRUCTURA PARA OPERADOR
+                # Preservar sus valores originales en variables para no perderlos al ejecutar SQL
+                e_id = row['id']
+                e_diametro = row['diametro']
+                e_cota = row['cota_terr']
+                e_marca = row['marca_valv']
+                e_modelo = row['model_valv']
+                e_trim = row['marca_trim']
+                e_sector = row['sector_hid']
+                e_domicilio = row['domicilio']
+                e_colonia = row['colonia']
 
-            e_r3c1, e_r3c2 = st.columns(2)
-            with e_r3c1: 
-                e_cota = st.number_input("Cota Terr", value=float(row['cota_terr'] or 0.0), disabled=es_operador, key=f"cota_{row['fid']}")
-            with e_r3c2: 
-                e_marca = st.text_input("Marca Valv", value=str(row['marca_valv'] or ""), disabled=es_operador, key=f"mar_{row['fid']}")
+                # Mostrar en pantalla únicamente los campos que el operador puede editar
+                e_r1c1, e_r1c2 = st.columns(2)
+                e_serie_val = "" if (pd.isna(row['serie']) or str(row['serie']).strip().lower() in ["nan", "none"]) else str(row['serie'])
+                with e_r1c1: 
+                    e_serie = st.text_input("Serie", value=e_serie_val, key=f"serie_{row['fid']}")
+                with e_r1c2: 
+                    e_estat = st.text_input("Estado Valv", value=str(row['estat_valv'] or ""), key=f"est_{row['fid']}")
 
-            e_r4c1, e_r4c2 = st.columns(2)
-            with e_r4c1: 
-                e_modelo = st.text_input("Modelo Valv", value=str(row['model_valv'] or ""), disabled=es_operador, key=f"mod_{row['fid']}")
-            with e_r4c2: 
-                e_trim = st.text_input("Marca Trim", value=str(row['marca_trim'] or ""), disabled=es_operador, key=f"trim_{row['fid']}")
+                e_r2c1, e_r2c2 = st.columns(2)
+                with e_r2c1: 
+                    e_hora = st.text_input("Hora Cal", value=str(row['hora_cal'] or ""), key=f"hora_{row['fid']}")
+                with e_r2c2: 
+                    e_cal_ant_d = st.text_input("Cal Anterior Día", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")
 
-            e_r5c1, e_r5c2 = st.columns(2)
-            with e_r5c1: 
-                e_sector = st.text_input("Sector Hid", value=str(row['sector_hid'] or ""), disabled=es_operador, key=f"sec_{row['fid']}")
-            with e_r5c2: 
-                e_domicilio = st.text_input("Domicilio", value=str(row['domicilio'] or ""), disabled=es_operador, key=f"dom_{row['fid']}")
+                e_r3c1, e_r3c2 = st.columns(2)
+                with e_r3c1: 
+                    e_cal_ant_n = st.text_input("Cal Anterior Noche", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")
+                with e_r3c2: 
+                    e_cal_act_d = st.text_input("Cal Actual Día", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")
 
-            e_r6c1, e_r6c2 = st.columns(2)
-            with e_r6c1: 
-                e_colonia = st.text_input("Colonia", value=str(row['colonia'] or ""), disabled=es_operador, key=f"col_{row['fid']}")
-            with e_r6c2: 
-                e_estat = st.text_input("Estado Valv", value=str(row['estat_valv'] or ""), key=f"est_{row['fid']}")  # HABILITADO
+                e_r4c1, e_r4c2 = st.columns(2)
+                with e_r4c1: 
+                    e_cal_act_n = st.text_input("Cal Actual Noche", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
+                with e_r4c2: 
+                    e_fecha = st.text_input("Fecha Ult", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
 
-            e_r7c1, e_r7c2 = st.columns(2)
-            with e_r7c1: 
-                e_hora = st.text_input("Hora Cal", value=str(row['hora_cal'] or ""), key=f"hora_{row['fid']}")  # HABILITADO
-            with e_r7c2: 
-                e_cal_ant_d = st.text_input("Cal Anterior Día", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")  # HABILITADO
+                e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
 
-            e_r8c1, e_r8c2 = st.columns(2)
-            with e_r8c1: 
-                e_cal_ant_n = st.text_input("Cal Anterior Noche", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")  # HABILITADO
-            with e_r8c2: 
-                e_cal_act_d = st.text_input("Cal Actual Día", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")  # HABILITADO
+            else:
+                # VISTA COMPLETA (ADMINISTRADOR / OTROS ROLES)
+                e_r1c1, e_r1c2 = st.columns(2)
+                with e_r1c1: 
+                    st.text_input("ID_0 (Bloqueado)", value=str(row['id_0'] or 0), disabled=True, key=f"id0_bloq_{row['fid']}")
+                with e_r1c2: 
+                    e_id = st.text_input("ID", value=str(row['id'] or ""), key=f"id_{row['fid']}")
 
-            e_r9c1, e_r9c2 = st.columns(2)
-            with e_r9c1: 
-                e_cal_act_n = st.text_input("Cal Actual Noche", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")  # HABILITADO
-            with e_r9c2: 
-                e_fecha = st.text_input("Fecha Ult", value=str(row['fecha_ult_']  or ""), key=f"fec_{row['fid']}")  # HABILITADO
+                e_r2c1, e_r2c2 = st.columns(2)
+                e_serie_val = "" if (pd.isna(row['serie']) or str(row['serie']).strip().lower() in ["nan", "none"]) else str(row['serie'])
+                with e_r2c1: 
+                    e_serie = st.text_input("Serie", value=e_serie_val, key=f"serie_{row['fid']}")
+                with e_r2c2: 
+                    e_diametro = st.number_input("Diámetro", value=int(row['diametro'] or 0), key=f"diam_{row['fid']}")
 
-            e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")  # HABILITADO
+                e_r3c1, e_r3c2 = st.columns(2)
+                with e_r3c1: 
+                    e_cota = st.number_input("Cota Terr", value=float(row['cota_terr'] or 0.0), key=f"cota_{row['fid']}")
+                with e_r3c2: 
+                    e_marca = st.text_input("Marca Valv", value=str(row['marca_valv'] or ""), key=f"mar_{row['fid']}")
+
+                e_r4c1, e_r4c2 = st.columns(2)
+                with e_r4c1: 
+                    e_modelo = st.text_input("Modelo Valv", value=str(row['model_valv'] or ""), key=f"mod_{row['fid']}")
+                with e_r4c2: 
+                    e_trim = st.text_input("Marca Trim", value=str(row['marca_trim'] or ""), key=f"trim_{row['fid']}")
+
+                e_r5c1, e_r5c2 = st.columns(2)
+                with e_r5c1: 
+                    e_sector = st.text_input("Sector Hid", value=str(row['sector_hid'] or ""), key=f"sec_{row['fid']}")
+                with e_r5c2: 
+                    e_domicilio = st.text_input("Domicilio", value=str(row['domicilio'] or ""), key=f"dom_{row['fid']}")
+
+                e_r6c1, e_r6c2 = st.columns(2)
+                with e_r6c1: 
+                    e_colonia = st.text_input("Colonia", value=str(row['colonia'] or ""), key=f"col_{row['fid']}")
+                with e_r6c2: 
+                    e_estat = st.text_input("Estado Valv", value=str(row['estat_valv'] or ""), key=f"est_{row['fid']}")
+
+                e_r7c1, e_r7c2 = st.columns(2)
+                with e_r7c1: 
+                    e_hora = st.text_input("Hora Cal", value=str(row['hora_cal'] or ""), key=f"hora_{row['fid']}")
+                with e_r7c2: 
+                    e_cal_ant_d = st.text_input("Cal Anterior Día", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")
+
+                e_r8c1, e_r8c2 = st.columns(2)
+                with e_r8c1: 
+                    e_cal_ant_n = st.text_input("Cal Anterior Noche", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")
+                with e_r8c2: 
+                    e_cal_act_d = st.text_input("Cal Actual Día", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")
+
+                e_r9c1, e_r9c2 = st.columns(2)
+                with e_r9c1: 
+                    e_cal_act_n = st.text_input("Cal Actual Noche", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
+                with e_r9c2: 
+                    e_fecha = st.text_input("Fecha Ult", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
+
+                e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
             
             # --- FOTO 1 ---
             foto_actual_bytes = procesar_bytes_foto(row['fotos'])
@@ -726,7 +760,6 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             if actualizar_click:
                 try:
-                    # Foto 1 final
                     if eliminar_foto:
                         foto_bytes_final = None
                     else:
@@ -734,7 +767,6 @@ elif st.session_state.active_tab == "⚙️ Editar":
                         if nueva_foto_camara is not None:
                             foto_bytes_final = nueva_foto_camara.getvalue()
 
-                    # Foto 2 final
                     if eliminar_foto_2:
                         foto_bytes_final_2 = None
                     else:
@@ -765,7 +797,6 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 except Exception as ex:
                     st.error(f"Error al actualizar: {ex}")
 
-            # Botón de eliminación disponible únicamente para administradores/no operadores
             if not es_operador:
                 st.markdown("<hr style='border: 0.5px solid rgba(255,0,0,0.2); margin: 15px 0;'>", unsafe_allow_html=True)
                 
