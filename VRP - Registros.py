@@ -609,12 +609,12 @@ elif st.session_state.active_tab == "➕ Añadir":
             st.warning("El campo ID es obligatorio.")
 
 # ==========================================
-# SECCIÓN 3: EDITAR Y ELIMINAR
+# SECCIÓN 3: EDITAR Y ELIMINAR (SOLO 1 REGISTRO A LA VEZ)
 # ==========================================
 elif st.session_state.active_tab == "⚙️ Editar":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">🛠️ Modificar o Eliminar Válvula</h3>', unsafe_allow_html=True)
     
-    busqueda_edit = st.text_input("🔍 Filtrar registros a editar:", placeholder="Dejar en blanco para ver 10...")
+    busqueda_edit = st.text_input("🔍 Buscar válvula a editar (ID, Serie, Domicilio, Col.):", placeholder="Ej. VRP-01, Centro...")
     
     if busqueda_edit and busqueda_edit.strip() != "":
         filtro_ed = f"%{busqueda_edit.strip()}%"
@@ -626,19 +626,20 @@ elif st.session_state.active_tab == "⚙️ Editar":
                OR domicilio ILIKE :filtro 
                OR colonia ILIKE :filtro 
             ORDER BY fid
+            LIMIT 1
         """
         df_vprs, error_db = obtener_datos(query_edit, {"filtro": filtro_ed})
     else:
-        query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VPRS" ORDER BY fid LIMIT 10'
+        query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VPRS" ORDER BY fid LIMIT 1'
         df_vprs, error_db = obtener_datos(query)
     
     if error_db:
         st.error(f"Error: {error_db}")
     elif not df_vprs.empty:
         if not busqueda_edit or busqueda_edit.strip() == "":
-            st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 4px; padding: 0 2px;'>Mostrando primeros 10 registros.</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 4px; padding: 0 2px;'>Mostrando el primer registro de la base de datos.</p>", unsafe_allow_html=True)
         else:
-            st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 4px; padding: 0 2px;'>Se encontraron {len(df_vprs)} registros.</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 4px; padding: 0 2px;'>Mostrando la primera coincidencia encontrada.</p>", unsafe_allow_html=True)
             
         for idx, row in df_vprs.iterrows():
             st.markdown(f"<div style='padding: 0 2px;'><span style='color: #00E5FF; font-weight: bold;'>FID Registro: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span></div>", unsafe_allow_html=True)
@@ -886,7 +887,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             st.markdown("<hr style='border: 1px solid rgba(0,229,255,0.2); margin: 20px 0;'>", unsafe_allow_html=True)
     else:
-        st.info("No se encontraron registros para editar.")
+        st.info("No se encontró ningún registro para editar.")
 
 # --- PIE DE PÁGINA ---
 st.markdown("""
