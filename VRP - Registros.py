@@ -33,6 +33,11 @@ def parsear_fecha(val):
     except Exception:
         return date.today()
 
+# --- FUNCIÓN AUXILIAR PARA DAR FORMATO DÍA/MES/AÑO AL TEXTO ---
+def formatear_fecha_texto(val):
+    d = parsear_fecha(val)
+    return f"{d.day}/{d.month}/{d.year}" if d else ""
+
 # --- CONEXIÓN A BASE DE DATOS POSTGRESQL (VPRS) ---
 def crear_nuevo_engine():
     pg = st.secrets["postgres"]
@@ -435,7 +440,7 @@ if st.session_state.active_tab == "📍 Registros":
                 detalle_html = f"""
                     <span style="color: #94A3B8; font-size: 0.68rem; line-height: 1.4;">
                         Diámetro: {row['diametro']} pulgadas | Marca: {row['marca_valv']} | Modelo: {row['model_valv']} | Trim: {row['marca_trim']} | Cota: {row['cota_terr']}<br>
-                        Sector: {row['sector_hid']} | Estado: {row['estat_valv']} | Hora Cal: {row['hora_cal']} | Fecha ultima actualización: {row['fecha_ult_']}<br>
+                        Sector: {row['sector_hid']} | Estado: {row['estat_valv']} | Hora Cal: {row['hora_cal']} | Fecha ultima actualización: {formatear_fecha_texto(row['fecha_ult_'])}<br>
                         Cal Anterior Día (kg/cm): {row['cal_ant_d']} | Cal Anterior Noche (kg/cm): {row['cal_ant_n']}<br>
                         Cal Actual Día (kg/cm): {row['cal_act_d']} | Cal Actual Noche (kg/cm): {row['cal_act_n']}<br>
                         Obs: {row['observ']}
@@ -507,7 +512,7 @@ elif st.session_state.active_tab == "➕ Añadir" and not es_operador:
 
     r9c1, r9c2 = st.columns(2)
     with r9c1: val_cal_act_n = st.text_input("Cal Actual Noche (kg/cm)", key="add_cactn")
-    with r9c2: val_fecha = st.date_input("Fecha ultima actualización", value=date.today(), format="YYYY-MM-DD", key="add_fecha")
+    with r9c2: val_fecha = st.date_input("Fecha ultima actualización", value=date.today(), format="DD/MM/YYYY", key="add_fecha")
 
     val_observ = st.text_input("Observaciones", key="add_obs")
 
@@ -660,7 +665,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 with e_r4c1: 
                     e_cal_act_n = st.text_input("Cal Actual Noche (kg/cm)", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
                 with e_r4c2: 
-                    e_fecha = st.date_input("Fecha ultima actualización", value=parsear_fecha(row['fecha_ult_']), format="YYYY-MM-DD", key=f"fec_{row['fid']}")
+                    e_fecha = st.date_input("Fecha ultima actualización", value=parsear_fecha(row['fecha_ult_']), format="DD/MM/YYYY", key=f"fec_{row['fid']}")
 
                 e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
 
@@ -719,7 +724,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 with e_r9c1: 
                     e_cal_act_n = st.text_input("Cal Actual Noche (kg/cm)", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
                 with e_r9c2: 
-                    e_fecha = st.date_input("Fecha ultima actualización", value=parsear_fecha(row['fecha_ult_']), format="YYYY-MM-DD", key=f"fec_{row['fid']}")
+                    e_fecha = st.date_input("Fecha ultima actualización", value=parsear_fecha(row['fecha_ult_']), format="DD/MM/YYYY", key=f"fec_{row['fid']}")
 
                 e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
             
