@@ -9,9 +9,10 @@ import base64
 # Configuración de página
 st.set_page_config(layout="wide", page_title="Gestion VRP's - MIAA", page_icon="https://www.miaa.mx/favicon.ico")
 
-# --- ESTADO DE SESIÓN ---
-if 'registro_to_delete' not in st.session_state: st.session_state.registro_to_delete = None
-if 'active_tab' not in st.session_state: st.session_state.active_tab = "📍 Registros"
+# --- ESTADO DE SESIÓN PARA AUTENTICACIÓN ---
+if 'autenticado' not in st.session_state: st.session_state.autenticado = False
+if 'usuario_actual' not in st.session_state: st.session_state.usuario_actual = None
+if 'tipo_usuario' not in st.session_state: st.session_state.tipo_usuario = None
 
 zona_mx = ZoneInfo("America/Mexico_City")
 
@@ -68,7 +69,7 @@ def procesar_bytes_foto(foto_data):
             return None
     return None
 
-# --- ESTILOS CSS CON ANCHO TOTAL AL 100% EN CUADROS Y CONTENEDORES ---
+# --- ESTILOS CSS ---
 st.write("""<style>
     #MainMenu, header {visibility: hidden;} 
     .block-container {
@@ -87,7 +88,6 @@ st.write("""<style>
         overflow-x: hidden;
     }
     
-    /* REJILLA EXPANDIDA Y FORZADA A BORDE A BORDE */
     .miaa-grid-container {
         display: grid;
         grid-template-columns: repeat(2, 1fr) !important;
@@ -98,7 +98,6 @@ st.write("""<style>
         padding: 0 !important;
     }
 
-    /* Anular restricciones y paddings de Streamlit en bloques horizontales */
     [data-testid="stHorizontalBlock"] {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
@@ -116,7 +115,6 @@ st.write("""<style>
         margin: 0 !important;
     }
 
-    /* Tarjetas de registros con ancho total absoluto y cuadros de texto más anchos */
     .user-card {
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
@@ -130,7 +128,6 @@ st.write("""<style>
         height: 100% !important;
     }
 
-    /* Menú de navegación / Pestañas estilo tarjeta MIAA */
     div.row-widget.stRadio > div {
         display: flex;
         flex-direction: row;
@@ -171,7 +168,6 @@ st.write("""<style>
         font-weight: 700 !important;
     }
 
-    /* Etiquetas de los inputs */
     .stTextInput label, .stSelectbox label, .stNumberInput label, [data-testid="stWidgetLabel"] p {
         color: #E2E8F0 !important;
         font-weight: 600 !important;
@@ -181,7 +177,6 @@ st.write("""<style>
         text-overflow: ellipsis !important;
     }
 
-    /* Botones principales con tono azul más obscuro y con vida */
     .stButton>button {
         background: linear-gradient(135deg, #023e8a 0%, #0077b6 100%) !important;
         color: #FFFFFF !important;
@@ -200,7 +195,6 @@ st.write("""<style>
         opacity: 1;
     }
 
-    /* FORZAR ANCHO TOTAL Y MAYOR EXPANSIÓN LATERAL EN TODOS LOS CUADROS DE TEXTO Y ENTRADAS */
     .stTextInput, .stNumberInput, .stSelectbox, .stDateInput, .stTextArea {
         width: 100% !important;
         max-width: 100% !important;
@@ -225,7 +219,6 @@ st.write("""<style>
         width: 100% !important;
     }
 
-    /* ESTILO PARA EL EXPANDER DENTRO DE LOS REGISTROS */
     [data-testid="stExpander"] {
         background-color: #080C14 !important;
         border: 1px solid rgba(0, 229, 255, 0.15) !important;
@@ -239,29 +232,71 @@ st.write("""<style>
         font-weight: 600 !important;
     }
 
-    /* ELIMINAR COMPLETAMENTE EL RECUADRO Y CONTENIDOS DEL FILE UPLOADER Y BOTÓN "SIN ARCHIVOS SELECCIONADOS" */
-    [data-testid="stFileUploader"] {
-        display: none !important;
-    }
-    
-    /* OCULTAR EL CONTENEDOR DE VISTA PREVIA / CUADRO VACÍO DEL CAMERA_INPUT */
-    [data-testid="stCameraInput"] > div:first-child {
-        display: none !important;
-    }
-    [data-testid="stCameraInput"] {
-        width: 100% !important;
-    }
+    [data-testid="stFileUploader"] { display: none !important; }
+    [data-testid="stCameraInput"] > div:first-child { display: none !important; }
+    [data-testid="stCameraInput"] { width: 100% !important; }
 </style>""", unsafe_allow_html=True)
 
-# --- CABECERA ---
-st.markdown("""
-    <div style="display: flex; align-items: center; gap: 8px; width: 100%; margin-bottom: 5px; padding: 0 2px;">
-        <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 85px; height: auto; flex-shrink: 0;" />
-        <div>
-            <h2 style="color: #00E5FF; margin: 0; font-size: 1.1rem; font-weight: 800; line-height: 1.2;">Gestion VRP's</h2>
+# --- PANTALLA DE LOGIN ---
+if not st.session_state.autenticado:
+    st.markdown("""
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 4rem; padding: 0 1rem;">
+            <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 120px; height: auto; margin-bottom: 1.5rem;" />
+            <h2 style="color: #00E5FF; margin-bottom: 0.5rem; font-weight: 800; text-align: center;">Gestion VRP's</h2>
+            <p style="color: #94A3B8; font-size: 0.85rem; margin-bottom: 2rem; text-align: center;">Inicia sesión con tus credenciales de usuario</p>
         </div>
-    </div>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
+
+    col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
+    with col_l2:
+        with st.form("form_login"):
+            input_usuario = st.text_input("Usuario")
+            input_password = st.text_input("Contraseña", type="password")
+            submit_login = st.form_submit_button("Ingresar", use_container_width=True)
+
+            if submit_login:
+                if input_usuario and input_password:
+                    query_login = """
+                        SELECT id, usuario, password, tipo_usuario, departamento 
+                        FROM "Agua_potable"."usuarios_vrp" 
+                        WHERE usuario = :usuario AND password = :password
+                    """
+                    df_user, err_login = obtener_datos(query_login, {"usuario": input_usuario.strip(), "password": input_password.strip()})
+                    
+                    if err_login:
+                        st.error(f"Error de conexión: {err_login}")
+                    elif not df_user.empty:
+                        st.session_state.autenticado = True
+                        st.session_state.usuario_actual = df_user.iloc[0]['usuario']
+                        st.session_state.tipo_usuario = df_user.iloc[0]['tipo_usuario']
+                        st.success("¡Acceso concedido!")
+                        t.sleep(0.5)
+                        st.rerun()
+                    else:
+                        st.error("Usuario o contraseña incorrectos.")
+                else:
+                    st.warning("Por favor ingresa usuario y contraseña.")
+    st.stop()  # Detiene la ejecución para no renderizar el resto del sistema si no está logueado
+
+# --- CABECERA ---
+col_head1, col_head2 = st.columns([5, 1])
+with col_head1:
+    st.markdown(f"""
+        <div style="display: flex; align-items: center; gap: 8px; width: 100%; margin-bottom: 5px; padding: 0 2px;">
+            <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 85px; height: auto; flex-shrink: 0;" />
+            <div>
+                <h2 style="color: #00E5FF; margin: 0; font-size: 1.1rem; font-weight: 800; line-height: 1.2;">Gestion VRP's</h2>
+                <span style="color: #94A3B8; font-size: 0.72rem;">👤 Usuario: <b>{st.session_state.usuario_actual}</b> ({st.session_state.tipo_usuario})</span>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+
+with col_head2:
+    if st.button("Cerrar Sesión", use_container_width=True):
+        st.session_state.autenticado = False
+        st.session_state.usuario_actual = None
+        st.session_state.tipo_usuario = None
+        st.rerun()
 
 # --- MENÚ DE NAVEGACIÓN ---
 opciones_menu = ["📍 Registros", "➕ Añadir", "⚙️ Editar"]
@@ -290,7 +325,7 @@ COLUMNAS_VPRS = """
 """
 
 # ==========================================
-# SECCIÓN 1: VER REGISTROS (VPRS) - UNA SOLA COLUMNA
+# SECCIÓN 1: VER REGISTROS (VPRS)
 # ==========================================
 if st.session_state.active_tab == "📍 Registros":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">📂 Catálogo de Válvulas VPRS</h3>', unsafe_allow_html=True)
@@ -333,7 +368,6 @@ if st.session_state.active_tab == "📍 Registros":
             """
             st.markdown(card_html, unsafe_allow_html=True)
             
-            # Contenedor desplegable para el detalle con título simplificado
             with st.expander("🔍 Ver detalles completos"):
                 detalle_html = f"""
                     <span style="color: #94A3B8; font-size: 0.68rem; line-height: 1.4;">
@@ -346,13 +380,11 @@ if st.session_state.active_tab == "📍 Registros":
                 """
                 st.markdown(detalle_html, unsafe_allow_html=True)
                 
-                # Visualización de la foto 1 almacenada
                 img_bytes = procesar_bytes_foto(row['fotos'])
                 if img_bytes is not None and len(img_bytes) > 0:
                     st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 6px; margin-bottom: 2px;'>📸 Fotografía 1 registrada:</p>", unsafe_allow_html=True)
                     st.image(img_bytes, caption=f"ID: {row['id']} (Foto 1)", width=280)
 
-                # Visualización de la foto 2 almacenada
                 img_bytes_2 = procesar_bytes_foto(row['fotos_2'])
                 if img_bytes_2 is not None and len(img_bytes_2) > 0:
                     st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 6px; margin-bottom: 2px;'>📸 Fotografía 2 registrada:</p>", unsafe_allow_html=True)
@@ -565,7 +597,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
             
-            # --- FOTO 1 (DEBAJO DE OBSERVACIONES) ---
+            # --- FOTO 1 ---
             foto_actual_bytes = procesar_bytes_foto(row['fotos'])
             eliminar_foto = False
             
@@ -592,7 +624,6 @@ elif st.session_state.active_tab == "⚙️ Editar":
             nueva_foto_camara = None
             if st.session_state.get(f"cam_open_edit_{row['fid']}", False):
                 nueva_foto_camara = st.camera_input("Tomar foto 1", key=f"cam_edit_{row['fid']}", label_visibility="collapsed")
-
 
             # --- FOTO 2 ---
             foto_actual_bytes_2 = procesar_bytes_foto(row['fotos_2'])
@@ -627,7 +658,6 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             if actualizar_click:
                 try:
-                    # Foto 1 final
                     if eliminar_foto:
                         foto_bytes_final = None
                     else:
@@ -635,7 +665,6 @@ elif st.session_state.active_tab == "⚙️ Editar":
                         if nueva_foto_camara is not None:
                             foto_bytes_final = nueva_foto_camara.getvalue()
 
-                    # Foto 2 final
                     if eliminar_foto_2:
                         foto_bytes_final_2 = None
                     else:
@@ -695,7 +724,6 @@ elif st.session_state.active_tab == "⚙️ Editar":
                     st.error("Debes escribir 'delete'.")
         with c2:
             if st.button("Cancelar", use_container_width=True):
-                st.session_state.registro_to_data = None
                 st.session_state.registro_to_delete = None
                 st.rerun()
 
