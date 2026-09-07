@@ -364,30 +364,26 @@ if not st.session_state.autenticado:
     st.stop()
 
 # --- CABECERA ---
-col_cab1, col_cab2 = st.columns([0.5, 0.5])
+st.markdown("""
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px; padding: 0 2px;">
+        <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 85px; height: auto; flex-shrink: 0;" />
+        <div>
+            <h2 style="color: #00E5FF; margin: 0; font-size: 1.1rem; font-weight: 800; line-height: 1.2;">Gestion VRP's</h2>
+        </div>
+    </div>
+""", unsafe_allow_html=True)
 
+col_cab1, col_cab2 = st.columns([0.45, 0.55])
 with col_cab1:
-    st.markdown("""
-        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px; padding: 0 2px;">
-            <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 85px; height: auto; flex-shrink: 0;" />
-            <div>
-                <h2 style="color: #00E5FF; margin: 0; font-size: 1.1rem; font-weight: 800; line-height: 1.2;">Gestion VRP's</h2>
-            </div>
+    if st.button("Cerrar Sesión", key="btn_logout", use_container_width=True):
+        st.session_state.autenticado = False
+        st.rerun()
+with col_cab2:
+    st.markdown(f"""
+        <div style="display: flex; justify-content: flex-start; align-items: center; height: 100%; margin-top: 6px;">
+            <span style="color: #00E5FF; font-weight: 700; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">👤 {st.session_state.usuario_actual}</span>
         </div>
     """, unsafe_allow_html=True)
-
-with col_cab2:
-    subcol1, subcol2 = st.columns([0.45, 0.55])
-    with subcol1:
-        if st.button("Cerrar Sesión", key="btn_logout", use_container_width=True):
-            st.session_state.autenticado = False
-            st.rerun()
-    with subcol2:
-        st.markdown(f"""
-            <div style="display: flex; justify-content: flex-start; align-items: center; height: 100%; margin-top: 6px;">
-                <span style="color: #00E5FF; font-weight: 700; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">👤 {st.session_state.usuario_actual}</span>
-            </div>
-        """, unsafe_allow_html=True)
 
 # --- DETERMINAR ROL DEL USUARIO ---
 es_operador = (st.session_state.get('tipo_usuario', '') == 'operador')
