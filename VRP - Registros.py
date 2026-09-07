@@ -16,32 +16,6 @@ if 'autenticado' not in st.session_state: st.session_state.autenticado = False
 
 zona_mx = ZoneInfo("America/Mexico_City")
 
-# --- SISTEMA DE LOGIN ---
-if not st.session_state.autenticado:
-    st.markdown("""
-        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-bottom: 20px; margin-top: 40px;">
-            <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 100px; height: auto;" />
-        </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown('<h3 style="color: #00E5FF; text-align: center; font-size: 1.2rem; font-weight: 800;">Acceso al Sistema - Gestión VRP\'s</h3>', unsafe_allow_html=True)
-    
-    with st.form("login_form"):
-        usuario_input = st.text_input("Usuario")
-        password_input = st.text_input("Contraseña", type="password")
-        submit_login = st.form_submit_button("Iniciar Sesión", use_container_width=True)
-        
-        if submit_login:
-            # Puedes ajustar las credenciales o validarlas contra tus secretos / base de datos si lo prefieres
-            if usuario_input == st.secrets.get("auth", {}).get("username", "admin") and password_input == st.secrets.get("auth", {}).get("password", "miaa2026"):
-                st.session_state.autenticado = True
-                st.success("¡Acceso concedido!")
-                t.sleep(0.5)
-                st.rerun()
-            else:
-                st.error("Usuario o contraseña incorrectos.")
-    st.stop()
-
 # --- CONEXIÓN A BASE DE DATOS POSTGRESQL ---
 def crear_nuevo_engine():
     pg = st.secrets["postgres"]
@@ -94,6 +68,45 @@ def procesar_bytes_foto(foto_data):
         except:
             return None
     return None
+
+# --- SISTEMA DE LOGIN CONECTADO A BASE DE DATOS ---
+if not st.session_state.autenticado:
+    st.markdown("""
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-bottom: 20px; margin-top: 40px;">
+            <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 100px; height: auto;" />
+        </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown('<h3 style="color: #00E5FF; text-align: center; font-size: 1.2rem; font-weight: 800;">Acceso al Sistema - Gestión VRP\'s</h3>', unsafe_allow_html=True)
+    
+    with st.form("login_form"):
+        usuario_input = st.text_input("Usuario")
+        password_input = st.text_input("Contraseña", type="password")
+        submit_login = st.form_submit_button("Iniciar Sesión", use_container_width=True)
+        
+        if submit_login:
+            if usuario_input and password_input:
+                # Consultar la base de datos para validar usuario y contraseña
+                query_login = """
+                    SELECT id, usuario, tipo_usuario, departamento 
+                    FROM "Agua_potable"."usuarios" 
+                    WHERE usuario = :usu AND CAST(password AS TEXT) = :pas
+                """
+                df_user, err_login = obtener_datos(query_login, {"usu": usuario_input.strip(), "pas": password_input.strip()})
+                
+                if not err_login and not df_user.empty:
+                    st.session_state.autenticado = True
+                    st.session_state.usuario_actual = df_user.iloc[0]['usuario']
+                    st.session_state.tipo_usuario = df_user.iloc[0]['tipo_usuario']
+                    st.session_state.departamento = df_user.iloc[0]['departamento']
+                    st.success("¡Acceso concedido!")
+                    t.sleep(0.5)
+                    st.rerun()
+                else:
+                    st.error("Usuario o contraseña incorrectos.")
+            else:
+                st.warning("Por favor, ingrese usuario y contraseña.")
+    st.stop()
 
 # --- ESTILOS CSS CON ANCHO TOTAL AL 100% EN CUADROS Y CONTENEDORES ---
 st.write("""<style>
@@ -362,7 +375,7 @@ if st.session_state.active_tab == "📍 Registros":
             card_html = f"""
                 <div class="user-card" style="margin-bottom: 2px;">
                     <span style="font-size: 0.8rem; font-weight: bold; color: #F8FAFC;">ID: {row['id']}{serie_texto}</span><br>
-                    <span style="color: #00E5FF; font-size: 0.7rem;">📍 {row['domicilio'] or 'Sin domicilio'}, Col. {row['colonia'] or 'Sin colonia'}</span>
+                    <span style="color: #00E5FF; font-size: 0.7 திரும;">📍 {row['domicilio'] or 'Sin domicilio'}, Col. {row['colonia'] or 'Sin colonia'}</span>
                 </div>
             """
             st.markdown(card_html, unsafe_allow_html=True)
