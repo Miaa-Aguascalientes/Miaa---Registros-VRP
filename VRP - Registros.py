@@ -314,7 +314,7 @@ if not st.session_state.autenticado:
                 if not err_login and not df_user.empty:
                     st.session_state.autenticado = True
                     st.session_state.usuario_actual = df_user.iloc[0]['usuario']
-                    st.session_state.tipo_usuario = df_user.iloc[0]['tipo_usuario']
+                    st.session_state.tipo_usuario = str(df_user.iloc[0]['tipo_usuario']).strip().lower()
                     st.session_state.departamento = df_user.iloc[0]['departamento']
                     st.success("¡Acceso concedido!")
                     t.sleep(0.5)
@@ -574,6 +574,9 @@ elif st.session_state.active_tab == "➕ Añadir":
 elif st.session_state.active_tab == "⚙️ Editar":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">🛠️ Modificar o Eliminar Válvula</h3>', unsafe_allow_html=True)
     
+    # Evaluar si el usuario actual es de rol operador
+    es_operador = (st.session_state.get('tipo_usuario', '') == 'operador')
+    
     busqueda_edit = st.text_input("🔍 Filtrar registros a editar:", placeholder="Dejar en blanco para ver 10...")
     
     if busqueda_edit and busqueda_edit.strip() != "":
@@ -603,48 +606,66 @@ elif st.session_state.active_tab == "⚙️ Editar":
         for idx, row in df_vprs.iterrows():
             st.markdown(f"<div style='padding: 0 2px;'><span style='color: #00E5FF; font-weight: bold;'>FID Registro: {row['fid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span></div>", unsafe_allow_html=True)
 
+            # CAMPOS BLOQUEADOS PARA OPERADOR vs EDICIÓN LIBRE
             e_r1c1, e_r1c2 = st.columns(2)
             with e_r1c1: 
                 st.text_input("ID_0 (Bloqueado)", value=str(row['id_0'] or 0), disabled=True, key=f"id0_bloq_{row['fid']}")
                 e_id_0 = row['id_0']
-            with e_r1c2: e_id = st.text_input("ID", value=str(row['id'] or ""), key=f"id_{row['fid']}")
+            with e_r1c2: 
+                e_id = st.text_input("ID", value=str(row['id'] or ""), disabled=es_operador, key=f"id_{row['fid']}")
 
             e_r2c1, e_r2c2 = st.columns(2)
             e_serie_val = "" if (pd.isna(row['serie']) or str(row['serie']).strip().lower() in ["nan", "none"]) else str(row['serie'])
-            with e_r2c1: e_serie = st.text_input("Serie", value=e_serie_val, key=f"serie_{row['fid']}")
-            with e_r2c2: e_diametro = st.number_input("Diámetro", value=int(row['diametro'] or 0), key=f"diam_{row['fid']}")
+            with e_r2c1: 
+                e_serie = st.text_input("Serie", value=e_serie_val, key=f"serie_{row['fid']}")  # HABILITADO
+            with e_r2c2: 
+                e_diametro = st.number_input("Diámetro", value=int(row['diametro'] or 0), disabled=es_operador, key=f"diam_{row['fid']}")
 
             e_r3c1, e_r3c2 = st.columns(2)
-            with e_r3c1: e_cota = st.number_input("Cota Terr", value=float(row['cota_terr'] or 0.0), key=f"cota_{row['fid']}")
-            with e_r3c2: e_marca = st.text_input("Marca Valv", value=str(row['marca_valv'] or ""), key=f"mar_{row['fid']}")
+            with e_r3c1: 
+                e_cota = st.number_input("Cota Terr", value=float(row['cota_terr'] or 0.0), disabled=es_operador, key=f"cota_{row['fid']}")
+            with e_r3c2: 
+                e_marca = st.text_input("Marca Valv", value=str(row['marca_valv'] or ""), disabled=es_operador, key=f"mar_{row['fid']}")
 
             e_r4c1, e_r4c2 = st.columns(2)
-            with e_r4c1: e_modelo = st.text_input("Modelo Valv", value=str(row['model_valv'] or ""), key=f"mod_{row['fid']}")
-            with e_r4c2: e_trim = st.text_input("Marca Trim", value=str(row['marca_trim'] or ""), key=f"trim_{row['fid']}")
+            with e_r4c1: 
+                e_modelo = st.text_input("Modelo Valv", value=str(row['model_valv'] or ""), disabled=es_operador, key=f"mod_{row['fid']}")
+            with e_r4c2: 
+                e_trim = st.text_input("Marca Trim", value=str(row['marca_trim'] or ""), disabled=es_operador, key=f"trim_{row['fid']}")
 
             e_r5c1, e_r5c2 = st.columns(2)
-            with e_r5c1: e_sector = st.text_input("Sector Hid", value=str(row['sector_hid'] or ""), key=f"sec_{row['fid']}")
-            with e_r5c2: e_domicilio = st.text_input("Domicilio", value=str(row['domicilio'] or ""), key=f"dom_{row['fid']}")
+            with e_r5c1: 
+                e_sector = st.text_input("Sector Hid", value=str(row['sector_hid'] or ""), disabled=es_operador, key=f"sec_{row['fid']}")
+            with e_r5c2: 
+                e_domicilio = st.text_input("Domicilio", value=str(row['domicilio'] or ""), disabled=es_operador, key=f"dom_{row['fid']}")
 
             e_r6c1, e_r6c2 = st.columns(2)
-            with e_r6c1: e_colonia = st.text_input("Colonia", value=str(row['colonia'] or ""), key=f"col_{row['fid']}")
-            with e_r6c2: e_estat = st.text_input("Estado Valv", value=str(row['estat_valv'] or ""), key=f"est_{row['fid']}")
+            with e_r6c1: 
+                e_colonia = st.text_input("Colonia", value=str(row['colonia'] or ""), disabled=es_operador, key=f"col_{row['fid']}")
+            with e_r6c2: 
+                e_estat = st.text_input("Estado Valv", value=str(row['estat_valv'] or ""), key=f"est_{row['fid']}")  # HABILITADO
 
             e_r7c1, e_r7c2 = st.columns(2)
-            with e_r7c1: e_hora = st.text_input("Hora Cal", value=str(row['hora_cal'] or ""), key=f"hora_{row['fid']}")
-            with e_r7c2: e_cal_ant_d = st.text_input("Cal Anterior Día", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")
+            with e_r7c1: 
+                e_hora = st.text_input("Hora Cal", value=str(row['hora_cal'] or ""), key=f"hora_{row['fid']}")  # HABILITADO
+            with e_r7c2: 
+                e_cal_ant_d = st.text_input("Cal Anterior Día", value=str(row['cal_ant_d'] or ""), key=f"cand_{row['fid']}")  # HABILITADO
 
             e_r8c1, e_r8c2 = st.columns(2)
-            with e_r8c1: e_cal_ant_n = st.text_input("Cal Anterior Noche", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")
-            with e_r8c2: e_cal_act_d = st.text_input("Cal Actual Día", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")
+            with e_r8c1: 
+                e_cal_ant_n = st.text_input("Cal Anterior Noche", value=str(row['cal_ant_n'] or ""), key=f"cann_{row['fid']}")  # HABILITADO
+            with e_r8c2: 
+                e_cal_act_d = st.text_input("Cal Actual Día", value=str(row['cal_act_d'] or ""), key=f"cactd_{row['fid']}")  # HABILITADO
 
             e_r9c1, e_r9c2 = st.columns(2)
-            with e_r9c1: e_cal_act_n = st.text_input("Cal Actual Noche", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
-            with e_r9c2: e_fecha = st.text_input("Fecha Ult", value=str(row['fecha_ult_']  or ""), key=f"fec_{row['fid']}")
+            with e_r9c1: 
+                e_cal_act_n = st.text_input("Cal Actual Noche", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")  # HABILITADO
+            with e_r9c2: 
+                e_fecha = st.text_input("Fecha Ult", value=str(row['fecha_ult_']  or ""), key=f"fec_{row['fid']}")  # HABILITADO
 
-            e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
+            e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")  # HABILITADO
             
-            # --- FOTO 1 (DEBAJO DE OBSERVACIONES) ---
+            # --- FOTO 1 ---
             foto_actual_bytes = procesar_bytes_foto(row['fotos'])
             eliminar_foto = False
             
@@ -671,7 +692,6 @@ elif st.session_state.active_tab == "⚙️ Editar":
             nueva_foto_camara = None
             if st.session_state.get(f"cam_open_edit_{row['fid']}", False):
                 nueva_foto_camara = st.camera_input("Tomar foto 1", key=f"cam_edit_{row['fid']}", label_visibility="collapsed")
-
 
             # --- FOTO 2 ---
             foto_actual_bytes_2 = procesar_bytes_foto(row['fotos_2'])
@@ -745,30 +765,31 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 except Exception as ex:
                     st.error(f"Error al actualizar: {ex}")
 
-            st.markdown("<hr style='border: 0.5px solid rgba(255,0,0,0.2); margin: 15px 0;'>", unsafe_allow_html=True)
-            
-            # Botón y lógica de eliminación con confirmación
-            if st.session_state.registro_to_delete == row['fid']:
-                st.markdown(f"<p style='color: #ff4d4d; font-size: 0.8rem; font-weight: bold;'>¿Estás seguro de eliminar el registro FID {row['fid']} (ID: {row['id']})?</p>", unsafe_allow_html=True)
-                col_y, col_n = st.columns(2)
-                with col_y:
-                    if st.button("Sí, eliminar", key=f"confirm_del_{row['fid']}", use_container_width=True):
-                        try:
-                            ejecutar_sql('DELETE FROM "Agua_potable"."VPRS" WHERE fid = :fid', {"fid": row['fid']})
+            # Botón de eliminación disponible únicamente para administradores/no operadores
+            if not es_operador:
+                st.markdown("<hr style='border: 0.5px solid rgba(255,0,0,0.2); margin: 15px 0;'>", unsafe_allow_html=True)
+                
+                if st.session_state.registro_to_delete == row['fid']:
+                    st.markdown(f"<p style='color: #ff4d4d; font-size: 0.8rem; font-weight: bold;'>¿Estás seguro de eliminar el registro FID {row['fid']} (ID: {row['id']})?</p>", unsafe_allow_html=True)
+                    col_y, col_n = st.columns(2)
+                    with col_y:
+                        if st.button("Sí, eliminar", key=f"confirm_del_{row['fid']}", use_container_width=True):
+                            try:
+                                ejecutar_sql('DELETE FROM "Agua_potable"."VPRS" WHERE fid = :fid', {"fid": row['fid']})
+                                st.session_state.registro_to_delete = None
+                                st.success("Registro eliminado correctamente.")
+                                t.sleep(1)
+                                st.rerun()
+                            except Exception as ex_del:
+                                st.error(f"Error al eliminar: {ex_del}")
+                    with col_n:
+                        if st.button("Cancelar", key=f"cancel_del_{row['fid']}", use_container_width=True):
                             st.session_state.registro_to_delete = None
-                            st.success("Registro eliminado correctamente.")
-                            t.sleep(1)
                             st.rerun()
-                        except Exception as ex_del:
-                            st.error(f"Error al eliminar: {ex_del}")
-                with col_n:
-                    if st.button("Cancelar", key=f"cancel_del_{row['fid']}", use_container_width=True):
-                        st.session_state.registro_to_delete = None
+                else:
+                    if st.button("🗑️ Eliminar este registro", key=f"btn_del_{row['fid']}", use_container_width=True):
+                        st.session_state.registro_to_delete = row['fid']
                         st.rerun()
-            else:
-                if st.button("🗑️ Eliminar este registro", key=f"btn_del_{row['fid']}", use_container_width=True):
-                    st.session_state.registro_to_delete = row['fid']
-                    st.rerun()
 
             st.markdown("<hr style='border: 1px solid rgba(0,229,255,0.2); margin: 20px 0;'>", unsafe_allow_html=True)
     else:
