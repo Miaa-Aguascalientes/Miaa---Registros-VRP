@@ -124,7 +124,7 @@ def parsear_fecha_segura(val_fecha):
     except Exception:
         return datetime.date.today()
 
-# --- ESTILOS CSS CON ANCHO TOTAL AL 100% Y CÁMARA EXPANDIDA ---
+# --- ESTILOS CSS CON ANCHO TOTAL AL 100% Y CÁMARA EXPANDIDA EN ANCHO Y ALTURA ---
 st.write("""<style>
     /* Ocultar únicamente la cabecera nativa de Streamlit sin afectar los headers del calendario BaseWeb */
     #MainMenu, [data-testid="stHeader"] {visibility: hidden !important; display: none !important;} 
@@ -317,7 +317,7 @@ st.write("""<style>
         display: none !important;
     }
     
-    /* EXPANSIÓN TOTAL DE CÁMARA AL ANCHO DE LA PANTALLA */
+    /* EXPANSIÓN TOTAL DE CÁMARA (ANCHO Y ALTURA AMPLIADA) */
     [data-testid="stCameraInput"] {
         width: 100% !important;
         max-width: 100% !important;
@@ -325,12 +325,13 @@ st.write("""<style>
     [data-testid="stCameraInput"] > div {
         width: 100% !important;
         max-width: 100% !important;
+        min-height: 420px !important; /* Altura mínima expandida para la cámara */
     }
     [data-testid="stCameraInput"] video, 
     [data-testid="stCameraInput"] img {
         width: 100% !important;
         max-width: 100% !important;
-        height: auto !important;
+        height: 450px !important; /* Altura fija extendida para el visor */
         object-fit: cover !important;
         border-radius: 6px !important;
     }
