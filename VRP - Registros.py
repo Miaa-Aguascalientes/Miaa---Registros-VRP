@@ -5,6 +5,7 @@ from sqlalchemy import create_engine, text
 import time as t
 from zoneinfo import ZoneInfo
 import base64
+from datetime import date, datetime
 
 # Configuración de página
 st.set_page_config(layout="wide", page_title="Gestion VRP's - MIAA", page_icon="https://www.miaa.mx/favicon.ico")
@@ -18,6 +19,19 @@ if 'active_tab' not in st.session_state: st.session_state.active_tab = "📍 Reg
 if 'autenticado' not in st.session_state: st.session_state.autenticado = False
 
 zona_mx = ZoneInfo("America/Mexico_City")
+
+# --- FUNCIÓN AUXILIAR PARA PARSEAR FECHAS DE LA BD AL CALENDARIO ---
+def parsear_fecha(val):
+    if pd.isna(val) or val is None or str(val).strip().lower() in ["nan", "none", ""]:
+        return date.today()
+    if isinstance(val, date) and not isinstance(val, datetime):
+        return val
+    if isinstance(val, datetime):
+        return val.date()
+    try:
+        return pd.to_datetime(val).date()
+    except Exception:
+        return date.today()
 
 # --- CONEXIÓN A BASE DE DATOS POSTGRESQL (VPRS) ---
 def crear_nuevo_engine():
@@ -209,7 +223,7 @@ st.write("""<style>
     }
 
     /* Etiquetas de los inputs */
-    .stTextInput label, .stSelectbox label, .stNumberInput label, [data-testid="stWidgetLabel"] p {
+    .stTextInput label, .stSelectbox label, .stNumberInput label, .stDateInput label, [data-testid="stWidgetLabel"] p {
         color: #E2E8F0 !important;
         font-weight: 600 !important;
         font-size: 0.75rem !important;
@@ -493,7 +507,7 @@ elif st.session_state.active_tab == "➕ Añadir" and not es_operador:
 
     r9c1, r9c2 = st.columns(2)
     with r9c1: val_cal_act_n = st.text_input("Cal Actual Noche (kg/cm)", key="add_cactn")
-    with r9c2: val_fecha = st.text_input("Fecha ultima actualización", key="add_fecha")
+    with r9c2: val_fecha = st.date_input("Fecha ultima actualización", value=date.today(), format="YYYY-MM-DD", key="add_fecha")
 
     val_observ = st.text_input("Observaciones", key="add_obs")
 
@@ -557,7 +571,7 @@ elif st.session_state.active_tab == "➕ Añadir" and not es_operador:
                     "id_0": val_id_0, "id": val_id, "serie": val_serie if val_serie.strip() != "" else None, "diametro": val_diametro, "marca_valv": val_marca,
                     "model_valv": val_modelo, "marca_trim": val_trim, "domicilio": val_domicilio, "colonia": val_colonia,
                     "cota_terr": val_cota, "sector_hid": val_sector, "cal_ant_d": val_cal_ant_d, "cal_ant_n": val_cal_ant_n,
-                    "fecha_ult_": val_fecha, "cal_act_d": val_cal_act_d, "cal_act_n": val_cal_act_n, "hora_cal": val_hora,
+                    "fecha_ult_": str(val_fecha) if val_fecha else None, "cal_act_d": val_cal_act_d, "cal_act_n": val_cal_act_n, "hora_cal": val_hora,
                     "estat_valv": val_estat, "observ": val_observ, "fotos": foto_bytes, "fotos_2": foto_bytes_2
                 })
                 st.success("¡Válvula registrada con éxito!")
@@ -646,7 +660,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 with e_r4c1: 
                     e_cal_act_n = st.text_input("Cal Actual Noche (kg/cm)", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
                 with e_r4c2: 
-                    e_fecha = st.text_input("Fecha ultima actualización", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
+                    e_fecha = st.date_input("Fecha ultima actualización", value=parsear_fecha(row['fecha_ult_']), format="YYYY-MM-DD", key=f"fec_{row['fid']}")
 
                 e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
 
@@ -705,7 +719,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 with e_r9c1: 
                     e_cal_act_n = st.text_input("Cal Actual Noche (kg/cm)", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
                 with e_r9c2: 
-                    e_fecha = st.text_input("Fecha ultima actualización", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
+                    e_fecha = st.date_input("Fecha ultima actualización", value=parsear_fecha(row['fecha_ult_']), format="YYYY-MM-DD", key=f"fec_{row['fid']}")
 
                 e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
             
@@ -798,7 +812,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                         "id_0": e_id_0, "id": e_id, "serie": e_serie if e_serie.strip() != "" else None, "diametro": e_diametro, "marca_valv": e_marca,
                         "model_valv": e_modelo, "marca_trim": e_trim, "domicilio": e_domicilio, "colonia": e_colonia,
                         "cota_terr": e_cota, "sector_hid": e_sector, "cal_ant_d": e_cal_ant_d, "cal_ant_n": e_cal_ant_n,
-                        "fecha_ult_": e_fecha, "cal_act_d": e_cal_act_d, "cal_act_n": e_cal_act_n, "hora_cal": e_hora,
+                        "fecha_ult_": str(e_fecha) if e_fecha else None, "cal_act_d": e_cal_act_d, "cal_act_n": e_cal_act_n, "hora_cal": e_hora,
                         "estat_valv": e_estat, "observ": e_observ, "fotos": foto_bytes_final, "fotos_2": foto_bytes_final_2, "fid": row['fid']
                     })
                     st.success(f"¡Registro FID {row['fid']} actualizado con éxito!")
