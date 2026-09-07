@@ -57,7 +57,7 @@ def ejecutar_sql(query, params=None):
 
 # --- CONEXIÓN A MYSQL (USUARIOS / LOGIN) ---
 def crear_engine_mysql():
-    mysql_sec = st.secrets["mysql_usuarios"]
+    mysql_sec = st.secrets["mysql_usuarios_vrp"]
     db_url = f"mysql+pymysql://{mysql_sec['user']}:{mysql_sec['password']}@{mysql_sec['host']}:{mysql_sec['port']}/{mysql_sec['database']}"
     return create_engine(
         db_url,
@@ -102,47 +102,9 @@ def procesar_bytes_foto(foto_data):
             return None
     return None
 
-# --- SISTEMA DE LOGIN CONECTADO A MYSQL ---
-if not st.session_state.autenticado:
-    st.markdown("""
-        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-bottom: 20px; margin-top: 40px;">
-            <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 100px; height: auto;" />
-        </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown('<h3 style="color: #00E5FF; text-align: center; font-size: 1.2rem; font-weight: 800;">Acceso al Sistema - Gestión VRP\'s</h3>', unsafe_allow_html=True)
-    
-    with st.form("login_form"):
-        usuario_input = st.text_input("Usuario")
-        password_input = st.text_input("Contraseña", type="password")
-        submit_login = st.form_submit_button("Iniciar Sesión", use_container_width=True)
-        
-        if submit_login:
-            if usuario_input and password_input:
-                query_login = """
-                    SELECT id, usuario, tipo_usuario, departamento 
-                    FROM usuarios_vrp 
-                    WHERE usuario = :usu AND password = :pas
-                """
-                df_user, err_login = obtener_datos_mysql(query_login, {"usu": usuario_input.strip(), "pas": password_input.strip()})
-                
-                if not err_login and not df_user.empty:
-                    st.session_state.autenticado = True
-                    st.session_state.usuario_actual = df_user.iloc[0]['usuario']
-                    st.session_state.tipo_usuario = df_user.iloc[0]['tipo_usuario']
-                    st.session_state.departamento = df_user.iloc[0]['departamento']
-                    st.success("¡Acceso concedido!")
-                    t.sleep(0.5)
-                    st.rerun()
-                else:
-                    st.error("Usuario o contraseña incorrectos.")
-            else:
-                st.warning("Por favor, ingrese usuario y contraseña.")
-    st.stop()
-
-# --- ESTILOS CSS CON ANCHO TOTAL AL 100% EN CUADROS Y CONTENEDORES ---
+# --- ESTILOS CSS CON ANCHO TOTAL AL 100% Y OCULTAR HEADER / MENÚ DE STREAMLIT ---
 st.write("""<style>
-    #MainMenu, header {visibility: hidden;} 
+    #MainMenu, header, [data-testid="stHeader"] {visibility: hidden !important; display: none !important;} 
     .block-container {
         padding-top: 0rem !important; 
         padding-bottom: 2.5rem !important;
@@ -324,6 +286,44 @@ st.write("""<style>
         width: 100% !important;
     }
 </style>""", unsafe_allow_html=True)
+
+# --- SISTEMA DE LOGIN CONECTADO A MYSQL ---
+if not st.session_state.autenticado:
+    st.markdown("""
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-bottom: 20px; margin-top: 40px;">
+            <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 100px; height: auto;" />
+        </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown('<h3 style="color: #00E5FF; text-align: center; font-size: 1.2rem; font-weight: 800;">Acceso al Sistema - Gestión VRP\'s</h3>', unsafe_allow_html=True)
+    
+    with st.form("login_form"):
+        usuario_input = st.text_input("Usuario")
+        password_input = st.text_input("Contraseña", type="password")
+        submit_login = st.form_submit_button("Iniciar Sesión", use_container_width=True)
+        
+        if submit_login:
+            if usuario_input and password_input:
+                query_login = """
+                    SELECT id, usuario, tipo_usuario, departamento 
+                    FROM usuarios_vrp 
+                    WHERE usuario = :usu AND password = :pas
+                """
+                df_user, err_login = obtener_datos_mysql(query_login, {"usu": usuario_input.strip(), "pas": password_input.strip()})
+                
+                if not err_login and not df_user.empty:
+                    st.session_state.autenticado = True
+                    st.session_state.usuario_actual = df_user.iloc[0]['usuario']
+                    st.session_state.tipo_usuario = df_user.iloc[0]['tipo_usuario']
+                    st.session_state.departamento = df_user.iloc[0]['departamento']
+                    st.success("¡Acceso concedido!")
+                    t.sleep(0.5)
+                    st.rerun()
+                else:
+                    st.error("Usuario o contraseña incorrectos.")
+            else:
+                st.warning("Por favor, ingrese usuario y contraseña.")
+    st.stop()
 
 # --- CABECERA ---
 st.markdown("""
