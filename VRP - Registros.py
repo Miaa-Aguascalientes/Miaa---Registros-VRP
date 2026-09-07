@@ -26,22 +26,14 @@ def parsear_fecha_segura(val):
     except Exception:
         return datetime.date.today()
 
-# Helper para renderizar selector de fecha en 3 campos (Día, Mes, Año)
-def selector_fecha_tres_campos(label_texto, fecha_inicial, key_prefix):
-    st.markdown(f"<label style='color: #E2E8F0; font-weight: 600; font-size: 0.75rem;'>{label_texto}</label>", unsafe_allow_html=True)
-    f_col1, f_col2, f_col3 = st.columns(3)
-    with f_col1:
-        dia = st.number_input("Día", min_value=1, max_value=31, value=int(fecha_inicial.day), key=f"{key_prefix}_dia")
-    with f_col2:
-        mes = st.number_input("Mes", min_value=1, max_value=12, value=int(fecha_inicial.month), key=f"{key_prefix}_mes")
-    with f_col3:
-        anio = st.number_input("Año", min_value=2000, max_value=2035, value=int(fecha_inicial.year), key=f"{key_prefix}_anio")
-    
-    try:
-        return datetime.date(int(anio), int(mes), int(dia))
-    except ValueError:
-        st.warning("⚠️ Fecha inválida seleccionada, se usará la fecha actual.")
-        return datetime.date.today()
+# Selector de fecha nativo y práctico (un solo campo con calendario desplegable o escritura directa DD/MM/AAAA)
+def selector_fecha_practico(label_texto, fecha_inicial, key_prefix):
+    return st.date_input(
+        label=label_texto,
+        value=fecha_inicial,
+        format="DD/MM/YYYY",
+        key=f"{key_prefix}_date_input"
+    )
 
 # --- CONEXIÓN A BASE DE DATOS POSTGRESQL (VPRS) ---
 def crear_nuevo_engine():
@@ -505,7 +497,7 @@ elif st.session_state.active_tab == "➕ Añadir":
     r9c1, r9c2 = st.columns(2)
     with r9c1: val_cal_act_n = st.text_input("Cal Actual Noche (kg/cm)", key="add_cactn")
     with r9c2: 
-        val_fecha = selector_fecha_tres_campos("Fecha ultima actualización", datetime.date.today(), "add_fec")
+        val_fecha = selector_fecha_practico("Fecha ultima actualización", datetime.date.today(), "add_fec")
 
     val_observ = st.text_input("Observaciones", key="add_obs")
 
@@ -655,7 +647,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                     e_cal_act_n = st.text_input("Cal Actual Noche (kg/cm)", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
                 with e_r4c2: 
                     fecha_val_op = parsear_fecha_segura(row['fecha_ult_'])
-                    e_fecha = selector_fecha_tres_campos("Fecha ultima actualización", fecha_val_op, f"fec_op_{row['fid']}")
+                    e_fecha = selector_fecha_practico("Fecha ultima actualización", fecha_val_op, f"fec_op_{row['fid']}")
 
                 e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
 
@@ -715,7 +707,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                     e_cal_act_n = st.text_input("Cal Actual Noche (kg/cm)", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
                 with e_r9c2: 
                     fecha_val_adm = parsear_fecha_segura(row['fecha_ult_'])
-                    e_fecha = selector_fecha_tres_campos("Fecha ultima actualización", fecha_val_adm, f"fec_adm_{row['fid']}")
+                    e_fecha = selector_fecha_practico("Fecha ultima actualización", fecha_val_adm, f"fec_adm_{row['fid']}")
 
                 e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
             
