@@ -121,7 +121,7 @@ if not st.session_state.autenticado:
             if usuario_input and password_input:
                 query_login = """
                     SELECT id, usuario, tipo_usuario, departamento 
-                    FROM usuarios 
+                    FROM usuarios_vrp 
                     WHERE usuario = :usu AND password = :pas
                 """
                 df_user, err_login = obtener_datos_mysql(query_login, {"usu": usuario_input.strip(), "pas": password_input.strip()})
