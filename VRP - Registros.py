@@ -3,7 +3,6 @@ import streamlit as st
 import pandas as pd
 from sqlalchemy import create_engine, text
 import time as t
-import datetime
 from zoneinfo import ZoneInfo
 import base64
 
@@ -16,24 +15,6 @@ if 'active_tab' not in st.session_state: st.session_state.active_tab = "📍 Reg
 if 'autenticado' not in st.session_state: st.session_state.autenticado = False
 
 zona_mx = ZoneInfo("America/Mexico_City")
-
-# Helper para parsear fechas de forma segura
-def parsear_fecha_segura(val):
-    if pd.isna(val) or str(val).strip().lower() in ["", "nan", "none"]:
-        return datetime.date.today()
-    try:
-        return pd.to_datetime(val).date()
-    except Exception:
-        return datetime.date.today()
-
-# Selector de fecha nativo y práctico (un solo campo con calendario desplegable o escritura directa DD/MM/AAAA)
-def selector_fecha_practico(label_texto, fecha_inicial, key_prefix):
-    return st.date_input(
-        label=label_texto,
-        value=fecha_inicial,
-        format="DD/MM/YYYY",
-        key=f"{key_prefix}_date_input"
-    )
 
 # --- CONEXIÓN A BASE DE DATOS POSTGRESQL (VPRS) ---
 def crear_nuevo_engine():
@@ -140,6 +121,7 @@ st.write("""<style>
         overflow-x: hidden;
     }
     
+    /* REJILLA EXPANDIDA Y FORZADA A BORDE A BORDE */
     .miaa-grid-container {
         display: grid;
         grid-template-columns: repeat(2, 1fr) !important;
@@ -150,6 +132,7 @@ st.write("""<style>
         padding: 0 !important;
     }
 
+    /* Anular restricciones y paddings de Streamlit en bloques horizontales */
     [data-testid="stHorizontalBlock"] {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
@@ -167,6 +150,7 @@ st.write("""<style>
         margin: 0 !important;
     }
 
+    /* Tarjetas de registros con ancho total absoluto */
     .user-card {
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
@@ -180,6 +164,7 @@ st.write("""<style>
         height: 100% !important;
     }
 
+    /* Menú de navegación / Pestañas estilo tarjeta MIAA */
     div.row-widget.stRadio > div {
         display: flex;
         flex-direction: row;
@@ -220,7 +205,8 @@ st.write("""<style>
         font-weight: 700 !important;
     }
 
-    .stTextInput label, .stSelectbox label, .stNumberInput label, .stDateInput label, [data-testid="stWidgetLabel"] p {
+    /* Etiquetas de los inputs */
+    .stTextInput label, .stSelectbox label, .stNumberInput label, [data-testid="stWidgetLabel"] p {
         color: #E2E8F0 !important;
         font-weight: 600 !important;
         font-size: 0.75rem !important;
@@ -229,6 +215,7 @@ st.write("""<style>
         text-overflow: ellipsis !important;
     }
 
+    /* Botones principales */
     .stButton>button {
         background: linear-gradient(135deg, #023e8a 0%, #0077b6 100%) !important;
         color: #FFFFFF !important;
@@ -247,6 +234,7 @@ st.write("""<style>
         opacity: 1;
     }
 
+    /* FORZAR ANCHO TOTAL Y MAYOR EXPANSIÓN LATERAL EN TODOS LOS CUADROS DE TEXTO Y ENTRADAS */
     .stTextInput, .stNumberInput, .stSelectbox, .stDateInput, .stTextArea {
         width: 100% !important;
         max-width: 100% !important;
@@ -271,6 +259,7 @@ st.write("""<style>
         width: 100% !important;
     }
 
+    /* ESTILO PARA EL EXPANDER DENTRO DE LOS REGISTROS */
     [data-testid="stExpander"] {
         background-color: #080C14 !important;
         border: 1px solid rgba(0, 229, 255, 0.15) !important;
@@ -496,8 +485,7 @@ elif st.session_state.active_tab == "➕ Añadir":
 
     r9c1, r9c2 = st.columns(2)
     with r9c1: val_cal_act_n = st.text_input("Cal Actual Noche (kg/cm)", key="add_cactn")
-    with r9c2: 
-        val_fecha = selector_fecha_practico("Fecha ultima actualización", datetime.date.today(), "add_fec")
+    with r9c2: val_fecha = st.text_input("Fecha ultima actualización", key="add_fecha")
 
     val_observ = st.text_input("Observaciones", key="add_obs")
 
@@ -612,7 +600,8 @@ elif st.session_state.active_tab == "⚙️ Editar":
             e_id_0 = row['id_0']
 
             if es_operador:
-                # OCULTAR CAMPOS DE INFRAESTRUCTURA PARA OPERADOR
+                # OCULTAR COMPLETAMENTE LOS CAMPOS DE INFRAESTRUCTURA PARA OPERADOR
+                # Preservar sus valores originales en variables para no perderlos al ejecutar SQL
                 e_id = row['id']
                 e_diametro = row['diametro']
                 e_cota = row['cota_terr']
@@ -623,6 +612,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 e_domicilio = row['domicilio']
                 e_colonia = row['colonia']
 
+                # Mostrar en pantalla únicamente los campos que el operador puede editar
                 e_r1c1, e_r1c2 = st.columns(2)
                 e_serie_val = "" if (pd.isna(row['serie']) or str(row['serie']).strip().lower() in ["nan", "none"]) else str(row['serie'])
                 with e_r1c1: 
@@ -646,8 +636,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 with e_r4c1: 
                     e_cal_act_n = st.text_input("Cal Actual Noche (kg/cm)", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
                 with e_r4c2: 
-                    fecha_val_op = parsear_fecha_segura(row['fecha_ult_'])
-                    e_fecha = selector_fecha_practico("Fecha ultima actualización", fecha_val_op, f"fec_op_{row['fid']}")
+                    e_fecha = st.text_input("Fecha ultima actualización", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
 
                 e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
 
@@ -706,8 +695,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 with e_r9c1: 
                     e_cal_act_n = st.text_input("Cal Actual Noche (kg/cm)", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
                 with e_r9c2: 
-                    fecha_val_adm = parsear_fecha_segura(row['fecha_ult_'])
-                    e_fecha = selector_fecha_practico("Fecha ultima actualización", fecha_val_adm, f"fec_adm_{row['fid']}")
+                    e_fecha = st.text_input("Fecha ultima actualización", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
 
                 e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
             
