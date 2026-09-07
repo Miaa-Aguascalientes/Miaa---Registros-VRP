@@ -16,7 +16,7 @@ if 'autenticado' not in st.session_state: st.session_state.autenticado = False
 
 zona_mx = ZoneInfo("America/Mexico_City")
 
-# --- CONEXIÓN A BASE DE DATOS POSTGRESQL ---
+# --- CONEXIÓN A BASE DE DATOS POSTGRESQL (VPRS) ---
 def crear_nuevo_engine():
     pg = st.secrets["postgres"]
     db_url = f"postgresql+psycopg2://{pg['user']}:{pg['password']}@{pg['host']}:{pg['port']}/{pg['database']}"
@@ -55,6 +55,39 @@ def ejecutar_sql(query, params=None):
             conn.execute(text(query) if isinstance(query, str) else query, params or {})
     return True
 
+# --- CONEXIÓN A MYSQL (USUARIOS / LOGIN) ---
+def crear_engine_mysql():
+    mysql_sec = st.secrets["mysql_usuarios"]
+    db_url = f"mysql+pymysql://{mysql_sec['user']}:{mysql_sec['password']}@{mysql_sec['host']}:{mysql_sec['port']}/{mysql_sec['database']}"
+    return create_engine(
+        db_url,
+        pool_pre_ping=True,
+        pool_recycle=1800,
+        pool_timeout=60,
+        connect_args={'connect_timeout': 60}
+    )
+
+if 'db_mysql_engine' not in st.session_state:
+    st.session_state.db_mysql_engine = crear_engine_mysql()
+
+def obtener_datos_mysql(query, params=None):
+    for intento in range(2):
+        try:
+            with st.session_state.db_mysql_engine.connect() as conn:
+                df = pd.read_sql(text(query) if isinstance(query, str) else query, conn, params=params or {})
+                return df, None
+        except Exception:
+            try:
+                st.session_state.db_mysql_engine.dispose()
+                st.session_state.db_mysql_engine = crear_engine_mysql()
+                with st.session_state.db_mysql_engine.connect() as conn:
+                    df = pd.read_sql(text(query) if isinstance(query, str) else query, conn, params=params or {})
+                    return df, None
+            except Exception as e2:
+                if intento == 1:
+                    return pd.DataFrame(), str(e2)
+    return pd.DataFrame(), "Error de conexión persistente a MySQL."
+
 def procesar_bytes_foto(foto_data):
     if foto_data is None:
         return None
@@ -69,7 +102,7 @@ def procesar_bytes_foto(foto_data):
             return None
     return None
 
-# --- SISTEMA DE LOGIN CONECTADO A BASE DE DATOS ---
+# --- SISTEMA DE LOGIN CONECTADO A MYSQL ---
 if not st.session_state.autenticado:
     st.markdown("""
         <div style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-bottom: 20px; margin-top: 40px;">
@@ -86,13 +119,12 @@ if not st.session_state.autenticado:
         
         if submit_login:
             if usuario_input and password_input:
-                # Consultar la base de datos para validar usuario y contraseña
                 query_login = """
                     SELECT id, usuario, tipo_usuario, departamento 
-                    FROM "Agua_potable"."usuarios" 
-                    WHERE usuario = :usu AND CAST(password AS TEXT) = :pas
+                    FROM usuarios 
+                    WHERE usuario = :usu AND password = :pas
                 """
-                df_user, err_login = obtener_datos(query_login, {"usu": usuario_input.strip(), "pas": password_input.strip()})
+                df_user, err_login = obtener_datos_mysql(query_login, {"usu": usuario_input.strip(), "pas": password_input.strip()})
                 
                 if not err_login and not df_user.empty:
                     st.session_state.autenticado = True
@@ -375,7 +407,7 @@ if st.session_state.active_tab == "📍 Registros":
             card_html = f"""
                 <div class="user-card" style="margin-bottom: 2px;">
                     <span style="font-size: 0.8rem; font-weight: bold; color: #F8FAFC;">ID: {row['id']}{serie_texto}</span><br>
-                    <span style="color: #00E5FF; font-size: 0.7 திரும;">📍 {row['domicilio'] or 'Sin domicilio'}, Col. {row['colonia'] or 'Sin colonia'}</span>
+                    <span style="color: #00E5FF; font-size: 0.77rem;">📍 {row['domicilio'] or 'Sin domicilio'}, Col. {row['colonia'] or 'Sin colonia'}</span>
                 </div>
             """
             st.markdown(card_html, unsafe_allow_html=True)
@@ -740,11 +772,11 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             st.markdown("<hr style='border: 1px solid rgba(0,229,255,0.2); margin: 20px 0;'>", unsafe_allow_html=True)
     else:
-                st.info("No se encontraron registros para editar.")
+        st.info("No se encontraron registros para editar.")
 
 # --- PIE DE PÁGINA ---
 st.markdown("""
     <div style="text-align: center; color: #94A3B8; font-size: 0.78rem; margin-top: 2rem; border-top: 1px solid rgba(0, 229, 255, 0.12); padding-top: 0.8rem;">
-        © 2026 MIAA &bull; Sistema de Gestión PostGIS
+        © 2026 MIAA &bull; Sistema de Gestión PostGIS y MySQL
     </div>
 """, unsafe_allow_html=True)
