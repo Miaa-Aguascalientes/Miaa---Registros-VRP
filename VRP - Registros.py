@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 from sqlalchemy import create_engine, text
 import time as t
+import datetime
 from zoneinfo import ZoneInfo
 import base64
 
@@ -15,6 +16,15 @@ if 'active_tab' not in st.session_state: st.session_state.active_tab = "📍 Reg
 if 'autenticado' not in st.session_state: st.session_state.autenticado = False
 
 zona_mx = ZoneInfo("America/Mexico_City")
+
+# Helper para parsear fechas de forma segura para los calendarios
+def parsear_fecha_segura(val):
+    if pd.isna(val) or str(val).strip().lower() in ["", "nan", "none"]:
+        return datetime.date.today()
+    try:
+        return pd.to_datetime(val).date()
+    except Exception:
+        return datetime.date.today()
 
 # --- CONEXIÓN A BASE DE DATOS POSTGRESQL (VPRS) ---
 def crear_nuevo_engine():
@@ -206,7 +216,7 @@ st.write("""<style>
     }
 
     /* Etiquetas de los inputs */
-    .stTextInput label, .stSelectbox label, .stNumberInput label, [data-testid="stWidgetLabel"] p {
+    .stTextInput label, .stSelectbox label, .stNumberInput label, .stDateInput label, [data-testid="stWidgetLabel"] p {
         color: #E2E8F0 !important;
         font-weight: 600 !important;
         font-size: 0.75rem !important;
@@ -485,7 +495,7 @@ elif st.session_state.active_tab == "➕ Añadir":
 
     r9c1, r9c2 = st.columns(2)
     with r9c1: val_cal_act_n = st.text_input("Cal Actual Noche (kg/cm)", key="add_cactn")
-    with r9c2: val_fecha = st.text_input("Fecha ultima actualización", key="add_fecha")
+    with r9c2: val_fecha = st.date_input("Fecha ultima actualización", value=datetime.date.today(), key="add_fecha")
 
     val_observ = st.text_input("Observaciones", key="add_obs")
 
@@ -636,7 +646,8 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 with e_r4c1: 
                     e_cal_act_n = st.text_input("Cal Actual Noche (kg/cm)", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
                 with e_r4c2: 
-                    e_fecha = st.text_input("Fecha ultima actualización", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
+                    fecha_val_op = parsear_fecha_segura(row['fecha_ult_'])
+                    e_fecha = st.date_input("Fecha ultima actualización", value=fecha_val_op, key=f"fec_{row['fid']}")
 
                 e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
 
@@ -695,7 +706,8 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 with e_r9c1: 
                     e_cal_act_n = st.text_input("Cal Actual Noche (kg/cm)", value=str(row['cal_act_n'] or ""), key=f"cactn_{row['fid']}")
                 with e_r9c2: 
-                    e_fecha = st.text_input("Fecha ultima actualización", value=str(row['fecha_ult_'] or ""), key=f"fec_{row['fid']}")
+                    fecha_val_adm = parsear_fecha_segura(row['fecha_ult_'])
+                    e_fecha = st.date_input("Fecha ultima actualización", value=fecha_val_adm, key=f"fec_{row['fid']}")
 
                 e_observ = st.text_input("Observaciones", value=str(row['observ'] or ""), key=f"obs_{row['fid']}")
             
