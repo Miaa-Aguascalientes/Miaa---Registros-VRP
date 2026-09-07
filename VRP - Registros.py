@@ -17,7 +17,16 @@ if 'autenticado' not in st.session_state: st.session_state.autenticado = False
 
 zona_mx = ZoneInfo("America/Mexico_City")
 
-OPCIONES_ESTADO_VALVULA = ["Calibrada", "Descalibrada", "Mantenimiento", "Fuera de Servicio", "Abierta", "Cerrada"]
+OPCIONES_ESTADO_VALVULA = [
+    "Abierta",
+    "Calibrada",
+    "Cerrada",
+    "Dañada",
+    "Descalibrada",
+    "Habilitada",
+    "No opera",
+    "Pendiente"
+]
 
 # --- CONEXIÓN A BASE DE DATOS POSTGRESQL (VPRS) ---
 def crear_nuevo_engine():
