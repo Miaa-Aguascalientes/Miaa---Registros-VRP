@@ -124,7 +124,7 @@ def parsear_fecha_segura(val_fecha):
     except Exception:
         return datetime.date.today()
 
-# --- ESTILOS CSS CON ANCHO TOTAL AL 100% Y OCULTAR HEADER / MENÚ DE STREAMLIT ---
+# --- ESTILOS CSS CON ANCHO TOTAL AL 100% Y CÁMARA EXPANDIDA ---
 st.write("""<style>
     /* Ocultar únicamente la cabecera nativa de Streamlit sin afectar los headers del calendario BaseWeb */
     #MainMenu, [data-testid="stHeader"] {visibility: hidden !important; display: none !important;} 
@@ -317,10 +317,24 @@ st.write("""<style>
         display: none !important;
     }
     
-    [data-testid="stCameraInput"] > div:first-child {
-        display: none !important;
-    }
+    /* EXPANSIÓN TOTAL DE CÁMARA AL ANCHO DE LA PANTALLA */
     [data-testid="stCameraInput"] {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    [data-testid="stCameraInput"] > div {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    [data-testid="stCameraInput"] video, 
+    [data-testid="stCameraInput"] img {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        object-fit: cover !important;
+        border-radius: 6px !important;
+    }
+    [data-testid="stCameraInput"] button {
         width: 100% !important;
     }
 </style>""", unsafe_allow_html=True)
@@ -329,7 +343,7 @@ st.write("""<style>
 if not st.session_state.autenticado:
     st.markdown("""
         <div style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-bottom: 20px; margin-top: 40px;">
-            <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 140px; height: auto;" />
+            <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 160px; height: auto;" />
         </div>
     """, unsafe_allow_html=True)
     
@@ -367,7 +381,7 @@ if not st.session_state.autenticado:
 st.markdown("""
     <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin-bottom: 4px; padding: 0 2px;">
         <div style="display: flex; align-items: center; gap: 10px;">
-            <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 140px; height: auto; flex-shrink: 0;" />
+            <img src="https://raw.githubusercontent.com/Miaa-Aguascalientes/Logos/38504978c8f77a4dac38ad476f74dbdee6af2cad/LogoMIAA.svg" style="width: 160px; height: auto; flex-shrink: 0;" />
             <h2 style="color: #00E5FF; margin: 0; font-size: 1.1rem; font-weight: 800; line-height: 1.2;">Gestion VRP's</h2>
         </div>
     </div>
@@ -476,12 +490,12 @@ if st.session_state.active_tab == "📍 Registros":
                 img_bytes = procesar_bytes_foto(row['fotos'])
                 if img_bytes is not None and len(img_bytes) > 0:
                     st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 6px; margin-bottom: 2px;'>📸 Fotografía 1 registrada:</p>", unsafe_allow_html=True)
-                    st.image(img_bytes, caption=f"ID: {row['id']} (Foto 1)", width=280)
+                    st.image(img_bytes, caption=f"ID: {row['id']} (Foto 1)", use_container_width=True)
 
                 img_bytes_2 = procesar_bytes_foto(row['fotos_2'])
                 if img_bytes_2 is not None and len(img_bytes_2) > 0:
                     st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 6px; margin-bottom: 2px;'>📸 Fotografía 2 registrada:</p>", unsafe_allow_html=True)
-                    st.image(img_bytes_2, caption=f"ID: {row['id']} (Foto 2)", width=280)
+                    st.image(img_bytes_2, caption=f"ID: {row['id']} (Foto 2)", use_container_width=True)
                         
             st.markdown("<div style='margin-bottom: 8px;'></div>", unsafe_allow_html=True)
     else:
@@ -791,7 +805,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
             
             if foto_actual_bytes is not None and len(foto_actual_bytes) > 0:
                 st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 10px; margin-bottom: 2px;'>📸 Fotografía 1 actual:</p>", unsafe_allow_html=True)
-                st.image(foto_actual_bytes, caption=f"ID: {row['id']} (Foto 1)", width=280)
+                st.image(foto_actual_bytes, caption=f"ID: {row['id']} (Foto 1)", use_container_width=True)
                 eliminar_foto = st.checkbox("🗑️ Eliminar la fotografía 1 actual", key=f"del_foto_{row['fid']}")
 
             st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem; padding: 0 2px; margin-top: 10px;'>📸 Reemplazar o capturar nueva Foto 1:</p>", unsafe_allow_html=True)
@@ -819,7 +833,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
             
             if foto_actual_bytes_2 is not None and len(foto_actual_bytes_2) > 0:
                 st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 15px; margin-bottom: 2px;'>📸 Fotografía 2 actual:</p>", unsafe_allow_html=True)
-                st.image(foto_actual_bytes_2, caption=f"ID: {row['id']} (Foto 2)", width=280)
+                st.image(foto_actual_bytes_2, caption=f"ID: {row['id']} (Foto 2)", use_container_width=True)
                 eliminar_foto_2 = st.checkbox("🗑️ Eliminar la fotografía 2 actual", key=f"del_foto_2_{row['fid']}")
 
             st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem; padding: 0 2px; margin-top: 10px;'>📸 Reemplazar o capturar nueva Foto 2:</p>", unsafe_allow_html=True)
