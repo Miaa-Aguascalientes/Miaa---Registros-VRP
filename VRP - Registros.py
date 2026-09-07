@@ -364,7 +364,7 @@ if not st.session_state.autenticado:
     st.stop()
 
 # --- CABECERA ---
-col_cab1, col_cab2, col_cab3 = st.columns([0.55, 0.25, 0.2])
+col_cab1, col_cab2, col_cab3 = st.columns([0.45, 0.35, 0.2])
 
 with col_cab1:
     st.markdown("""
@@ -377,16 +377,16 @@ with col_cab1:
     """, unsafe_allow_html=True)
 
 with col_cab2:
-    st.markdown(f"""
-        <div style="display: flex; justify-content: flex-end; align-items: center; height: 100%; margin-top: 10px;">
-            <span style="color: #00E5FF; font-weight: 700; font-size: 0.85rem;">👤 {st.session_state.usuario_actual}</span>
-        </div>
-    """, unsafe_allow_html=True)
-
-with col_cab3:
     if st.button("Cerrar Sesión", key="btn_logout"):
         st.session_state.autenticado = False
         st.rerun()
+
+with col_cab3:
+    st.markdown(f"""
+        <div style="display: flex; justify-content: flex-start; align-items: center; height: 100%; margin-top: 10px;">
+            <span style="color: #00E5FF; font-weight: 700; font-size: 0.85rem; white-space: nowrap;">👤 {st.session_state.usuario_actual}</span>
+        </div>
+    """, unsafe_allow_html=True)
 
 # --- DETERMINAR ROL DEL USUARIO ---
 es_operador = (st.session_state.get('tipo_usuario', '') == 'operador')
