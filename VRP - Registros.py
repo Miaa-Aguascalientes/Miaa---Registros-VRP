@@ -17,6 +17,8 @@ if 'autenticado' not in st.session_state: st.session_state.autenticado = False
 
 zona_mx = ZoneInfo("America/Mexico_City")
 
+OPCIONES_ESTADO_VALVULA = ["Calibrada", "Descalibrada", "Mantenimiento", "Fuera de Servicio", "Abierta", "Cerrada"]
+
 # --- CONEXIÓN A BASE DE DATOS POSTGRESQL (VPRS) ---
 def crear_nuevo_engine():
     pg = st.secrets["postgres"]
@@ -448,7 +450,7 @@ if st.session_state.active_tab == "📍 Registros":
                 detalle_html = f"""
                     <span style="color: #94A3B8; font-size: 0.68rem; line-height: 1.4;">
                         Diámetro: {row['diametro']} pulgadas | Marca: {row['marca_valv']} | Modelo: {row['model_valv']} | Trim: {row['marca_trim']} | Cota: {row['cota_terr']}<br>
-                        Sector: {row['sector_hid']} | Estado: {row['estat_valv']} | Hora Cal: {row['hora_cal']} | Fecha ultima actualización: {row['fecha_ult_']}<br>
+                        Sector: {row['sector_hid']} | Estado de la Válvula: {row['estat_valv']} | Hora Cal: {row['hora_cal']} | Fecha ultima actualización: {row['fecha_ult_']}<br>
                         Cal Anterior Día (kg/cm): {row['cal_ant_d']} | Cal Anterior Noche (kg/cm): {row['cal_ant_n']}<br>
                         Cal Actual Día (kg/cm): {row['cal_act_d']} | Cal Actual Noche (kg/cm): {row['cal_act_n']}<br>
                         Obs: {row['observ']}
@@ -512,7 +514,7 @@ elif st.session_state.active_tab == "➕ Añadir":
 
     r6c1, r6c2 = st.columns(2)
     with r6c1: val_colonia = st.text_input("Colonia", key="add_col")
-    with r6c2: val_estat = st.text_input("Estado Válvula", key="add_estat")
+    with r6c2: val_estat = st.selectbox("Estado de la Válvula", options=OPCIONES_ESTADO_VALVULA, index=0, key="add_estat")
 
     r7c1, r7c2 = st.columns(2)
     with r7c1: val_hora = st.text_input("Hora Calibración", key="add_hora")
@@ -646,6 +648,12 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
             e_id_0 = row['id_0']
 
+            # Calcular el índice por defecto para Estado de la Válvula
+            estado_actual = str(row['estat_valv'] or "").strip()
+            idx_estado = 0
+            if estado_actual in OPCIONES_ESTADO_VALVULA:
+                idx_estado = OPCIONES_ESTADO_VALVULA.index(estado_actual)
+
             if es_operador:
                 # OCULTAR COMPLETAMENTE LOS CAMPOS DE INFRAESTRUCTURA PARA OPERADOR
                 e_id = row['id']
@@ -663,7 +671,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 with e_r1c1: 
                     e_serie = st.text_input("Serie", value=e_serie_val, key=f"serie_{row['fid']}")
                 with e_r1c2: 
-                    e_estat = st.text_input("Estado Valv", value=str(row['estat_valv'] or ""), key=f"est_{row['fid']}")
+                    e_estat = st.selectbox("Estado de la Válvula", options=OPCIONES_ESTADO_VALVULA, index=idx_estado, key=f"est_{row['fid']}")
 
                 e_r2c1, e_r2c2 = st.columns(2)
                 with e_r2c1: 
@@ -731,7 +739,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 with e_r6c1: 
                     e_colonia = st.text_input("Colonia", value=str(row['colonia'] or ""), key=f"col_{row['fid']}")
                 with e_r6c2: 
-                    e_estat = st.text_input("Estado Valv", value=str(row['estat_valv'] or ""), key=f"est_{row['fid']}")
+                    e_estat = st.selectbox("Estado de la Válvula", options=OPCIONES_ESTADO_VALVULA, index=idx_estado, key=f"est_{row['fid']}")
 
                 e_r7c1, e_r7c2 = st.columns(2)
                 with e_r7c1: 
