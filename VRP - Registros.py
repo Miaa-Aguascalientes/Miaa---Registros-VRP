@@ -124,7 +124,7 @@ def parsear_fecha_segura(val_fecha):
     except Exception:
         return datetime.date.today()
 
-# --- ESTILOS CSS CON ANCHO TOTAL AL 100% Y CÁMARA EXPANDIDA EN ANCHO Y ALTURA ---
+# --- ESTILOS CSS CON ANCHO TOTAL Y CORRECCIÓN DE POSICIONAMIENTO EN CÁMARA ---
 st.write("""<style>
     /* Ocultar únicamente la cabecera nativa de Streamlit sin afectar los headers del calendario BaseWeb */
     #MainMenu, [data-testid="stHeader"] {visibility: hidden !important; display: none !important;} 
@@ -317,7 +317,7 @@ st.write("""<style>
         display: none !important;
     }
     
-    /* EXPANSIÓN TOTAL DE CÁMARA (ANCHO Y ALTURA AMPLIADA) */
+    /* CORRECCIÓN DE CÁMARA: ESTRUCTURA FLEX PARA EVITAR SOLAPAMIENTO DEL BOTÓN */
     [data-testid="stCameraInput"] {
         width: 100% !important;
         max-width: 100% !important;
@@ -325,18 +325,28 @@ st.write("""<style>
     [data-testid="stCameraInput"] > div {
         width: 100% !important;
         max-width: 100% !important;
-        min-height: 420px !important; /* Altura mínima expandida para la cámara */
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
     }
+    /* Contenedor del video/imagen para que no colapse con el botón */
     [data-testid="stCameraInput"] video, 
     [data-testid="stCameraInput"] img {
         width: 100% !important;
         max-width: 100% !important;
-        height: 450px !important; /* Altura fija extendida para el visor */
-        object-fit: cover !important;
+        height: auto !important;
+        min-height: 350px !important;
+        max-height: 450px !important;
+        object-fit: contain !important; /* Mantiene la proporción sin recortar de más */
         border-radius: 6px !important;
+        position: relative !important;
     }
+    /* Estilo del botón de captura para que se ubique ordenadamente debajo de la imagen */
     [data-testid="stCameraInput"] button {
         width: 100% !important;
+        margin-top: 8px !important;
+        position: relative !important;
+        z-index: 5 !important;
     }
 </style>""", unsafe_allow_html=True)
 
