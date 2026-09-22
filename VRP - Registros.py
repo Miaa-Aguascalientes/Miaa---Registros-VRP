@@ -520,10 +520,10 @@ elif st.session_state.active_tab == "➕ Añadir":
 
     r7c1, r7c2 = st.columns(2)
     with r7c1: val_tipo_valv = st.text_input("Tipo Válvula", key="add_tipo_valv")
-    with r7c2: val_cal_antd = st.number_input("Cal Anterior Día (kg/cm)", value=0.0, key="add_cand")
+    with r7c2: val_cal_antd = st.text_input("Cal Anterior Día (kg/cm)", value="0.0", key="add_cand")
 
     r8c1, r8c2 = st.columns(2)
-    with r8c1: val_cal_antn = st.number_input("Cal Anterior Noche (kg/cm)", value=0.0, key="add_cann")
+    with r8c1: val_cal_antn = st.text_input("Cal Anterior Noche (kg/cm)", value="0.0", key="add_cann")
     with r8c2: 
         val_fecha_obj = st.date_input(
             "Fecha Visita", 
@@ -596,7 +596,8 @@ elif st.session_state.active_tab == "➕ Añadir":
                 ejecutar_sql(sql_insert, {
                     "id_0": val_id_0, "id": val_id, "num_serie": val_serie if val_serie.strip() != "" else None, "diametro": val_diametro, "marca": val_marca,
                     "modelo": val_modelo, "trim": val_trim, "domicilio": val_domicilio, "colonia": val_colonia,
-                    "cota_terr": val_cota, "sect_hidr": val_sector, "cal_antd": val_cal_antd, "cal_antn": val_cal_antn,
+                    "cota_terr": val_cota, "sect_hidr": val_sector, "cal_antd": val_cal_antd if val_cal_antd.strip() != "" else None, 
+                    "cal_antn": val_cal_antn if val_cal_antn.strip() != "" else None,
                     "fecha_vis": val_fecha, "tipo_valv": val_tipo_valv,
                     "estatus": val_estat, "obs": val_observ, "fotos": foto_bytes, "fotos_2": foto_bytes_2
                 })
@@ -674,11 +675,13 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 with e_r2c1: 
                     e_tipo_valv = st.text_input("Tipo Válvula", value=str(row['tipo_valv'] or ""), key=f"tipo_{row['id_0']}")
                 with e_r2c2: 
-                    e_cal_antd = st.number_input("Cal Anterior Día (kg/cm)", value=float(row['cal_antd'] or 0.0), key=f"cand_{row['id_0']}")
+                    cal_antd_val = "" if pd.isna(row['cal_antd']) else str(row['cal_antd'])
+                    e_cal_antd = st.text_input("Cal Anterior Día (kg/cm)", value=cal_antd_val, key=f"cand_{row['id_0']}")
 
                 e_r3c1, e_r3c2 = st.columns(2)
                 with e_r3c1: 
-                    e_cal_antn = st.number_input("Cal Anterior Noche (kg/cm)", value=float(row['cal_antn'] or 0.0), key=f"cann_{row['id_0']}")
+                    cal_antn_val = "" if pd.isna(row['cal_antn']) else str(row['cal_antn'])
+                    e_cal_antn = st.text_input("Cal Anterior Noche (kg/cm)", value=cal_antn_val, key=f"cann_{row['id_0']}")
                 with e_r3c2: 
                     fecha_def = parsear_fecha_segura(row['fecha_vis'])
                     e_fecha_obj = st.date_input(
@@ -735,11 +738,13 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 with e_r7c1: 
                     e_tipo_valv = st.text_input("Tipo Válvula", value=str(row['tipo_valv'] or ""), key=f"tipo_{row['id_0']}")
                 with e_r7c2: 
-                    e_cal_antd = st.number_input("Cal Anterior Día (kg/cm)", value=float(row['cal_antd'] or 0.0), key=f"cand_{row['id_0']}")
+                    cal_antd_val = "" if pd.isna(row['cal_antd']) else str(row['cal_antd'])
+                    e_cal_antd = st.text_input("Cal Anterior Día (kg/cm)", value=cal_antd_val, key=f"cand_{row['id_0']}")
 
                 e_r8c1, e_r8c2 = st.columns(2)
                 with e_r8c1: 
-                    e_cal_antn = st.number_input("Cal Anterior Noche (kg/cm)", value=float(row['cal_antn'] or 0.0), key=f"cann_{row['id_0']}")
+                    cal_antn_val = "" if pd.isna(row['cal_antn']) else str(row['cal_antn'])
+                    e_cal_antn = st.text_input("Cal Anterior Noche (kg/cm)", value=cal_antn_val, key=f"cann_{row['id_0']}")
                 with e_r8c2: 
                     fecha_def = parsear_fecha_segura(row['fecha_vis'])
                     e_fecha_obj = st.date_input(
@@ -842,7 +847,8 @@ elif st.session_state.active_tab == "⚙️ Editar":
                     ejecutar_sql(sql_update, {
                         "id": e_id, "num_serie": e_serie if e_serie.strip() != "" else None, "diametro": e_diametro, "marca": e_marca,
                         "modelo": e_modelo, "trim": e_trim, "domicilio": e_domicilio, "colonia": e_colonia,
-                        "cota_terr": e_cota, "sect_hidr": e_sector, "cal_antd": e_cal_antd, "cal_antn": e_cal_antn,
+                        "cota_terr": e_cota, "sect_hidr": e_sector, "cal_antd": e_cal_antd if e_cal_antd.strip() != "" else None, 
+                        "cal_antn": e_cal_antn if e_cal_antn.strip() != "" else None,
                         "fecha_vis": e_fecha, "tipo_valv": e_tipo_valv,
                         "estatus": e_estat, "obs": e_observ, "fotos": foto_bytes_final, "fotos_2": foto_bytes_final_2, "id_0": row['id_0']
                     })
