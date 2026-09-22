@@ -398,10 +398,10 @@ st.markdown("<hr style='border: 0.5px solid rgba(0,229,255,0.15); margin: 8px 0;
 
 # --- LISTA EXACTA DE COLUMNAS DE LA TABLA VRP_Oficial ---
 COLUMNAS_VPRS = """
-    objectid, id_0, id, num_serie, fecha_inst, tipo_valv, diametro, marca, modelo, trim, 
+    id_0, id, num_serie, fecha_inst, tipo_valv, diametro, marca, modelo, trim, 
     control_au, domicilio, colonia, sect_hidr, distrito, cota_terr, estatus, condicion, 
     cal_antd, cal_antn, fecha_vis, p_ab, p_arr, cal_postd, cal_postn, prog_hor, 
-    fecha_mtto, tim_cambio, fecha_tim, obs, _ult_visit, _p_ab, _p_arr, fotos, fotos_2
+    fecha_mtto, tim_cambio, fecha_tim, obs, _ult_visita, _p_ab, _p_arr, fotos, fotos_2
 """
 
 # ==========================================
