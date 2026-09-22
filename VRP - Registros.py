@@ -1,4 +1,4 @@
-# VRP - Registros apk.py[cite: 1]
+# VRP - Registros apk.py
 import streamlit as st
 import pandas as pd
 from sqlalchemy import create_engine, text
@@ -421,11 +421,11 @@ if st.session_state.active_tab == "📍 Registros":
                OR num_serie ILIKE :filtro 
                OR domicilio ILIKE :filtro 
                OR colonia ILIKE :filtro 
-            ORDER BY objectid
+            ORDER BY id_0
         """
         df_vprs, error_db = obtener_datos(query, {"filtro": filtro})
     else:
-        query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VRP_Oficial" ORDER BY objectid LIMIT 10'
+        query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VRP_Oficial" ORDER BY id_0 LIMIT 10'
         df_vprs, error_db = obtener_datos(query)
     
     if error_db:
@@ -625,12 +625,12 @@ elif st.session_state.active_tab == "⚙️ Editar":
                OR num_serie ILIKE :filtro 
                OR domicilio ILIKE :filtro 
                OR colonia ILIKE :filtro 
-            ORDER BY objectid
+            ORDER BY id_0
             LIMIT 1
         """
         df_vprs, error_db = obtener_datos(query_edit, {"filtro": filtro_ed})
     else:
-        query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VRP_Oficial" ORDER BY objectid LIMIT 1'
+        query = f'SELECT {COLUMNAS_VPRS} FROM "Agua_potable"."VRP_Oficial" ORDER BY id_0 LIMIT 1'
         df_vprs, error_db = obtener_datos(query)
     
     if error_db:
@@ -642,7 +642,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
             st.markdown(f"<p style='color: #94A3B8; font-size: 0.78rem; margin-bottom: 4px; padding: 0 2px;'>Mostrando la primera coincidencia encontrada.</p>", unsafe_allow_html=True)
             
         for idx, row in df_vprs.iterrows():
-            st.markdown(f"<div style='padding: 0 2px;'><span style='color: #00E5FF; font-weight: bold;'>Object ID: {row['objectid']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span></div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='padding: 0 2px;'><span style='color: #00E5FF; font-weight: bold;'>ID_0: {row['id_0']}</span> | <span style='color: #F8FAFC;'>ID: {row['id']}</span></div>", unsafe_allow_html=True)
 
             e_id_0 = row['id_0']
 
@@ -666,19 +666,19 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 e_r1c1, e_r1c2 = st.columns(2)
                 e_serie_val = "" if (pd.isna(row['num_serie']) or str(row['num_serie']).strip().lower() in ["nan", "none"]) else str(row['num_serie'])
                 with e_r1c1: 
-                    e_serie = st.text_input("Número de Serie", value=e_serie_val, key=f"serie_{row['objectid']}")
+                    e_serie = st.text_input("Número de Serie", value=e_serie_val, key=f"serie_{row['id_0']}")
                 with e_r1c2: 
-                    e_estat = st.selectbox("Estatus", options=OPCIONES_ESTADO_VALVULA, index=idx_estado, key=f"est_{row['objectid']}")
+                    e_estat = st.selectbox("Estatus", options=OPCIONES_ESTADO_VALVULA, index=idx_estado, key=f"est_{row['id_0']}")
 
                 e_r2c1, e_r2c2 = st.columns(2)
                 with e_r2c1: 
-                    e_tipo_valv = st.text_input("Tipo Válvula", value=str(row['tipo_valv'] or ""), key=f"tipo_{row['objectid']}")
+                    e_tipo_valv = st.text_input("Tipo Válvula", value=str(row['tipo_valv'] or ""), key=f"tipo_{row['id_0']}")
                 with e_r2c2: 
-                    e_cal_antd = st.number_input("Cal Anterior Día (kg/cm)", value=float(row['cal_antd'] or 0.0), key=f"cand_{row['objectid']}")
+                    e_cal_antd = st.number_input("Cal Anterior Día (kg/cm)", value=float(row['cal_antd'] or 0.0), key=f"cand_{row['id_0']}")
 
                 e_r3c1, e_r3c2 = st.columns(2)
                 with e_r3c1: 
-                    e_cal_antn = st.number_input("Cal Anterior Noche (kg/cm)", value=float(row['cal_antn'] or 0.0), key=f"cann_{row['objectid']}")
+                    e_cal_antn = st.number_input("Cal Anterior Noche (kg/cm)", value=float(row['cal_antn'] or 0.0), key=f"cann_{row['id_0']}")
                 with e_r3c2: 
                     fecha_def = parsear_fecha_segura(row['fecha_vis'])
                     e_fecha_obj = st.date_input(
@@ -687,59 +687,59 @@ elif st.session_state.active_tab == "⚙️ Editar":
                         min_value=datetime.date(2000, 1, 1),
                         max_value=datetime.date(2035, 12, 31),
                         format="DD/MM/YYYY",
-                        key=f"fec_{row['objectid']}"
+                        key=f"fec_{row['id_0']}"
                     )
                     e_fecha = e_fecha_obj
 
-                e_observ = st.text_input("Observaciones", value=str(row['obs'] or ""), key=f"obs_{row['objectid']}")
+                e_observ = st.text_input("Observaciones", value=str(row['obs'] or ""), key=f"obs_{row['id_0']}")
 
             else:
                 e_r1c1, e_r1c2 = st.columns(2)
                 with e_r1c1: 
-                    st.text_input("ID_0 (Bloqueado)", value=str(row['id_0'] or 0), disabled=True, key=f"id0_bloq_{row['objectid']}")
+                    st.text_input("ID_0 (Bloqueado)", value=str(row['id_0'] or 0), disabled=True, key=f"id0_bloq_{row['id_0']}")
                 with e_r1c2: 
-                    e_id = st.text_input("ID", value=str(row['id'] or ""), key=f"id_{row['objectid']}")
+                    e_id = st.text_input("ID", value=str(row['id'] or ""), key=f"id_{row['id_0']}")
 
                 e_r2c1, e_r2c2 = st.columns(2)
                 e_serie_val = "" if (pd.isna(row['num_serie']) or str(row['num_serie']).strip().lower() in ["nan", "none"]) else str(row['num_serie'])
                 with e_r2c1: 
-                    e_serie = st.text_input("Número de Serie", value=e_serie_val, key=f"serie_{row['objectid']}")
+                    e_serie = st.text_input("Número de Serie", value=e_serie_val, key=f"serie_{row['id_0']}")
                 with e_r2c2: 
-                    e_diametro = st.number_input("Diámetro", value=int(row['diametro'] or 0), key=f"diam_{row['objectid']}")
+                    e_diametro = st.number_input("Diámetro", value=int(row['diametro'] or 0), key=f"diam_{row['id_0']}")
 
                 e_r3c1, e_r3c2 = st.columns(2)
                 with e_r3c1: 
-                    e_cota = st.number_input("Cota Terr", value=float(row['cota_terr'] or 0.0), key=f"cota_{row['objectid']}")
+                    e_cota = st.number_input("Cota Terr", value=float(row['cota_terr'] or 0.0), key=f"cota_{row['id_0']}")
                 with e_r3c2: 
-                    e_marca = st.text_input("Marca", value=str(row['marca'] or ""), key=f"mar_{row['objectid']}")
+                    e_marca = st.text_input("Marca", value=str(row['marca'] or ""), key=f"mar_{row['id_0']}")
 
                 e_r4c1, e_r4c2 = st.columns(2)
                 with e_r4c1: 
-                    e_modelo = st.text_input("Modelo", value=str(row['modelo'] or ""), key=f"mod_{row['objectid']}")
+                    e_modelo = st.text_input("Modelo", value=str(row['modelo'] or ""), key=f"mod_{row['id_0']}")
                 with e_r4c2: 
-                    e_trim = st.text_input("Trim", value=str(row['trim'] or ""), key=f"trim_{row['objectid']}")
+                    e_trim = st.text_input("Trim", value=str(row['trim'] or ""), key=f"trim_{row['id_0']}")
 
                 e_r5c1, e_r5c2 = st.columns(2)
                 with e_r5c1: 
-                    e_sector = st.text_input("Sector Hid", value=str(row['sect_hidr'] or ""), key=f"sec_{row['objectid']}")
+                    e_sector = st.text_input("Sector Hid", value=str(row['sect_hidr'] or ""), key=f"sec_{row['id_0']}")
                 with e_r5c2: 
-                    e_domicilio = st.text_input("Domicilio", value=str(row['domicilio'] or ""), key=f"dom_{row['objectid']}")
+                    e_domicilio = st.text_input("Domicilio", value=str(row['domicilio'] or ""), key=f"dom_{row['id_0']}")
 
                 e_r6c1, e_r6c2 = st.columns(2)
                 with e_r6c1: 
-                    e_colonia = st.text_input("Colonia", value=str(row['colonia'] or ""), key=f"col_{row['objectid']}")
+                    e_colonia = st.text_input("Colonia", value=str(row['colonia'] or ""), key=f"col_{row['id_0']}")
                 with e_r6c2: 
-                    e_estat = st.selectbox("Estatus", options=OPCIONES_ESTADO_VALVULA, index=idx_estado, key=f"est_{row['objectid']}")
+                    e_estat = st.selectbox("Estatus", options=OPCIONES_ESTADO_VALVULA, index=idx_estado, key=f"est_{row['id_0']}")
 
                 e_r7c1, e_r7c2 = st.columns(2)
                 with e_r7c1: 
-                    e_tipo_valv = st.text_input("Tipo Válvula", value=str(row['tipo_valv'] or ""), key=f"tipo_{row['objectid']}")
+                    e_tipo_valv = st.text_input("Tipo Válvula", value=str(row['tipo_valv'] or ""), key=f"tipo_{row['id_0']}")
                 with e_r7c2: 
-                    e_cal_antd = st.number_input("Cal Anterior Día (kg/cm)", value=float(row['cal_antd'] or 0.0), key=f"cand_{row['objectid']}")
+                    e_cal_antd = st.number_input("Cal Anterior Día (kg/cm)", value=float(row['cal_antd'] or 0.0), key=f"cand_{row['id_0']}")
 
                 e_r8c1, e_r8c2 = st.columns(2)
                 with e_r8c1: 
-                    e_cal_antn = st.number_input("Cal Anterior Noche (kg/cm)", value=float(row['cal_antn'] or 0.0), key=f"cann_{row['objectid']}")
+                    e_cal_antn = st.number_input("Cal Anterior Noche (kg/cm)", value=float(row['cal_antn'] or 0.0), key=f"cann_{row['id_0']}")
                 with e_r8c2: 
                     fecha_def = parsear_fecha_segura(row['fecha_vis'])
                     e_fecha_obj = st.date_input(
@@ -748,11 +748,11 @@ elif st.session_state.active_tab == "⚙️ Editar":
                         min_value=datetime.date(2000, 1, 1),
                         max_value=datetime.date(2035, 12, 31),
                         format="DD/MM/YYYY",
-                        key=f"fec_{row['objectid']}"
+                        key=f"fec_{row['id_0']}"
                     )
                     e_fecha = e_fecha_obj
 
-                e_observ = st.text_input("Observaciones", value=str(row['obs'] or ""), key=f"obs_{row['objectid']}")
+                e_observ = st.text_input("Observaciones", value=str(row['obs'] or ""), key=f"obs_{row['id_0']}")
             
             # --- FOTO 1 ---
             foto_actual_bytes = procesar_bytes_foto(row['fotos'])
@@ -761,26 +761,26 @@ elif st.session_state.active_tab == "⚙️ Editar":
             if foto_actual_bytes is not None and len(foto_actual_bytes) > 0:
                 st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 10px; margin-bottom: 2px;'>📸 Fotografía 1 actual:</p>", unsafe_allow_html=True)
                 st.image(foto_actual_bytes, caption=f"ID: {row['id']} (Foto 1)", use_container_width=True)
-                eliminar_foto = st.checkbox("🗑️ Eliminar la fotografía 1 actual", key=f"del_foto_{row['objectid']}")
+                eliminar_foto = st.checkbox("🗑️ Eliminar la fotografía 1 actual", key=f"del_foto_{row['id_0']}")
 
             st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem; padding: 0 2px; margin-top: 10px;'>📸 Reemplazar o capturar nueva Foto 1:</p>", unsafe_allow_html=True)
             
-            cam_key_edit = f"cam_open_edit_{row['objectid']}"
+            cam_key_edit = f"cam_open_edit_{row['id_0']}"
             if cam_key_edit not in st.session_state:
                 st.session_state[cam_key_edit] = False
 
             if not st.session_state[cam_key_edit]:
-                if st.button("📷 Activar Cámara 1", key=f"btn_open_cam_edit_{row['objectid']}", use_container_width=True):
+                if st.button("📷 Activar Cámara 1", key=f"btn_open_cam_edit_{row['id_0']}", use_container_width=True):
                     st.session_state[cam_key_edit] = True
                     st.rerun()
             else:
-                if st.button("❌ Cerrar Cámara 1", key=f"btn_close_cam_edit_{row['objectid']}", use_container_width=True):
+                if st.button("❌ Cerrar Cámara 1", key=f"btn_close_cam_edit_{row['id_0']}", use_container_width=True):
                     st.session_state[cam_key_edit] = False
                     st.rerun()
 
             nueva_foto_camara = None
-            if st.session_state.get(f"cam_open_edit_{row['objectid']}", False):
-                nueva_foto_camara = st.camera_input("Tomar foto 1", key=f"cam_edit_{row['objectid']}", label_visibility="collapsed")
+            if st.session_state.get(f"cam_open_edit_{row['id_0']}", False):
+                nueva_foto_camara = st.camera_input("Tomar foto 1", key=f"cam_edit_{row['id_0']}", label_visibility="collapsed")
 
             # --- FOTO 2 ---
             foto_actual_bytes_2 = procesar_bytes_foto(row['fotos_2'])
@@ -789,29 +789,29 @@ elif st.session_state.active_tab == "⚙️ Editar":
             if foto_actual_bytes_2 is not None and len(foto_actual_bytes_2) > 0:
                 st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 15px; margin-bottom: 2px;'>📸 Fotografía 2 actual:</p>", unsafe_allow_html=True)
                 st.image(foto_actual_bytes_2, caption=f"ID: {row['id']} (Foto 2)", use_container_width=True)
-                eliminar_foto_2 = st.checkbox("🗑️ Eliminar la fotografía 2 actual", key=f"del_foto_2_{row['objectid']}")
+                eliminar_foto_2 = st.checkbox("🗑️ Eliminar la fotografía 2 actual", key=f"del_foto_2_{row['id_0']}")
 
             st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem; padding: 0 2px; margin-top: 10px;'>📸 Reemplazar o capturar nueva Foto 2:</p>", unsafe_allow_html=True)
             
-            cam_key_edit_2 = f"cam_open_edit_2_{row['objectid']}"
+            cam_key_edit_2 = f"cam_open_edit_2_{row['id_0']}"
             if cam_key_edit_2 not in st.session_state:
                 st.session_state[cam_key_edit_2] = False
 
             if not st.session_state[cam_key_edit_2]:
-                if st.button("📷 Activar Cámara 2", key=f"btn_open_cam_edit_2_{row['objectid']}", use_container_width=True):
+                if st.button("📷 Activar Cámara 2", key=f"btn_open_cam_edit_2_{row['id_0']}", use_container_width=True):
                     st.session_state[cam_key_edit_2] = True
                     st.rerun()
             else:
-                if st.button("❌ Cerrar Cámara 2", key=f"btn_close_cam_edit_2_{row['objectid']}", use_container_width=True):
+                if st.button("❌ Cerrar Cámara 2", key=f"btn_close_cam_edit_2_{row['id_0']}", use_container_width=True):
                     st.session_state[cam_key_edit_2] = False
                     st.rerun()
 
             nueva_foto_camara_2 = None
-            if st.session_state.get(f"cam_open_edit_2_{row['objectid']}", False):
-                nueva_foto_camara_2 = st.camera_input("Tomar foto 2", key=f"cam_edit_2_{row['objectid']}", label_visibility="collapsed")
+            if st.session_state.get(f"cam_open_edit_2_{row['id_0']}", False):
+                nueva_foto_camara_2 = st.camera_input("Tomar foto 2", key=f"cam_edit_2_{row['id_0']}", label_visibility="collapsed")
 
             st.markdown("<br>", unsafe_allow_html=True)
-            actualizar_click = st.button("💾 Actualizar Registro", key=f"btn_act_{row['objectid']}", use_container_width=True)
+            actualizar_click = st.button("💾 Actualizar Registro", key=f"btn_act_{row['id_0']}", use_container_width=True)
 
             if actualizar_click:
                 try:
@@ -831,22 +831,22 @@ elif st.session_state.active_tab == "⚙️ Editar":
 
                     sql_update = """
                         UPDATE "Agua_potable"."VRP_Oficial" 
-                        SET id_0 = :id_0, id = :id, num_serie = :num_serie, diametro = :diametro, marca = :marca, 
+                        SET id = :id, num_serie = :num_serie, diametro = :diametro, marca = :marca, 
                             modelo = :modelo, trim = :trim, domicilio = :domicilio, 
                             colonia = :colonia, cota_terr = :cota_terr, sect_hidr = :sect_hidr, 
                             cal_antd = :cal_antd, cal_antn = :cal_antn, fecha_vis = :fecha_vis, 
                             tipo_valv = :tipo_valv, estatus = :estatus, obs = :obs, 
                             fotos = :fotos, fotos_2 = :fotos_2 
-                        WHERE objectid = :objectid
+                        WHERE id_0 = :id_0
                     """
                     ejecutar_sql(sql_update, {
-                        "id_0": e_id_0, "id": e_id, "num_serie": e_serie if e_serie.strip() != "" else None, "diametro": e_diametro, "marca": e_marca,
+                        "id": e_id, "num_serie": e_serie if e_serie.strip() != "" else None, "diametro": e_diametro, "marca": e_marca,
                         "modelo": e_modelo, "trim": e_trim, "domicilio": e_domicilio, "colonia": e_colonia,
                         "cota_terr": e_cota, "sect_hidr": e_sector, "cal_antd": e_cal_antd, "cal_antn": e_cal_antn,
                         "fecha_vis": e_fecha, "tipo_valv": e_tipo_valv,
-                        "estatus": e_estat, "obs": e_observ, "fotos": foto_bytes_final, "fotos_2": foto_bytes_final_2, "objectid": row['objectid']
+                        "estatus": e_estat, "obs": e_observ, "fotos": foto_bytes_final, "fotos_2": foto_bytes_final_2, "id_0": row['id_0']
                     })
-                    st.success(f"¡Registro Object ID {row['objectid']} actualizado con éxito!")
+                    st.success(f"¡Registro ID_0 {row['id_0']} actualizado con éxito!")
                     t.sleep(1)
                     st.rerun()
                 except Exception as ex:
@@ -855,16 +855,16 @@ elif st.session_state.active_tab == "⚙️ Editar":
             if not es_operador:
                 st.markdown("<hr style='border: 0.5px solid rgba(255,0,0,0.2); margin: 15px 0;'>", unsafe_allow_html=True)
                 
-                if st.session_state.registro_to_delete == row['objectid']:
-                    st.markdown(f"<p style='color: #ff4d4d; font-size: 0.8rem; font-weight: bold;'>Para eliminar el registro Object ID {row['objectid']} (ID: {row['id']}), escribe la palabra 'delete':</p>", unsafe_allow_html=True)
-                    confirm_text = st.text_input("Confirmación de eliminación", key=f"input_del_text_{row['objectid']}")
+                if st.session_state.registro_to_delete == row['id_0']:
+                    st.markdown(f"<p style='color: #ff4d4d; font-size: 0.8rem; font-weight: bold;'>Para eliminar el registro ID_0 {row['id_0']} (ID: {row['id']}), escribe la palabra 'delete':</p>", unsafe_allow_html=True)
+                    confirm_text = st.text_input("Confirmación de eliminación", key=f"input_del_text_{row['id_0']}")
                     
                     col_y, col_n = st.columns(2)
                     with col_y:
-                        if st.button("Sí, eliminar", key=f"confirm_del_{row['objectid']}", use_container_width=True):
+                        if st.button("Sí, eliminar", key=f"confirm_del_{row['id_0']}", use_container_width=True):
                             if confirm_text.strip() == "delete":
                                 try:
-                                    ejecutar_sql('DELETE FROM "Agua_potable"."VRP_Oficial" WHERE objectid = :objectid', {"objectid": row['objectid']})
+                                    ejecutar_sql('DELETE FROM "Agua_potable"."VRP_Oficial" WHERE id_0 = :id_0', {"id_0": row['id_0']})
                                     st.session_state.registro_to_delete = None
                                     st.success("Registro eliminado correctamente.")
                                     t.sleep(1)
@@ -874,12 +874,12 @@ elif st.session_state.active_tab == "⚙️ Editar":
                             else:
                                 st.error("Debes escribir exactamente la palabra 'delete' para confirmar.")
                     with col_n:
-                        if st.button("Cancelar", key=f"cancel_del_{row['objectid']}", use_container_width=True):
+                        if st.button("Cancelar", key=f"cancel_del_{row['id_0']}", use_container_width=True):
                             st.session_state.registro_to_delete = None
                             st.rerun()
                 else:
-                    if st.button("🗑️ Eliminar este registro", key=f"btn_del_{row['objectid']}", use_container_width=True):
-                        st.session_state.registro_to_delete = row['objectid']
+                    if st.button("🗑️ Eliminar este registro", key=f"btn_del_{row['id_0']}", use_container_width=True):
+                        st.session_state.registro_to_delete = row['id_0']
                         st.rerun()
 
             st.markdown("<hr style='border: 1px solid rgba(0,229,255,0.2); margin: 20px 0;'>", unsafe_allow_html=True)
