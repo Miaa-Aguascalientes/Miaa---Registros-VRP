@@ -455,6 +455,7 @@ if st.session_state.active_tab == "📍 Registros":
                         Sector: {row['sect_hidr']} | Estado: {row['estatus']} | Tipo Válvula: {row['tipo_valv']} | Fecha Visita: {row['fecha_vis']}<br>
                         Cal Ant Día (kg/cm): {row['cal_antd']} | Cal Ant Noche (kg/cm): {row['cal_antn']}<br>
                         Cal Post Día (kg/cm): {row['cal_postd']} | Cal Post Noche (kg/cm): {row['cal_postn']}<br>
+                        Programación Horaria: {row['prog_hor']}<br>
                         Obs: {row['obs']}
                     </span>
                 """
@@ -524,7 +525,14 @@ elif st.session_state.active_tab == "➕ Añadir":
 
     r8c1, r8c2 = st.columns(2)
     with r8c1: val_cal_antn = st.text_input("Cal Anterior Noche (kg/cm)", value="0.0", key="add_cann")
-    with r8c2: 
+    with r8c2: val_cal_postd = st.text_input("Cal Post Día (kg/cm)", value="0.0", key="add_cpd")
+
+    r9c1, r9c2 = st.columns(2)
+    with r9c1: val_cal_postn = st.text_input("Cal Post Noche (kg/cm)", value="0.0", key="add_cpn")
+    with r9c2: val_prog_hor = st.text_input("Programación Horaria", value="", key="add_ph")
+
+    r10c1, r10c2 = st.columns(2)
+    with r10c1: 
         val_fecha_obj = st.date_input(
             "Fecha Visita", 
             value=datetime.date.today(),
@@ -534,8 +542,7 @@ elif st.session_state.active_tab == "➕ Añadir":
             key="add_fecha"
         )
         val_fecha = val_fecha_obj
-
-    val_observ = st.text_input("Observaciones", key="add_obs")
+    with r10c2: val_observ = st.text_input("Observaciones", key="add_obs")
 
     st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.2);'>", unsafe_allow_html=True)
     st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.8rem; padding: 0 2px;'>📸 Fotografía 1:</p>", unsafe_allow_html=True)
@@ -585,11 +592,11 @@ elif st.session_state.active_tab == "➕ Añadir":
                 sql_insert = """
                     INSERT INTO "Agua_potable"."VRP_Oficial" (
                         id_0, id, num_serie, diametro, marca, modelo, trim, domicilio, colonia, 
-                        cota_terr, sect_hidr, cal_antd, cal_antn, fecha_vis, tipo_valv, 
+                        cota_terr, sect_hidr, cal_antd, cal_antn, cal_postd, cal_postn, prog_hor, fecha_vis, tipo_valv, 
                         estatus, obs, fotos, fotos_2
                     ) VALUES (
                         :id_0, :id, :num_serie, :diametro, :marca, :modelo, :trim, :domicilio, :colonia, 
-                        :cota_terr, :sect_hidr, :cal_antd, :cal_antn, :fecha_vis, :tipo_valv, 
+                        :cota_terr, :sect_hidr, :cal_antd, :cal_antn, :cal_postd, :cal_postn, :prog_hor, :fecha_vis, :tipo_valv, 
                         :estatus, :obs, :fotos, :fotos_2
                     )
                 """
@@ -598,6 +605,9 @@ elif st.session_state.active_tab == "➕ Añadir":
                     "modelo": val_modelo, "trim": val_trim, "domicilio": val_domicilio, "colonia": val_colonia,
                     "cota_terr": val_cota, "sect_hidr": val_sector, "cal_antd": val_cal_antd if val_cal_antd.strip() != "" else None, 
                     "cal_antn": val_cal_antn if val_cal_antn.strip() != "" else None,
+                    "cal_postd": val_cal_postd if val_cal_postd.strip() != "" else None,
+                    "cal_postn": val_cal_postn if val_cal_postn.strip() != "" else None,
+                    "prog_hor": val_prog_hor if val_prog_hor.strip() != "" else None,
                     "fecha_vis": val_fecha, "tipo_valv": val_tipo_valv,
                     "estatus": val_estat, "obs": val_observ, "fotos": foto_bytes, "fotos_2": foto_bytes_2
                 })
@@ -662,7 +672,6 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 e_sector = row['sect_hidr']
                 e_domicilio = row['domicilio']
                 e_colonia = row['colonia']
-                e_tipo_valv = row['tipo_valv']
 
                 e_r1c1, e_r1c2 = st.columns(2)
                 e_serie_val = "" if (pd.isna(row['num_serie']) or str(row['num_serie']).strip().lower() in ["nan", "none"]) else str(row['num_serie'])
@@ -683,6 +692,19 @@ elif st.session_state.active_tab == "⚙️ Editar":
                     cal_antn_val = "" if pd.isna(row['cal_antn']) else str(row['cal_antn'])
                     e_cal_antn = st.text_input("Cal Anterior Noche (kg/cm)", value=cal_antn_val, key=f"cann_{row['id_0']}")
                 with e_r3c2: 
+                    cal_postd_val = "" if pd.isna(row['cal_postd']) else str(row['cal_postd'])
+                    e_cal_postd = st.text_input("Cal Post Día (kg/cm)", value=cal_postd_val, key=f"cpd_{row['id_0']}")
+
+                e_r4c1, e_r4c2 = st.columns(2)
+                with e_r4c1:
+                    cal_postn_val = "" if pd.isna(row['cal_postn']) else str(row['cal_postn'])
+                    e_cal_postn = st.text_input("Cal Post Noche (kg/cm)", value=cal_postn_val, key=f"cpn_{row['id_0']}")
+                with e_r4c2:
+                    prog_hor_val = "" if pd.isna(row['prog_hor']) else str(row['prog_hor'])
+                    e_prog_hor = st.text_input("Programación Horaria", value=prog_hor_val, key=f"ph_{row['id_0']}")
+
+                e_r5c1, e_r5c2 = st.columns(2)
+                with e_r5c1: 
                     fecha_def = parsear_fecha_segura(row['fecha_vis'])
                     e_fecha_obj = st.date_input(
                         "Fecha Visita", 
@@ -693,8 +715,8 @@ elif st.session_state.active_tab == "⚙️ Editar":
                         key=f"fec_{row['id_0']}"
                     )
                     e_fecha = e_fecha_obj
-
-                e_observ = st.text_input("Observaciones", value=str(row['obs'] or ""), key=f"obs_{row['id_0']}")
+                with e_r5c2:
+                    e_observ = st.text_input("Observaciones", value=str(row['obs'] or ""), key=f"obs_{row['id_0']}")
 
             else:
                 e_r1c1, e_r1c2 = st.columns(2)
@@ -746,6 +768,19 @@ elif st.session_state.active_tab == "⚙️ Editar":
                     cal_antn_val = "" if pd.isna(row['cal_antn']) else str(row['cal_antn'])
                     e_cal_antn = st.text_input("Cal Anterior Noche (kg/cm)", value=cal_antn_val, key=f"cann_{row['id_0']}")
                 with e_r8c2: 
+                    cal_postd_val = "" if pd.isna(row['cal_postd']) else str(row['cal_postd'])
+                    e_cal_postd = st.text_input("Cal Post Día (kg/cm)", value=cal_postd_val, key=f"cpd_{row['id_0']}")
+
+                e_r9c1, e_r9c2 = st.columns(2)
+                with e_r9c1:
+                    cal_postn_val = "" if pd.isna(row['cal_postn']) else str(row['cal_postn'])
+                    e_cal_postn = st.text_input("Cal Post Noche (kg/cm)", value=cal_postn_val, key=f"cpn_{row['id_0']}")
+                with e_r9c2:
+                    prog_hor_val = "" if pd.isna(row['prog_hor']) else str(row['prog_hor'])
+                    e_prog_hor = st.text_input("Programación Horaria", value=prog_hor_val, key=f"ph_{row['id_0']}")
+
+                e_r10c1, e_r10c2 = st.columns(2)
+                with e_r10c1: 
                     fecha_def = parsear_fecha_segura(row['fecha_vis'])
                     e_fecha_obj = st.date_input(
                         "Fecha Visita", 
@@ -756,8 +791,8 @@ elif st.session_state.active_tab == "⚙️ Editar":
                         key=f"fec_{row['id_0']}"
                     )
                     e_fecha = e_fecha_obj
-
-                e_observ = st.text_input("Observaciones", value=str(row['obs'] or ""), key=f"obs_{row['id_0']}")
+                with e_r10c2: 
+                    e_observ = st.text_input("Observaciones", value=str(row['obs'] or ""), key=f"obs_{row['id_0']}")
             
             # --- FOTO 1 ---
             foto_actual_bytes = procesar_bytes_foto(row['fotos'])
@@ -839,7 +874,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
                         SET id = :id, num_serie = :num_serie, diametro = :diametro, marca = :marca, 
                             modelo = :modelo, trim = :trim, domicilio = :domicilio, 
                             colonia = :colonia, cota_terr = :cota_terr, sect_hidr = :sect_hidr, 
-                            cal_antd = :cal_antd, cal_antn = :cal_antn, fecha_vis = :fecha_vis, 
+                            cal_antd = :cal_antd, cal_antn = :cal_antn, cal_postd = :cal_postd, cal_postn = :cal_postn, prog_hor = :prog_hor, fecha_vis = :fecha_vis, 
                             tipo_valv = :tipo_valv, estatus = :estatus, obs = :obs, 
                             fotos = :fotos, fotos_2 = :fotos_2 
                         WHERE id_0 = :id_0
@@ -849,6 +884,9 @@ elif st.session_state.active_tab == "⚙️ Editar":
                         "modelo": e_modelo, "trim": e_trim, "domicilio": e_domicilio, "colonia": e_colonia,
                         "cota_terr": e_cota, "sect_hidr": e_sector, "cal_antd": e_cal_antd if e_cal_antd.strip() != "" else None, 
                         "cal_antn": e_cal_antn if e_cal_antn.strip() != "" else None,
+                        "cal_postd": e_cal_postd if e_cal_postd.strip() != "" else None,
+                        "cal_postn": e_cal_postn if e_cal_postn.strip() != "" else None,
+                        "prog_hor": e_prog_hor if e_prog_hor.strip() != "" else None,
                         "fecha_vis": e_fecha, "tipo_valv": e_tipo_valv,
                         "estatus": e_estat, "obs": e_observ, "fotos": foto_bytes_final, "fotos_2": foto_bytes_final_2, "id_0": row['id_0']
                     })
