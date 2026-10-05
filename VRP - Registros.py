@@ -159,13 +159,6 @@ st.write("""<style>
         overflow-x: hidden;
     }
 
-    /* FORZAR DOS COLUMNAS LADO A LADO EN TODO MOMENTO (INCLUSO MÓVIL / WEBVIEW) */
-    [data-testid="column"] {
-        width: 50% !important;
-        flex: 1 1 50% !important;
-        min-width: 50% !important;
-    }
-
     .user-card {
         background: #0D1424;
         border: 1px solid rgba(0, 229, 255, 0.12);
@@ -629,7 +622,7 @@ elif st.session_state.active_tab == "➕ Añadir":
 # ==========================================
 # SECCIÓN 3: EDITAR Y ELIMINAR
 # ==========================================
-elif st.session_state.active_tab == "⚙️️ Editar":
+elif st.session_state.active_tab == "⚙️ Editar":
     st.markdown('<h3 style="color: #00E5FF; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; padding: 0 2px;">🛠️ Modificar o Eliminar Válvula</h3>', unsafe_allow_html=True)
     
     busqueda_edit = st.text_input("🔍 Buscar válvula a editar (ID, Serie, Domicilio, Col.):", placeholder="Ej. VRP-01, Centro...")
