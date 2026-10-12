@@ -466,9 +466,9 @@ if st.session_state.active_tab == "📍 Registros":
                     <span style="color: #94A3B8; font-size: 0.68rem; line-height: 1.4;">
                         Diámetro: {row['diametro']} pulgadas | Marca: {row['marca']} | Modelo: {row['modelo']} | Trim: {row['trim']} | Cota: {row['cota_terr']}<br>
                         Sector: {row['sect_hidr']} | Estado: {row['estatus']} | Condición: {row['condicion']} | Tipo Válvula: {row['tipo_valv']} | Fecha Visita: {row['fecha_vis']}<br>
-                        Presion aguas abajo (p_ab): {row['p_ab']} | Presion aguas arriba (p_arr): {row['p_arr']}<br>
-                        Cal Ant Día (kg/cm): {row['cal_antd']} | Cal Ant Noche (kg/cm): {row['cal_antn']}<br>
-                        Cal Post Día (kg/cm): {row['cal_postd']} | Cal Post Noche (kg/cm): {row['cal_postn']}<br>
+                        Presión Aguas Abajo (kg/cm2): {row['p_ab']} | Presión Aguas Arriba (kg/cm2): {row['p_arr']}<br>
+                        Cal Ant Día (kg/cm2): {row['cal_antd']} | Cal Ant Noche (kg/cm2): {row['cal_antn']}<br>
+                        Cal Post Día (kg/cm2): {row['cal_postd']} | Cal Post Noche (kg/cm2): {row['cal_postn']}<br>
                         Programación Horaria: {row['prog_hor']}<br>
                         Obs: {row['obs']}
                     </span>
@@ -538,16 +538,16 @@ elif st.session_state.active_tab == "➕ Añadir":
     with r6_2c2: val_tipo_valv = st.text_input("Tipo Válvula", key="add_tipo_valv")
 
     r7c1, r7c2 = st.columns(2)
-    with r7c1: val_p_ab = st.text_input("Presion aguas abajo", value="0.0", key="add_p_ab")
-    with r7c2: val_p_arr = st.text_input("Presion aguas arriba", value="0.0", key="add_p_arr")
+    with r7c1: val_p_ab = st.text_input("Presión Aguas Abajo (kg/cm2)", value="0.0", key="add_p_ab")
+    with r7c2: val_p_arr = st.text_input("Presión Aguas Arriba (kg/cm2)", value="0.0", key="add_p_arr")
 
     r8c1, r8c2 = st.columns(2)
-    with r8c1: val_cal_antd = st.text_input("Cal Anterior Día (kg/cm)", value="0.0", key="add_cand")
-    with r8c2: val_cal_antn = st.text_input("Cal Anterior Noche (kg/cm)", value="0.0", key="add_cann")
+    with r8c1: val_cal_antd = st.text_input("Cal Anterior Día (kg/cm2)", value="0.0", key="add_cand")
+    with r8c2: val_cal_antn = st.text_input("Cal Anterior Noche (kg/cm2)", value="0.0", key="add_cann")
 
     r9c1, r9c2 = st.columns(2)
-    with r9c1: val_cal_postd = st.text_input("Cal Post Día (kg/cm)", value="0.0", key="add_cpd")
-    with r9c2: val_cal_postn = st.text_input("Cal Post Noche (kg/cm)", value="0.0", key="add_cpn")
+    with r9c1: val_cal_postd = st.text_input("Cal Post Día (kg/cm2)", value="0.0", key="add_cpd")
+    with r9c2: val_cal_postn = st.text_input("Cal Post Noche (kg/cm2)", value="0.0", key="add_cpn")
 
     r10c1, r10c2 = st.columns(2)
     with r10c1: val_prog_hor = st.text_input("Programación Horaria", value="", key="add_ph")
@@ -712,26 +712,26 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 e_r3c1, e_r3c2 = st.columns(2)
                 with e_r3c1:
                     p_ab_val = "" if pd.isna(row['p_ab']) else str(row['p_ab'])
-                    e_p_ab = st.text_input("Presion aguas abajo", value=p_ab_val, key=f"p_ab_{row['id_0']}")
+                    e_p_ab = st.text_input("Presión Aguas Abajo (kg/cm2)", value=p_ab_val, key=f"p_ab_{row['id_0']}")
                 with e_r3c2:
                     p_arr_val = "" if pd.isna(row['p_arr']) else str(row['p_arr'])
-                    e_p_arr = st.text_input("Presion aguas arriba", value=p_arr_val, key=f"p_arr_{row['id_0']}")
+                    e_p_arr = st.text_input("Presión Aguas Arriba (kg/cm2)", value=p_arr_val, key=f"p_arr_{row['id_0']}")
 
                 e_r4c1, e_r4c2 = st.columns(2)
                 with e_r4c1: 
                     cal_antd_val = "" if pd.isna(row['cal_antd']) else str(row['cal_antd'])
-                    e_cal_antd = st.text_input("Cal Anterior Día (kg/cm)", value=cal_antd_val, key=f"cand_{row['id_0']}")
+                    e_cal_antd = st.text_input("Cal Anterior Día (kg/cm2)", value=cal_antd_val, key=f"cand_{row['id_0']}")
                 with e_r4c2: 
                     cal_antn_val = "" if pd.isna(row['cal_antn']) else str(row['cal_antn'])
-                    e_cal_antn = st.text_input("Cal Anterior Noche (kg/cm)", value=cal_antn_val, key=f"cann_{row['id_0']}")
+                    e_cal_antn = st.text_input("Cal Anterior Noche (kg/cm2)", value=cal_antn_val, key=f"cann_{row['id_0']}")
 
                 e_r5c1, e_r5c2 = st.columns(2)
                 with e_r5c1: 
                     cal_postd_val = "" if pd.isna(row['cal_postd']) else str(row['cal_postd'])
-                    e_cal_postd = st.text_input("Cal Post Día (kg/cm)", value=cal_postd_val, key=f"cpd_{row['id_0']}")
+                    e_cal_postd = st.text_input("Cal Post Día (kg/cm2)", value=cal_postd_val, key=f"cpd_{row['id_0']}")
                 with e_r5c2:
                     cal_postn_val = "" if pd.isna(row['cal_postn']) else str(row['cal_postn'])
-                    e_cal_postn = st.text_input("Cal Post Noche (kg/cm)", value=cal_postn_val, key=f"cpn_{row['id_0']}")
+                    e_cal_postn = st.text_input("Cal Post Noche (kg/cm2)", value=cal_postn_val, key=f"cpn_{row['id_0']}")
 
                 e_r6c1, e_r6c2 = st.columns(2)
                 with e_r6c1:
@@ -801,26 +801,26 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 e_r7c1, e_r7c2 = st.columns(2)
                 with e_r7c1:
                     p_ab_val = "" if pd.isna(row['p_ab']) else str(row['p_ab'])
-                    e_p_ab = st.text_input("Presion aguas abajo", value=p_ab_val, key=f"p_ab_{row['id_0']}")
+                    e_p_ab = st.text_input("Presión Aguas Abajo (kg/cm2)", value=p_ab_val, key=f"p_ab_{row['id_0']}")
                 with e_r7c2:
                     p_arr_val = "" if pd.isna(row['p_arr']) else str(row['p_arr'])
-                    e_p_arr = st.text_input("Presion aguas arriba", value=p_arr_val, key=f"p_arr_{row['id_0']}")
+                    e_p_arr = st.text_input("Presión Aguas Arriba (kg/cm2)", value=p_arr_val, key=f"p_arr_{row['id_0']}")
 
                 e_r8c1, e_r8c2 = st.columns(2)
                 with e_r8c1: 
                     cal_antd_val = "" if pd.isna(row['cal_antd']) else str(row['cal_antd'])
-                    e_cal_antd = st.text_input("Cal Anterior Día (kg/cm)", value=cal_antd_val, key=f"cand_{row['id_0']}")
+                    e_cal_antd = st.text_input("Cal Anterior Día (kg/cm2)", value=cal_antd_val, key=f"cand_{row['id_0']}")
                 with e_r8c2: 
                     cal_antn_val = "" if pd.isna(row['cal_antn']) else str(row['cal_antn'])
-                    e_cal_antn = st.text_input("Cal Anterior Noche (kg/cm)", value=cal_antn_val, key=f"cann_{row['id_0']}")
+                    e_cal_antn = st.text_input("Cal Anterior Noche (kg/cm2)", value=cal_antn_val, key=f"cann_{row['id_0']}")
 
                 e_r9c1, e_r9c2 = st.columns(2)
                 with e_r9c1: 
                     cal_postd_val = "" if pd.isna(row['cal_postd']) else str(row['cal_postd'])
-                    e_cal_postd = st.text_input("Cal Post Día (kg/cm)", value=cal_postd_val, key=f"cpd_{row['id_0']}")
+                    e_cal_postd = st.text_input("Cal Post Día (kg/cm2)", value=cal_postd_val, key=f"cpd_{row['id_0']}")
                 with e_r9c2:
                     cal_postn_val = "" if pd.isna(row['cal_postn']) else str(row['cal_postn'])
-                    e_cal_postn = st.text_input("Cal Post Noche (kg/cm)", value=cal_postn_val, key=f"cpn_{row['id_0']}")
+                    e_cal_postn = st.text_input("Cal Post Noche (kg/cm2)", value=cal_postn_val, key=f"cpn_{row['id_0']}")
 
                 e_r10c1, e_r10c2 = st.columns(2)
                 with e_r10c1:
