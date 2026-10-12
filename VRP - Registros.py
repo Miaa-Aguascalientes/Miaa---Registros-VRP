@@ -465,7 +465,8 @@ if st.session_state.active_tab == "📍 Registros":
                 detalle_html = f"""
                     <span style="color: #94A3B8; font-size: 0.68rem; line-height: 1.4;">
                         Diámetro: {row['diametro']} pulgadas | Marca: {row['marca']} | Modelo: {row['modelo']} | Trim: {row['trim']} | Cota: {row['cota_terr']}<br>
-                        Sector: {row['sect_hidr']} | Estado: {row['estatus']} | Tipo Válvula: {row['tipo_valv']} | Fecha Visita: {row['fecha_vis']}<br>
+                        Sector: {row['sect_hidr']} | Estado: {row['estatus']} | Condición: {row['condicion']} | Tipo Válvula: {row['tipo_valv']} | Fecha Visita: {row['fecha_vis']}<br>
+                        Presión Apertura (p_ab): {row['p_ab']} | Presión Cierre (p_arr): {row['p_arr']}<br>
                         Cal Ant Día (kg/cm): {row['cal_antd']} | Cal Ant Noche (kg/cm): {row['cal_antn']}<br>
                         Cal Post Día (kg/cm): {row['cal_postd']} | Cal Post Noche (kg/cm): {row['cal_postn']}<br>
                         Programación Horaria: {row['prog_hor']}<br>
@@ -532,20 +533,25 @@ elif st.session_state.active_tab == "➕ Añadir":
     with r6c1: val_colonia = st.text_input("Colonia", key="add_col")
     with r6c2: val_estat = st.selectbox("Estatus", options=OPCIONES_ESTADO_VALVULA, index=0, key="add_estat")
 
+    r6_2c1, r6_2c2 = st.columns(2)
+    with r6_2c1: val_condicion = st.text_input("Condición", key="add_cond")
+    with r6_2c2: val_tipo_valv = st.text_input("Tipo Válvula", key="add_tipo_valv")
+
     r7c1, r7c2 = st.columns(2)
-    with r7c1: val_tipo_valv = st.text_input("Tipo Válvula", key="add_tipo_valv")
-    with r7c2: val_cal_antd = st.text_input("Cal Anterior Día (kg/cm)", value="0.0", key="add_cand")
+    with r7c1: val_p_ab = st.text_input("Presión Apertura (p_ab)", value="0.0", key="add_p_ab")
+    with r7c2: val_p_arr = st.text_input("Presión Cierre (p_arr)", value="0.0", key="add_p_arr")
 
     r8c1, r8c2 = st.columns(2)
-    with r8c1: val_cal_antn = st.text_input("Cal Anterior Noche (kg/cm)", value="0.0", key="add_cann")
-    with r8c2: val_cal_postd = st.text_input("Cal Post Día (kg/cm)", value="0.0", key="add_cpd")
+    with r8c1: val_cal_antd = st.text_input("Cal Anterior Día (kg/cm)", value="0.0", key="add_cand")
+    with r8c2: val_cal_antn = st.text_input("Cal Anterior Noche (kg/cm)", value="0.0", key="add_cann")
 
     r9c1, r9c2 = st.columns(2)
-    with r9c1: val_cal_postn = st.text_input("Cal Post Noche (kg/cm)", value="0.0", key="add_cpn")
-    with r9c2: val_prog_hor = st.text_input("Programación Horaria", value="", key="add_ph")
+    with r9c1: val_cal_postd = st.text_input("Cal Post Día (kg/cm)", value="0.0", key="add_cpd")
+    with r9c2: val_cal_postn = st.text_input("Cal Post Noche (kg/cm)", value="0.0", key="add_cpn")
 
     r10c1, r10c2 = st.columns(2)
-    with r10c1: 
+    with r10c1: val_prog_hor = st.text_input("Programación Horaria", value="", key="add_ph")
+    with r10c2: 
         val_fecha_obj = st.date_input(
             "Fecha Visita", 
             value=datetime.date.today(),
@@ -555,7 +561,10 @@ elif st.session_state.active_tab == "➕ Añadir":
             key="add_fecha"
         )
         val_fecha = val_fecha_obj
-    with r10c2: val_observ = st.text_input("Observaciones", key="add_obs")
+
+    r11c1, r11c2 = st.columns(2)
+    with r11c1: val_observ = st.text_input("Observaciones", key="add_obs")
+    with r11c2: pass
 
     st.markdown("<hr style='border: 0.3px solid rgba(0,229,255,0.2);'>", unsafe_allow_html=True)
     st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.8rem; padding: 0 2px;'>📸 Fotografía 1:</p>", unsafe_allow_html=True)
@@ -605,24 +614,25 @@ elif st.session_state.active_tab == "➕ Añadir":
                 sql_insert = """
                     INSERT INTO "Agua_potable"."VRP_Oficial" (
                         id_0, id, num_serie, diametro, marca, modelo, trim, domicilio, colonia, 
-                        cota_terr, sect_hidr, cal_antd, cal_antn, cal_postd, cal_postn, prog_hor, fecha_vis, tipo_valv, 
-                        estatus, obs, fotos, fotos_2
+                        cota_terr, sect_hidr, estatus, condicion, tipo_valv, p_ab, p_arr, 
+                        cal_antd, cal_antn, cal_postd, cal_postn, prog_hor, fecha_vis, 
+                        obs, fotos, fotos_2
                     ) VALUES (
                         :id_0, :id, :num_serie, :diametro, :marca, :modelo, :trim, :domicilio, :colonia, 
-                        :cota_terr, :sect_hidr, :cal_antd, :cal_antn, :cal_postd, :cal_postn, :prog_hor, :fecha_vis, :tipo_valv, 
-                        :estatus, :obs, :fotos, :fotos_2
+                        :cota_terr, :sect_hidr, :estatus, :condicion, :tipo_valv, :p_ab, :p_arr, 
+                        :cal_antd, :cal_antn, :cal_postd, :cal_postn, :prog_hor, :fecha_vis, 
+                        :obs, :fotos, :fotos_2
                     )
                 """
                 ejecutar_sql(sql_insert, {
                     "id_0": val_id_0, "id": val_id, "num_serie": val_serie if val_serie.strip() != "" else None, "diametro": val_diametro, "marca": val_marca,
                     "modelo": val_modelo, "trim": val_trim, "domicilio": val_domicilio, "colonia": val_colonia,
-                    "cota_terr": val_cota, "sect_hidr": val_sector, "cal_antd": val_cal_antd if val_cal_antd.strip() != "" else None, 
-                    "cal_antn": val_cal_antn if val_cal_antn.strip() != "" else None,
-                    "cal_postd": val_cal_postd if val_cal_postd.strip() != "" else None,
-                    "cal_postn": val_cal_postn if val_cal_postn.strip() != "" else None,
-                    "prog_hor": val_prog_hor if val_prog_hor.strip() != "" else None,
-                    "fecha_vis": val_fecha, "tipo_valv": val_tipo_valv,
-                    "estatus": val_estat, "obs": val_observ, "fotos": foto_bytes, "fotos_2": foto_bytes_2
+                    "cota_terr": val_cota, "sect_hidr": val_sector, "estatus": val_estat, "condicion": val_condicion if val_condicion.strip() != "" else None, 
+                    "tipo_valv": val_tipo_valv, "p_ab": val_p_ab if val_p_ab.strip() != "" else None, "p_arr": val_p_arr if val_p_arr.strip() != "" else None,
+                    "cal_antd": val_cal_antd if val_cal_antd.strip() != "" else None, "cal_antn": val_cal_antn if val_cal_antn.strip() != "" else None,
+                    "cal_postd": val_cal_postd if val_cal_postd.strip() != "" else None, "cal_postn": val_cal_postn if val_cal_postn.strip() != "" else None,
+                    "prog_hor": val_prog_hor if val_prog_hor.strip() != "" else None, "fecha_vis": val_fecha,
+                    "obs": val_observ, "fotos": foto_bytes, "fotos_2": foto_bytes_2
                 })
                 st.success("¡Válvula registrada con éxito!")
                 t.sleep(1)
@@ -694,30 +704,40 @@ elif st.session_state.active_tab == "⚙️ Editar":
                     e_estat = st.selectbox("Estatus", options=OPCIONES_ESTADO_VALVULA, index=idx_estado, key=f"est_{row['id_0']}")
 
                 e_r2c1, e_r2c2 = st.columns(2)
-                with e_r2c1: 
-                    e_tipo_valv = st.text_input("Tipo Válvula", value=str(row['tipo_valv'] or ""), key=f"tipo_{row['id_0']}")
+                with e_r2c1:
+                    e_condicion = st.text_input("Condición", value=str(row['condicion'] or ""), key=f"cond_{row['id_0']}")
                 with e_r2c2: 
-                    cal_antd_val = "" if pd.isna(row['cal_antd']) else str(row['cal_antd'])
-                    e_cal_antd = st.text_input("Cal Anterior Día (kg/cm)", value=cal_antd_val, key=f"cand_{row['id_0']}")
+                    e_tipo_valv = st.text_input("Tipo Válvula", value=str(row['tipo_valv'] or ""), key=f"tipo_{row['id_0']}")
 
                 e_r3c1, e_r3c2 = st.columns(2)
-                with e_r3c1: 
-                    cal_antn_val = "" if pd.isna(row['cal_antn']) else str(row['cal_antn'])
-                    e_cal_antn = st.text_input("Cal Anterior Noche (kg/cm)", value=cal_antn_val, key=f"cann_{row['id_0']}")
-                with e_r3c2: 
-                    cal_postd_val = "" if pd.isna(row['cal_postd']) else str(row['cal_postd'])
-                    e_cal_postd = st.text_input("Cal Post Día (kg/cm)", value=cal_postd_val, key=f"cpd_{row['id_0']}")
+                with e_r3c1:
+                    p_ab_val = "" if pd.isna(row['p_ab']) else str(row['p_ab'])
+                    e_p_ab = st.text_input("Presión Apertura (p_ab)", value=p_ab_val, key=f"p_ab_{row['id_0']}")
+                with e_r3c2:
+                    p_arr_val = "" if pd.isna(row['p_arr']) else str(row['p_arr'])
+                    e_p_arr = st.text_input("Presión Cierre (p_arr)", value=p_arr_val, key=f"p_arr_{row['id_0']}")
 
                 e_r4c1, e_r4c2 = st.columns(2)
-                with e_r4c1:
-                    cal_postn_val = "" if pd.isna(row['cal_postn']) else str(row['cal_postn'])
-                    e_cal_postn = st.text_input("Cal Post Noche (kg/cm)", value=cal_postn_val, key=f"cpn_{row['id_0']}")
-                with e_r4c2:
-                    prog_hor_val = "" if pd.isna(row['prog_hor']) else str(row['prog_hor'])
-                    e_prog_hor = st.text_input("Programación Horaria", value=prog_hor_val, key=f"ph_{row['id_0']}")
+                with e_r4c1: 
+                    cal_antd_val = "" if pd.isna(row['cal_antd']) else str(row['cal_antd'])
+                    e_cal_antd = st.text_input("Cal Anterior Día (kg/cm)", value=cal_antd_val, key=f"cand_{row['id_0']}")
+                with e_r4c2: 
+                    cal_antn_val = "" if pd.isna(row['cal_antn']) else str(row['cal_antn'])
+                    e_cal_antn = st.text_input("Cal Anterior Noche (kg/cm)", value=cal_antn_val, key=f"cann_{row['id_0']}")
 
                 e_r5c1, e_r5c2 = st.columns(2)
                 with e_r5c1: 
+                    cal_postd_val = "" if pd.isna(row['cal_postd']) else str(row['cal_postd'])
+                    e_cal_postd = st.text_input("Cal Post Día (kg/cm)", value=cal_postd_val, key=f"cpd_{row['id_0']}")
+                with e_r5c2:
+                    cal_postn_val = "" if pd.isna(row['cal_postn']) else str(row['cal_postn'])
+                    e_cal_postn = st.text_input("Cal Post Noche (kg/cm)", value=cal_postn_val, key=f"cpn_{row['id_0']}")
+
+                e_r6c1, e_r6c2 = st.columns(2)
+                with e_r6c1:
+                    prog_hor_val = "" if pd.isna(row['prog_hor']) else str(row['prog_hor'])
+                    e_prog_hor = st.text_input("Programación Horaria", value=prog_hor_val, key=f"ph_{row['id_0']}")
+                with e_r6c2: 
                     fecha_def = parsear_fecha_segura(row['fecha_vis'])
                     e_fecha_obj = st.date_input(
                         "Fecha Visita", 
@@ -728,8 +748,11 @@ elif st.session_state.active_tab == "⚙️ Editar":
                         key=f"fec_{row['id_0']}"
                     )
                     e_fecha = e_fecha_obj
-                with e_r5c2:
+
+                e_r7c1, e_r7c2 = st.columns(2)
+                with e_r7c1:
                     e_observ = st.text_input("Observaciones", value=str(row['obs'] or ""), key=f"obs_{row['id_0']}")
+                with e_r7c2: pass
 
             else:
                 e_r1c1, e_r1c2 = st.columns(2)
@@ -769,31 +792,41 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 with e_r6c2: 
                     e_estat = st.selectbox("Estatus", options=OPCIONES_ESTADO_VALVULA, index=idx_estado, key=f"est_{row['id_0']}")
 
-                e_r7c1, e_r7c2 = st.columns(2)
-                with e_r7c1: 
+                e_r6_2c1, e_r6_2c2 = st.columns(2)
+                with e_r6_2c1:
+                    e_condicion = st.text_input("Condición", value=str(row['condicion'] or ""), key=f"cond_{row['id_0']}")
+                with e_r6_2c2: 
                     e_tipo_valv = st.text_input("Tipo Válvula", value=str(row['tipo_valv'] or ""), key=f"tipo_{row['id_0']}")
-                with e_r7c2: 
-                    cal_antd_val = "" if pd.isna(row['cal_antd']) else str(row['cal_antd'])
-                    e_cal_antd = st.text_input("Cal Anterior Día (kg/cm)", value=cal_antd_val, key=f"cand_{row['id_0']}")
+
+                e_r7c1, e_r7c2 = st.columns(2)
+                with e_r7c1:
+                    p_ab_val = "" if pd.isna(row['p_ab']) else str(row['p_ab'])
+                    e_p_ab = st.text_input("Presión Apertura (p_ab)", value=p_ab_val, key=f"p_ab_{row['id_0']}")
+                with e_r7c2:
+                    p_arr_val = "" if pd.isna(row['p_arr']) else str(row['p_arr'])
+                    e_p_arr = st.text_input("Presión Cierre (p_arr)", value=p_arr_val, key=f"p_arr_{row['id_0']}")
 
                 e_r8c1, e_r8c2 = st.columns(2)
                 with e_r8c1: 
+                    cal_antd_val = "" if pd.isna(row['cal_antd']) else str(row['cal_antd'])
+                    e_cal_antd = st.text_input("Cal Anterior Día (kg/cm)", value=cal_antd_val, key=f"cand_{row['id_0']}")
+                with e_r8c2: 
                     cal_antn_val = "" if pd.isna(row['cal_antn']) else str(row['cal_antn'])
                     e_cal_antn = st.text_input("Cal Anterior Noche (kg/cm)", value=cal_antn_val, key=f"cann_{row['id_0']}")
-                with e_r8c2: 
-                    cal_postd_val = "" if pd.isna(row['cal_postd']) else str(row['cal_postd'])
-                    e_cal_postd = st.text_input("Cal Post Día (kg/cm)", value=cal_postd_val, key=f"cpd_{row['id_0']}")
 
                 e_r9c1, e_r9c2 = st.columns(2)
-                with e_r9c1:
+                with e_r9c1: 
+                    cal_postd_val = "" if pd.isna(row['cal_postd']) else str(row['cal_postd'])
+                    e_cal_postd = st.text_input("Cal Post Día (kg/cm)", value=cal_postd_val, key=f"cpd_{row['id_0']}")
+                with e_r9c2:
                     cal_postn_val = "" if pd.isna(row['cal_postn']) else str(row['cal_postn'])
                     e_cal_postn = st.text_input("Cal Post Noche (kg/cm)", value=cal_postn_val, key=f"cpn_{row['id_0']}")
-                with e_r9c2:
-                    prog_hor_val = "" if pd.isna(row['prog_hor']) else str(row['prog_hor'])
-                    e_prog_hor = st.text_input("Programación Horaria", value=prog_hor_val, key=f"ph_{row['id_0']}")
 
                 e_r10c1, e_r10c2 = st.columns(2)
-                with e_r10c1: 
+                with e_r10c1:
+                    prog_hor_val = "" if pd.isna(row['prog_hor']) else str(row['prog_hor'])
+                    e_prog_hor = st.text_input("Programación Horaria", value=prog_hor_val, key=f"ph_{row['id_0']}")
+                with e_r10c2: 
                     fecha_def = parsear_fecha_segura(row['fecha_vis'])
                     e_fecha_obj = st.date_input(
                         "Fecha Visita", 
@@ -804,8 +837,11 @@ elif st.session_state.active_tab == "⚙️ Editar":
                         key=f"fec_{row['id_0']}"
                     )
                     e_fecha = e_fecha_obj
-                with e_r10c2: 
+
+                e_r11c1, e_r11c2 = st.columns(2)
+                with e_r11c1: 
                     e_observ = st.text_input("Observaciones", value=str(row['obs'] or ""), key=f"obs_{row['id_0']}")
+                with e_r11c2: pass
             
             # --- FOTO 1 ---
             foto_actual_bytes = procesar_bytes_foto(row['fotos'])
@@ -814,7 +850,7 @@ elif st.session_state.active_tab == "⚙️ Editar":
             if foto_actual_bytes is not None and len(foto_actual_bytes) > 0:
                 st.markdown("<p style='color: #00E5FF; font-size: 0.75rem; margin-top: 10px; margin-bottom: 2px;'>📸 Fotografía 1 actual:</p>", unsafe_allow_html=True)
                 st.image(foto_actual_bytes, caption=f"ID: {row['id']} (Foto 1)", use_container_width=True)
-                eliminar_foto = st.checkbox("🗑️️ Eliminar la fotografía 1 actual", key=f"del_foto_{row['id_0']}")
+                eliminar_foto = st.checkbox("🗑 Eliminar la fotografía 1 actual", key=f"del_foto_{row['id_0']}")
 
             st.markdown("<p style='color: #00E5FF; font-weight: 600; font-size: 0.78rem; padding: 0 2px; margin-top: 10px;'>📸 Reemplazar o capturar nueva Foto 1:</p>", unsafe_allow_html=True)
             
@@ -887,21 +923,23 @@ elif st.session_state.active_tab == "⚙️ Editar":
                         SET id = :id, num_serie = :num_serie, diametro = :diametro, marca = :marca, 
                             modelo = :modelo, trim = :trim, domicilio = :domicilio, 
                             colonia = :colonia, cota_terr = :cota_terr, sect_hidr = :sect_hidr, 
-                            cal_antd = :cal_antd, cal_antn = :cal_antn, cal_postd = :cal_postd, cal_postn = :cal_postn, prog_hor = :prog_hor, fecha_vis = :fecha_vis, 
-                            tipo_valv = :tipo_valv, estatus = :estatus, obs = :obs, 
+                            estatus = :estatus, condicion = :condicion, tipo_valv = :tipo_valv, 
+                            p_ab = :p_ab, p_arr = :p_arr, 
+                            cal_antd = :cal_antd, cal_antn = :cal_antn, cal_postd = :cal_postd, cal_postn = :cal_postn, 
+                            prog_hor = :prog_hor, fecha_vis = :fecha_vis, obs = :obs, 
                             fotos = :fotos, fotos_2 = :fotos_2 
                         WHERE id_0 = :id_0
                     """
                     ejecutar_sql(sql_update, {
                         "id": e_id, "num_serie": e_serie if e_serie.strip() != "" else None, "diametro": e_diametro, "marca": e_marca,
                         "modelo": e_modelo, "trim": e_trim, "domicilio": e_domicilio, "colonia": e_colonia,
-                        "cota_terr": e_cota, "sect_hidr": e_sector, "cal_antd": e_cal_antd if e_cal_antd.strip() != "" else None, 
-                        "cal_antn": e_cal_antn if e_cal_antn.strip() != "" else None,
-                        "cal_postd": e_cal_postd if e_cal_postd.strip() != "" else None,
-                        "cal_postn": e_cal_postn if e_cal_postn.strip() != "" else None,
-                        "prog_hor": e_prog_hor if e_prog_hor.strip() != "" else None,
-                        "fecha_vis": e_fecha, "tipo_valv": e_tipo_valv,
-                        "estatus": e_estat, "obs": e_observ, "fotos": foto_bytes_final, "fotos_2": foto_bytes_final_2, "id_0": row['id_0']
+                        "cota_terr": e_cota, "sect_hidr": e_sector, "estatus": e_estat, 
+                        "condicion": e_condicion if e_condicion.strip() != "" else None, "tipo_valv": e_tipo_valv,
+                        "p_ab": e_p_ab if e_p_ab.strip() != "" else None, "p_arr": e_p_arr if e_p_arr.strip() != "" else None,
+                        "cal_antd": e_cal_antd if e_cal_antd.strip() != "" else None, "cal_antn": e_cal_antn if e_cal_antn.strip() != "" else None,
+                        "cal_postd": e_cal_postd if e_cal_postd.strip() != "" else None, "cal_postn": e_cal_postn if e_cal_postn.strip() != "" else None,
+                        "prog_hor": e_prog_hor if e_prog_hor.strip() != "" else None, "fecha_vis": e_fecha,
+                        "obs": e_observ, "fotos": foto_bytes_final, "fotos_2": foto_bytes_final_2, "id_0": row['id_0']
                     })
                     st.success(f"¡Registro ID_0 {row['id_0']} actualizado con éxito!")
                     t.sleep(1)
