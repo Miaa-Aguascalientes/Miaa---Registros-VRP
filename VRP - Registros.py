@@ -466,7 +466,7 @@ if st.session_state.active_tab == "📍 Registros":
                     <span style="color: #94A3B8; font-size: 0.68rem; line-height: 1.4;">
                         Diámetro: {row['diametro']} pulgadas | Marca: {row['marca']} | Modelo: {row['modelo']} | Trim: {row['trim']} | Cota: {row['cota_terr']}<br>
                         Sector: {row['sect_hidr']} | Estado: {row['estatus']} | Condición: {row['condicion']} | Tipo Válvula: {row['tipo_valv']} | Fecha Visita: {row['fecha_vis']}<br>
-                        Presión Apertura (p_ab): {row['p_ab']} | Presión Cierre (p_arr): {row['p_arr']}<br>
+                        Presion aguas abajo (p_ab): {row['p_ab']} | Presion aguas arriba (p_arr): {row['p_arr']}<br>
                         Cal Ant Día (kg/cm): {row['cal_antd']} | Cal Ant Noche (kg/cm): {row['cal_antn']}<br>
                         Cal Post Día (kg/cm): {row['cal_postd']} | Cal Post Noche (kg/cm): {row['cal_postn']}<br>
                         Programación Horaria: {row['prog_hor']}<br>
@@ -538,8 +538,8 @@ elif st.session_state.active_tab == "➕ Añadir":
     with r6_2c2: val_tipo_valv = st.text_input("Tipo Válvula", key="add_tipo_valv")
 
     r7c1, r7c2 = st.columns(2)
-    with r7c1: val_p_ab = st.text_input("Presión Apertura (p_ab)", value="0.0", key="add_p_ab")
-    with r7c2: val_p_arr = st.text_input("Presión Cierre (p_arr)", value="0.0", key="add_p_arr")
+    with r7c1: val_p_ab = st.text_input("Presion aguas abajo", value="0.0", key="add_p_ab")
+    with r7c2: val_p_arr = st.text_input("Presion aguas arriba", value="0.0", key="add_p_arr")
 
     r8c1, r8c2 = st.columns(2)
     with r8c1: val_cal_antd = st.text_input("Cal Anterior Día (kg/cm)", value="0.0", key="add_cand")
@@ -712,10 +712,10 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 e_r3c1, e_r3c2 = st.columns(2)
                 with e_r3c1:
                     p_ab_val = "" if pd.isna(row['p_ab']) else str(row['p_ab'])
-                    e_p_ab = st.text_input("Presión Apertura (p_ab)", value=p_ab_val, key=f"p_ab_{row['id_0']}")
+                    e_p_ab = st.text_input("Presion aguas abajo", value=p_ab_val, key=f"p_ab_{row['id_0']}")
                 with e_r3c2:
                     p_arr_val = "" if pd.isna(row['p_arr']) else str(row['p_arr'])
-                    e_p_arr = st.text_input("Presión Cierre (p_arr)", value=p_arr_val, key=f"p_arr_{row['id_0']}")
+                    e_p_arr = st.text_input("Presion aguas arriba", value=p_arr_val, key=f"p_arr_{row['id_0']}")
 
                 e_r4c1, e_r4c2 = st.columns(2)
                 with e_r4c1: 
@@ -801,10 +801,10 @@ elif st.session_state.active_tab == "⚙️ Editar":
                 e_r7c1, e_r7c2 = st.columns(2)
                 with e_r7c1:
                     p_ab_val = "" if pd.isna(row['p_ab']) else str(row['p_ab'])
-                    e_p_ab = st.text_input("Presión Apertura (p_ab)", value=p_ab_val, key=f"p_ab_{row['id_0']}")
+                    e_p_ab = st.text_input("Presion aguas abajo", value=p_ab_val, key=f"p_ab_{row['id_0']}")
                 with e_r7c2:
                     p_arr_val = "" if pd.isna(row['p_arr']) else str(row['p_arr'])
-                    e_p_arr = st.text_input("Presión Cierre (p_arr)", value=p_arr_val, key=f"p_arr_{row['id_0']}")
+                    e_p_arr = st.text_input("Presion aguas arriba", value=p_arr_val, key=f"p_arr_{row['id_0']}")
 
                 e_r8c1, e_r8c2 = st.columns(2)
                 with e_r8c1: 
